@@ -213,6 +213,7 @@
     },
     "configForm": {
       "configName": "Config Name",
+      "configNameConflict": "Another profile for this uploader already uses this name. Choose a different name.",
       "configNamePlaceholder": "Please enter config name",
       "configNameRequired": "Configure name is required",
       "fieldRequired": "{name} is required",
@@ -2065,6 +2066,7 @@
       "duplicateSuccess": "Duplicate Success",
       "duplicateTitle": "Duplicate Configuration",
       "edit": "Edit",
+      "profileId": "Profile ID {id}",
       "removeFromFavorites": "Remove from Quick Switch",
       "selected": "Active",
       "setAsDefault": "Set as Default PicBed",

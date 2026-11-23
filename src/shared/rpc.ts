@@ -8,6 +8,7 @@ export const rpcErrorMessages = {
   FORBIDDEN: 'This window cannot perform the requested operation.',
   NOT_FOUND: 'The requested item or operation no longer exists.',
   CONFLICT: 'The operation conflicts with the current configuration.',
+  UPLOADER_CONFIG_NAME_CONFLICT: 'Another profile for this uploader already uses this name. Choose a different name.',
   FILE_SERVER_ROOT: 'Choose an existing folder to serve.',
   FILE_SERVER_ADDRESS: 'Choose an available listen address and port.',
   SHORTCUT_CONFLICT:

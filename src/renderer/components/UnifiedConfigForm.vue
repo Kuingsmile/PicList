@@ -349,6 +349,12 @@ async function focusFirstInvalid() {
   target?.focus({ preventScroll: true })
 }
 
+async function showNameConflict(submittedName: string) {
+  if (ruleForm._configName?.trim() !== submittedName.trim()) return
+  validationErrors._configName = t('pages.configForm.configNameConflict')
+  await focusFirstInvalid()
+}
+
 async function validate(): Promise<IStringKeyMap | false> {
   if (isLoading.value || loadFailed.value) return false
   if (validateForm()) return ruleForm
@@ -427,6 +433,7 @@ function updateRuleForm(key: string, value: any) {
 onBeforeUnmount(() => loadVersion++)
 
 defineExpose({
+  showNameConflict,
   updateRuleForm,
   validate,
   getConfigType,

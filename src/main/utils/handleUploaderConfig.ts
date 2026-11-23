@@ -3,6 +3,7 @@ import type { IPicGo } from 'piclist'
 import { v4 as uuid } from 'uuid'
 
 import { RpcError } from '#/rpc'
+import { hasUploaderConfigNameConflict } from '#/utils/uploaderConfig'
 import { trimValues } from '#/utils/values'
 import { commitConfig } from '~/utils/commitConfig'
 import { configPaths } from '~/utils/configPaths'
@@ -138,6 +139,12 @@ export const pruneImageProcessingProfiles = (): number => {
   return list.length - kept.length
 }
 
+function validateUploaderConfigName(configList: IUploaderConfigListItem[], name: unknown, editingId?: string): string {
+  if (typeof name !== 'string' || !name.trim()) throw new RpcError('INVALID_REQUEST')
+  if (hasUploaderConfigNameConflict(configList, name, editingId)) throw new RpcError('UPLOADER_CONFIG_NAME_CONFLICT')
+  return name.trim()
+}
+
 export const duplicateUploaderConfig = (type: string, id: string, newName: string): IUploaderConfigItem => {
   const { configList, defaultId } = getUploaderConfigList(type)
   const originalConfig = configList.find((item: IStringKeyMap) => item._id === id)
@@ -145,7 +152,7 @@ export const duplicateUploaderConfig = (type: string, id: string, newName: strin
 
   const duplicatedConfig: IUploaderConfigListItem = {
     ...originalConfig,
-    _configName: newName,
+    _configName: validateUploaderConfigName(configList, newName),
     _id: uuid(),
     _createdAt: Date.now(),
     _updatedAt: Date.now(),
@@ -195,16 +202,22 @@ export const updateUploaderConfig = (type: string, id: string, config: IStringKe
   const { configList: originalList, defaultId } = getUploaderConfigList(type)
   const configList = originalList.map(item => ({ ...item }))
   const existConfig = configList.find((item: IStringKeyMap) => item._id === id)
+  const name = validateUploaderConfigName(
+    configList,
+    Object.hasOwn(config, '_configName') ? config._configName : existConfig?._configName,
+    existConfig?._id,
+  )
   let updatedConfig: IUploaderConfigListItem
   let updatedDefaultId = defaultId
   if (existConfig) {
     updatedConfig = Object.assign(existConfig, trimValues(config), {
       _id: id,
+      _configName: name,
       _createdAt: existConfig._createdAt,
       _updatedAt: Date.now(),
     })
   } else {
-    updatedConfig = completeUploaderMetaConfig(config, id)
+    updatedConfig = completeUploaderMetaConfig({ ...config, _configName: name }, id)
     updatedDefaultId = updatedConfig._id
     configList.push(updatedConfig)
   }

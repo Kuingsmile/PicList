@@ -213,6 +213,7 @@
     },
     "configForm": {
       "configName": "配置名稱",
+      "configNameConflict": "目前圖床已有同名配置，請使用其他名稱。",
       "configNamePlaceholder": "請輸入配置名稱",
       "configNameRequired": "配置名稱為必填項",
       "fieldRequired": "{name}為必填項",
@@ -2065,6 +2066,7 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "編輯",
+      "profileId": "配置 ID {id}",
       "removeFromFavorites": "從快速切換中移除",
       "selected": "已啟用",
       "setAsDefault": "設為預設圖床",

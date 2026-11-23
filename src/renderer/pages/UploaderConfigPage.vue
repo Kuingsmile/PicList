@@ -162,6 +162,12 @@
               <h3 class="mx-0 mt-0 mb-2 text-base leading-[1.4] font-semibold tracking-tight text-main">
                 {{ item._configName }}
               </h3>
+              <p
+                v-if="hasUploaderConfigNameConflict(curConfigList, item._configName, item._id)"
+                class="mb-2 font-mono text-xs break-all text-secondary"
+              >
+                {{ t('pages.uploaderConfig.profileId', { id: item._id }) }}
+              </p>
               <div class="flex items-center gap-1.5 text-xs text-tertiary">
                 <div class="flex items-center gap-1">
                   <Clock :size="12" />
@@ -216,7 +222,13 @@
           v-model="duplicateName"
           :title="t('pages.uploaderConfig.duplicateTitle')"
           :placeholder="t('pages.uploaderConfig.duplicatePlaceholder')"
+          :aria-invalid="duplicateNameConflict"
+          :aria-describedby="duplicateNameConflict ? 'duplicate-name-error' : undefined"
+          @input="duplicateNameConflict = false"
         />
+        <p v-if="duplicateNameConflict" id="duplicate-name-error" role="alert" class="mt-2 text-xs text-error">
+          {{ t('pages.configForm.configNameConflict') }}
+        </p>
       </div>
       <template #footer>
         <CustomButton type="secondary" :text="t('common.cancel')" @click="duplicateVisible = false" />
@@ -280,6 +292,8 @@ import { normalizeScriptFileName } from '@/utils/scriptFileName'
 import { defaultScriptTemplate, defaultScriptTemplateEn } from '@/utils/static'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { RpcError } from '#/rpc'
+import { hasUploaderConfigNameConflict } from '#/utils/uploaderConfig'
 
 defineOptions({ name: 'UploaderConfigPage' })
 
@@ -293,7 +307,7 @@ const route = useRoute()
 const { defaultPicBedG, picBedG, updatePicBeds } = usePicBed()
 const favoritePicbeds = useStorage<IFavoritePicbedItem[]>('favorite-picbeds', [])
 const type = ref('')
-const curConfigList = ref<IStringKeyMap[]>([])
+const curConfigList = ref<IUploaderConfigListItem[]>([])
 const defaultConfigId = ref('')
 const scriptsListVisible = ref(false)
 const scriptsList = ref<string[]>([])
@@ -303,6 +317,7 @@ const editorContent = ref('')
 const savingEditor = ref(false)
 const duplicateVisible = ref(false)
 const duplicateName = ref('')
+const duplicateNameConflict = ref(false)
 const duplicateSourceId = ref('')
 const savingDuplicate = ref(false)
 const editingScriptName = ref('')
@@ -381,6 +396,7 @@ function duplicateConfig(id: string) {
   const originalConfig = curConfigList.value.find(item => item._id === id)
   if (!originalConfig) return
   duplicateSourceId.value = id
+  duplicateNameConflict.value = false
   duplicateName.value = `${originalConfig._configName} - ${t('pages.uploaderConfig.copy')}`
   duplicateVisible.value = true
 }
@@ -396,7 +412,9 @@ async function confirmDuplicateConfig() {
     if (duplicateName.value === name) duplicateVisible.value = false
     message.success(t('pages.uploaderConfig.duplicateSuccess'))
   } catch (error) {
-    showRpcError(error)
+    if (error instanceof RpcError && error.code === 'UPLOADER_CONFIG_NAME_CONFLICT') {
+      duplicateNameConflict.value = duplicateName.value.trim() === name.trim()
+    } else showRpcError(error)
   } finally {
     savingDuplicate.value = false
   }

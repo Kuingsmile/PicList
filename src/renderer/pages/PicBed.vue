@@ -43,14 +43,14 @@
             <span>{{ t('pages.picBedConfigs.loadConfigFailed') }}</span>
             <CustomButton :text="t('pages.gallery.refresh')" @click="loadPage" />
           </div>
-          <div v-else-if="config.length > 0" class="flex h-full w-full">
+          <div v-else-if="config.length || $route.params.configId" class="flex h-full w-full">
             <!-- Config Form -->
             <config-form :id="type" ref="$configForm" :config type="uploader" @submit="handleConfirm">
               <!-- Action Buttons -->
               <div
                 class="flex flex-wrap items-center gap-3 rounded-xl border border-border-secondary bg-bg-secondary/90 p-3 shadow-md backdrop-blur-md"
               >
-                <div v-if="picBedConfigList.length > 0" class="relative">
+                <div v-if="config.length && picBedConfigList.length" class="relative">
                   <CustomButton
                     type="secondary"
                     :icon="Import"
@@ -91,6 +91,7 @@
                   </Transition>
                 </div>
                 <CustomButton
+                  v-if="config.length"
                   type="secondary"
                   :icon="RotateCcw"
                   :text="t('common.clear')"
@@ -164,7 +165,9 @@ import { configPaths } from '@/utils/configPaths'
 import { picBedManualUrlList } from '@/utils/static'
 import { II18nLanguage } from '#/constants/app'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { RpcError } from '#/rpc'
 import { getRawData } from '#/utils/rawData'
+import { hasUploaderConfigNameConflict } from '#/utils/uploaderConfig'
 
 defineOptions({ name: 'PicbedsPage' })
 
@@ -211,13 +214,15 @@ const handleConfirm = async () => {
   const targetType = type.value
   const targetId = uuidValue.value
   const targetVersion = pageVersion
+  let submittedName = ''
   saving.value = true
   try {
     const result = (await $configForm.value?.validate()) || false
     if (result !== false) {
       const rawResult = getRawData(result)
       if (pageVersion !== targetVersion || type.value !== targetType || uuidValue.value !== targetId) return
-      await invokeRPC(IRPCActionType.UPLOADER_UPDATE_CONFIG, targetType, rawResult?._id || targetId, rawResult)
+      submittedName = rawResult._configName
+      await invokeRPC(IRPCActionType.UPLOADER_UPDATE_CONFIG, targetType, targetId, rawResult)
       if (pageVersion !== targetVersion || type.value !== targetType || uuidValue.value !== targetId) return
       message.success(t('pages.picBedConfigs.setSuccess'))
       const currentDraft = getRawData(await $configForm.value?.validate())
@@ -227,7 +232,9 @@ const handleConfirm = async () => {
       message.error(t('pages.picBedConfigs.setFailedInfo'))
     }
   } catch (error) {
-    showRpcError(error)
+    if (error instanceof RpcError && error.code === 'UPLOADER_CONFIG_NAME_CONFLICT') {
+      if (pageVersion === targetVersion) await $configForm.value?.showNameConflict(submittedName)
+    } else showRpcError(error)
   } finally {
     saving.value = false
   }
@@ -333,6 +340,10 @@ async function handleCopyApi() {
 
     if (!picBedConfig) {
       message.error(t('pages.picBedConfigs.noConfigs'))
+      return
+    }
+    if (hasUploaderConfigNameConflict(picBedConfigList, picBedConfig._configName, picBedConfig._id)) {
+      message.error(t('pages.configForm.configNameConflict'))
       return
     }
     const urlSearchParams = new URLSearchParams({

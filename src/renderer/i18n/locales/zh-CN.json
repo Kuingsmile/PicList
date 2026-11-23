@@ -213,6 +213,7 @@
     },
     "configForm": {
       "configName": "配置名",
+      "configNameConflict": "当前图床已有同名配置，请使用其他名称。",
       "configNamePlaceholder": "请输入配置名称",
       "configNameRequired": "配置名称为必填项",
       "fieldRequired": "{name}为必填项",
@@ -2065,6 +2066,7 @@
       "duplicateSuccess": "拷贝成功",
       "duplicateTitle": "拷贝配置",
       "edit": "编辑",
+      "profileId": "配置 ID {id}",
       "removeFromFavorites": "从快速切换中移除",
       "selected": "已启用",
       "setAsDefault": "设为默认图床",
