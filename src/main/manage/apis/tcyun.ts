@@ -8,7 +8,14 @@ import { downloadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import { createDownloadTask, getFileMimeType, getPublicObjectUrl, runDownloadTask } from '~/manage/utils/common'
+import {
+  ConcurrencyPromisePool,
+  createDownloadTask,
+  formatError,
+  getFileMimeType,
+  getPublicObjectUrl,
+  runDownloadTask,
+} from '~/manage/utils/common'
 import {
   deleteInBatches,
   deleteListedFolder,
@@ -453,7 +460,9 @@ class TcyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
+    const { downloadPath, fileArray, maxDownloadFileCount = 5, downloadConflictPolicy = 'rename' } = configMap
+    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
+    const downloads: (() => Promise<boolean>)[] = []
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { bucketName, region, key, fileName } = item
@@ -461,46 +470,51 @@ class TcyunApi {
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
       const { id, destination } = task
-      void runDownloadTask(
-        instance,
-        id,
-        destination,
-        async (_partPath, createWriteStream) => {
-          for (let attempt = 0; attempt < 3; attempt++) {
-            const output = createWriteStream()
-            const closed = finished(output)
-            try {
-              await Promise.all([
-                this.ctx
-                  .getObject({
-                    Bucket: bucketName,
-                    Region: region,
-                    Key: key,
-                    Output: output,
-                    onProgress: (progress: any) => {
-                      instance.updateDownloadTask({
-                        id,
-                        progress: Math.min(99, Math.floor(progress.percent * 100)),
-                        status: downloadTaskSpecialStatus.downloading,
-                      })
-                    },
-                  })
-                  .then(res => {
-                    if (res?.statusCode !== 200) throw new Error('Download failed')
-                  }),
-                closed,
-              ])
-              return
-            } catch (error) {
-              output.destroy()
-              await closed.catch(() => {})
-              if (attempt === 2) throw error
+      downloads.push(() =>
+        runDownloadTask(
+          instance,
+          id,
+          destination,
+          async (_partPath, createWriteStream) => {
+            for (let attempt = 0; attempt < 3; attempt++) {
+              const output = createWriteStream()
+              const closed = finished(output)
+              try {
+                await Promise.all([
+                  this.ctx
+                    .getObject({
+                      Bucket: bucketName,
+                      Region: region,
+                      Key: key,
+                      Output: output,
+                      onProgress: (progress: any) => {
+                        instance.updateDownloadTask({
+                          id,
+                          progress: Math.min(99, Math.floor(progress.percent * 100)),
+                          status: downloadTaskSpecialStatus.downloading,
+                        })
+                      },
+                    })
+                    .then(res => {
+                      if (res?.statusCode !== 200) throw new Error('Download failed')
+                    }),
+                  closed,
+                ])
+                return
+              } catch (error) {
+                output.destroy()
+                await closed.catch(() => {})
+                if (attempt === 2) throw error
+              }
             }
-          }
-        },
-        this.logger,
+          },
+          this.logger,
+        ),
       )
     }
+    void pool.all(downloads).catch(error => {
+      this.logger.error(formatError(error, { class: 'TcyunApi', method: 'downloadBucketFile' }))
+    })
     return true
   }
 }
