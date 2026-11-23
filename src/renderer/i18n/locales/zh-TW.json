@@ -1017,6 +1017,7 @@
       "main": {
         "allAccounts": "全部帳戶",
         "bucket": "儲存桶",
+        "bucketRegionsUnknown": "無法確認以下儲存桶的區域：{buckets}。",
         "collapseRail": "收合清單",
         "createAclFailed": "儲存桶已建立，但設定存取控制權限失敗：{error}",
         "createFailed": "建立失敗",
@@ -1027,6 +1028,7 @@
         "filterPlaceholder": "篩選…",
         "gallery": "相簿",
         "loading": "載入中...",
+        "loadListFailed": "無法載入此帳戶的清單。",
         "newBucket": "新建儲存桶",
         "noBuckets": "這裡還沒有內容",
         "noBucketsDesc": "此帳戶中沒有找到{name}。可以新建一個，或在服務商控制台新增後重新整理。",

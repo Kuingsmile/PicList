@@ -1017,6 +1017,7 @@
       "main": {
         "allAccounts": "All accounts",
         "bucket": "Bucket",
+        "bucketRegionsUnknown": "Couldn’t determine the region for {buckets}.",
         "collapseRail": "Collapse list",
         "createAclFailed": "Bucket created, but setting its ACL failed: {error}",
         "createFailed": "Creation failed",
@@ -1027,6 +1028,7 @@
         "filterPlaceholder": "Filter…",
         "gallery": "Gallery",
         "loading": "Loading...",
+        "loadListFailed": "Couldn’t load the list for this account.",
         "newBucket": "Create bucket",
         "noBuckets": "Nothing here yet",
         "noBucketsDesc": "No {name} was found in this account. Create one, or refresh after adding it in the provider's console.",

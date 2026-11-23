@@ -25,6 +25,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NodeHttpHandler } from '@smithy/node-http-handler'
 
 import type { DeleteResult } from '#/deletion'
+import type { ListingData } from '#/listing'
 import { formatEndpoint } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
@@ -298,77 +299,53 @@ class S3plistApi {
     }
   }
 
+  private async getBucketRegion(client: S3Client, bucketName: string | undefined): Promise<string | null> {
+    try {
+      const data = await client.send(new GetBucketLocationCommand({ Bucket: bucketName }))
+      if (data.$metadata.httpStatusCode === 200) return data.LocationConstraint?.toLowerCase() || 'us-east-1'
+      this.logParam(data, 'getBucketLocation')
+    } catch (error) {
+      this.logParam(error, 'getBucketLocation')
+    }
+    return null
+  }
+
   /**
    * 获取存储桶列表
    */
-  async getBucketList(): Promise<any> {
-    if (this.dogeCloudSupport) {
-      try {
+  async getBucketList(): Promise<ListingData> {
+    try {
+      if (this.dogeCloudSupport) {
         const res = await dogecloudApi('/oss/bucket/list.json', {}, false, this.accessKeyId, this.secretAccessKey)
         for (const item of res.buckets) {
           if (item.name === this.bucketName || item.s3Bucket === this.bucketName) {
-            return [
-              {
-                Name: item.s3Bucket,
-                CreationDate: item.ctime,
-                Location: item.region,
-              },
-            ]
-          }
-        }
-        return []
-      } catch (error) {
-        this.logParam(error, 'getBucketList')
-      }
-      return []
-    }
-    const options = { ...this.baseOptions } as S3ClientConfig
-    const result: IStringKeyMap[] = []
-    const endpoint = (options.endpoint as string) || ''
-    try {
-      const client = this.createS3Client(options)
-      const data = await client.send(new ListBucketsCommand({}))
-
-      if (data.$metadata.httpStatusCode !== 200) {
-        this.logParam(data, 'getBucketList')
-        return result
-      }
-
-      if (data.Buckets) {
-        if (this.region || endpoint.includes('cloudflarestorage')) {
-          result.push(
-            ...data.Buckets.map(bucket => ({
-              Name: bucket.Name,
-              CreationDate: bucket.CreationDate,
-              Location: this.region || 'auto',
-            })),
-          )
-        } else {
-          for (const bucket of data.Buckets) {
-            const bucketName = bucket.Name
-            const bucketConfig = await client.send(
-              new GetBucketLocationCommand({
-                Bucket: bucketName,
-              }),
-            )
-            result.push({
-              Name: bucketName,
-              CreationDate: bucket.CreationDate,
-              Location:
-                bucketConfig.$metadata.httpStatusCode === 200
-                  ? bucketConfig.LocationConstraint?.toLowerCase() || 'us-east-1'
-                  : 'us-east-1',
-            })
-            if (bucketConfig.$metadata.httpStatusCode !== 200) {
-              this.logParam(bucketConfig, 'getBucketList')
+            return {
+              fullList: [{ Name: item.s3Bucket, CreationDate: item.ctime, Location: item.region }],
+              success: true,
             }
           }
         }
+        return { fullList: [], success: true }
       }
+      const client = this.createS3Client(this.baseOptions)
+      const data = await client.send(new ListBucketsCommand({}))
+      if (data.$metadata.httpStatusCode !== 200) {
+        this.logParam(data, 'getBucketList')
+        return { fullList: [], success: false }
+      }
+
+      const endpoint = (this.baseOptions.endpoint as string) || ''
+      const configuredRegion = this.region || (endpoint.includes('cloudflarestorage') ? 'auto' : '')
+      const fullList = []
+      for (const bucket of data.Buckets ?? []) {
+        const location = configuredRegion || (await this.getBucketRegion(client, bucket.Name))
+        fullList.push({ Name: bucket.Name, CreationDate: bucket.CreationDate, Location: location })
+      }
+      return { fullList, success: fullList.every(bucket => bucket.Location !== null) }
     } catch (error) {
       this.logParam(error, 'getBucketList')
+      return { fullList: [], success: false }
     }
-    return result
   }
 
   async getBucketListRecursively(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {

@@ -748,6 +748,15 @@ async function getBucketList() {
       bucketList.value[item.Name] = item
       bucketNameList.value.push(item.Name)
     })
+    if (result.phase === 'error') {
+      const unresolved = result.fullList.filter(bucket => bucket.Location === null).map(bucket => bucket.Name)
+      if (request.provider === 's3plist' && unresolved.length) {
+        const buckets = new Intl.ListFormat(locale.value).format(unresolved)
+        message.warning(t('pages.manage.main.bucketRegionsUnknown', { buckets }))
+      } else {
+        message.error(t('pages.manage.main.loadListFailed'))
+      }
+    }
     if (
       result.success &&
       request.provider === 'github' &&
@@ -760,7 +769,10 @@ async function getBucketList() {
     }
     restoreSelection()
   } catch {
-    if (bucketListings.isCurrent(request)) bucketListings.complete(request)
+    if (bucketListings.isCurrent(request)) {
+      bucketListings.complete(request)
+      message.error(t('pages.manage.main.loadListFailed'))
+    }
   } finally {
     if (bucketListings.isCurrent(request)) isLoadingBucketList.value = false
   }

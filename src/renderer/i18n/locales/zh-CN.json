@@ -1017,6 +1017,7 @@
       "main": {
         "allAccounts": "全部账户",
         "bucket": "存储桶",
+        "bucketRegionsUnknown": "无法确定以下存储桶的区域：{buckets}。",
         "collapseRail": "收起列表",
         "createAclFailed": "存储桶已创建，但设置访问控制权限失败：{error}",
         "createFailed": "创建失败",
@@ -1027,6 +1028,7 @@
         "filterPlaceholder": "筛选…",
         "gallery": "相册",
         "loading": "加载中...",
+        "loadListFailed": "无法加载此账户的列表。",
         "newBucket": "新建存储桶",
         "noBuckets": "这里还没有内容",
         "noBucketsDesc": "此账户中没有找到{name}。可以新建一个，或在服务商控制台添加后刷新。",

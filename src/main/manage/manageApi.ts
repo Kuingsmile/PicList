@@ -23,7 +23,7 @@ import {
   isWithinFolder,
   mergeDeleteResults,
 } from '../../shared/deletion'
-import { isListingRequest, listingChannels, type ListingRequest } from '../../shared/listing'
+import { isListingRequest, listingChannels, type ListingData, type ListingRequest } from '../../shared/listing'
 import { runListingRequest } from './listingRequest'
 import { transferScheduler } from './transferScheduler'
 
@@ -196,7 +196,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       async listing => {
         if (stream && (!window || window.webContents.isDestroyed())) throw new Error('Listing window is unavailable')
         if (provider !== this.currentPicBedConfig?.picBedName) throw new Error('Listing account is unavailable')
-        if (kind === 'buckets') return { fullList: await this.listBuckets(), success: true }
+        if (kind === 'buckets') return this.listBuckets()
         const client = await this.createClient()
         if (typeof client[method] !== 'function') throw new Error('Unsupported listing operation')
         return client[method](param, listing)
@@ -295,7 +295,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return this.executeListing(param, 'buckets', 'getBucketList')
   }
 
-  private async listBuckets(): Promise<any> {
+  private async listBuckets(): Promise<ListingData> {
     const staticBuckets = {
       upyun: [{ Name: this.currentPicBedConfig.bucketName, Location: 'upyun', CreationDate: new Date().toISOString() }],
       smms: [{ Name: 'smms', Location: 'smms', CreationDate: new Date().toISOString() }],
@@ -305,13 +305,14 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     }
 
     const staticResult = staticBuckets[this.currentPicBedConfig.picBedName as keyof typeof staticBuckets]
-    if (staticResult) return staticResult
+    if (staticResult) return { fullList: staticResult, success: true }
 
     if (!this.BASIC_API_CLIENTS.includes(this.currentPicBedConfig.picBedName)) {
       throw new Error('Unsupported listing operation')
     }
     const client = await this.createClient()
-    return client.getBucketList()
+    const result = await client.getBucketList()
+    return Array.isArray(result) ? { fullList: result, success: true } : result
   }
 
   async getBucketInfo(param?: IStringKeyMap | undefined): Promise<IStringKeyMap | IManageError> {
