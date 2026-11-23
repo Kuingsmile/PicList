@@ -387,6 +387,7 @@ import {
   Server,
   Settings2Icon,
 } from '@lucide/vue'
+import { computedAsync } from '@vueuse/core'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -401,7 +402,6 @@ import SettingSection from '@/components/common/SettingSection.vue'
 import SingleSelect from '@/components/common/SingleSelect.vue'
 import ImageProcessDialog from '@/components/ImageProcessDialog.vue'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
-import { renameFileNameWithCustomString } from '@/manage/utils/fileName'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
@@ -421,15 +421,18 @@ const customLinkPreview = computed(() =>
     .replaceAll('$extName', '.png'),
 )
 
-// {localFolder:n} depends on the source path, so the preview substitutes a sample folder.
-const renamePreview = computed(() => {
-  const format = (advancedRename.value.format || '{filename}').replace(/{localFolder:\d+}/g, 'photos')
-  try {
-    return renameFileNameWithCustomString('example.png', format)
-  } catch {
-    return format
-  }
-})
+const renamePreview = computedAsync(
+  async () => {
+    const format = advancedRename.value.format || '{filename}'
+    try {
+      return (await window.electron.triggerRPC<string>(IRPCActionType.PREVIEW_ADVANCED_RENAME, format)) ?? format
+    } catch {
+      return format
+    }
+  },
+  '',
+  { lazy: true },
+)
 
 const advancedRenameVisible = ref(false)
 

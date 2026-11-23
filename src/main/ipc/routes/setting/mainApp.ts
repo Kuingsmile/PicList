@@ -4,6 +4,7 @@ import { appGUILogPath, appLogPath, dataDir, manageLogPath, scriptsDir } from '@
 import picgo from '@core/picgo'
 import { shell } from 'electron'
 import fs from 'fs-extra'
+import { PicGoUtils } from 'piclist'
 
 import { IRPCActionType, IRPCType } from '~/constants'
 import { removeRpcFile, writeRpcFile } from '~/ipc/persistence'
@@ -16,6 +17,21 @@ import { runScript } from '~/utils/runScript'
 const STORE_PATH = dataDir()
 
 export default [
+  {
+    action: IRPCActionType.PREVIEW_ADVANCED_RENAME,
+    handler: async (_: IIPCEvent, [format]: [string]) => {
+      // Bound random-string allocations while previewing partially edited templates in the main process.
+      let remainingRandomChars = 64 * 1024
+      for (const [, length, delimiter] of format.matchAll(/{str-(\d*)([{}])/gi)) {
+        // A nested token could expand into an unbounded length (for example a timestamp).
+        if (delimiter === '{') return format
+        remainingRandomChars -= Number(length)
+        if (remainingRandomChars < 0) return format
+      }
+      return PicGoUtils.renameFileNameWithCustomString('photos/example.png', format)
+    },
+    type: IRPCType.INVOKE,
+  },
   {
     action: IRPCActionType.PICLIST_GET_CONFIG,
     handler: async (_: IIPCEvent, args: [key?: string]) => {
