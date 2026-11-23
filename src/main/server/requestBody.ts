@@ -1,3 +1,4 @@
+import { isUtf8 } from 'node:buffer'
 import http from 'node:http'
 import path from 'node:path'
 
@@ -29,15 +30,17 @@ const multerStorage = multer.diskStorage({
     }
   },
   filename(_req, file, cb) {
-    if (!/[^\u0000-\u00ff]/.test(file.originalname)) {
-      file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
-    }
     cb(null, file.originalname)
   },
 })
 
 const uploadMulter = multer({
   storage: multerStorage,
+  // @ts-expect-error The Busboy patch accepts a decoder for parameters without an explicit charset.
+  defParamCharset(value: string) {
+    const bytes = Buffer.from(value, 'latin1')
+    return isUtf8(bytes) ? bytes.toString('utf8') : value
+  },
 })
 
 export async function handleMultipartUpload(

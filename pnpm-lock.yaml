@@ -205,6 +205,7 @@ overrides:
 packageExtensionsChecksum: sha256-fn0OZSzK76uv0Z/3wlnau7AScBVoDCe4VaNBIjgygak=
 
 patchedDependencies:
+  busboy@1.6.0: 709eca2e700694ec840b6e1c9416e6c6025b50d4b40641709cbd9e1ffb61fe92
   electron-updater@6.8.11: 3cfd18d60451b1699f01f42d3e1d0855e06248c5910bf743e5cecc6ad261a90c
   fetch-blob@3.2.0: 4e4d89933b66a41cd45fe94c88831da223057c7ae6675494e4032bd00af5e3a8
   sharp@0.35.5: 32bc36eddf915be450282a339532db43cec8c4049f92e287ced82ed28ba13f63
@@ -8035,7 +8036,7 @@ snapshots:
 
   builtin-status-codes@3.0.0: {}
 
-  busboy@1.6.0:
+  busboy@1.6.0(patch_hash=709eca2e700694ec840b6e1c9416e6c6025b50d4b40641709cbd9e1ffb61fe92):
     dependencies:
       streamsearch: 1.1.0
 
@@ -9612,7 +9613,7 @@ snapshots:
   multer@2.5.0:
     dependencies:
       append-field: 1.0.0
-      busboy: 1.6.0
+      busboy: 1.6.0(patch_hash=709eca2e700694ec840b6e1c9416e6c6025b50d4b40641709cbd9e1ffb61fe92)
       type-is: 1.6.18
 
   mute-stream@2.0.0: {}

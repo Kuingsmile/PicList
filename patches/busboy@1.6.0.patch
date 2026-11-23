@@ -1,0 +1,13 @@
+diff --git a/lib/types/multipart.js b/lib/types/multipart.js
+--- a/lib/types/multipart.js
++++ b/lib/types/multipart.js
+@@ -236,7 +236,8 @@ class Multipart extends Writable {
+     const paramDecoder = (typeof cfg.defParamCharset === 'string'
+                             && cfg.defParamCharset
+                           ? getDecoder(cfg.defParamCharset)
+-                          : nullDecoder);
++                          : (typeof cfg.defParamCharset === 'function'
++                             ? cfg.defParamCharset : nullDecoder));
+     const defCharset = (cfg.defCharset || 'utf8');
+     const preservePath = cfg.preservePath;
+     const fileOpts = {
