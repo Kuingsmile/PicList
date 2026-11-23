@@ -88,7 +88,10 @@ export function useBucketDownloads({
           bucketName: request.bucketName,
           region: paramGet.bucketConfig.Location,
           key: item.key,
-          fileName: keepStructure && request.provider !== 'local' ? item.key.replace(/^\/+|\/+$/g, '') : item.fileName,
+          fileName:
+            keepStructure && request.provider !== 'local'
+              ? item.key.replace(/^\/+|\/+$/g, '')
+              : item.fileName.split(/[\\/]/).pop(),
           customUrl: paramGet.customUrl,
           downloadUrl: item.downloadUrl,
           githubUrl: item.url,
