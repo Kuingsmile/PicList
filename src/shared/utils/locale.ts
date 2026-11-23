@@ -6,7 +6,7 @@ export function getInitialLocale(savedLocale: string | null, systemLocale: strin
   }
 
   try {
-    const locale = new Intl.Locale(systemLocale)
+    const locale = new Intl.Locale(systemLocale || 'zh-CN')
     if (locale.language === 'zh') {
       return locale.maximize().script === 'Hant' ? 'zh-TW' : 'zh-CN'
     }

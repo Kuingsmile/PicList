@@ -8,17 +8,16 @@ import VueLazyLoad from 'vue3-lazyload'
 
 import App from '@/App.vue'
 import { vTooltip } from '@/directives/tooltip'
-import { getInitialLocale } from '@/i18n/locale'
 import en from '@/i18n/locales/en.json'
 import zhCN from '@/i18n/locales/zh-CN.json'
 import zhTW from '@/i18n/locales/zh-TW.json'
 import router from '@/router'
 import db from '@/services/galleryDatabase'
+import { getInitialLocale } from '#/utils/locale'
 
 type MessageSchema = typeof zhCN
 
 window.electron.setVisualZoomLevelLimits(1, 1)
-const userLanguage = navigator.language || 'zh-CN'
 
 const app = createApp(App)
 app.directive('tooltip', vTooltip)
@@ -30,7 +29,7 @@ app.config.globalProperties.sendToMain = window.electron.sendToMain
 
 const i18n = createI18n<[MessageSchema], 'en' | 'zh-CN' | 'zh-TW', false>({
   legacy: false,
-  locale: getInitialLocale(localStorage.getItem('currentLanguage'), userLanguage),
+  locale: getInitialLocale(localStorage.getItem('currentLanguage'), navigator.language),
   fallbackLocale: 'zh-CN',
   messages: {
     en,

@@ -181,7 +181,6 @@ import { computed, onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { osGlobal, usePicBed } from '@/composables/useGlobal'
-import { getInitialLocale } from '@/i18n/locale'
 import { getConfig } from '@/services/configService'
 import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
@@ -189,6 +188,7 @@ import { createUploadProgressTracker, type UploadProgressState } from '@/utils/u
 import { IPasteStyle, IWindowList } from '#/constants/app'
 import { CLIPBOARD_FILES, UPDATE_FILES, UPLOAD_FILES, UPLOAD_PROGRESS } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
+import { getInitialLocale } from '#/utils/locale'
 import { getRawData } from '#/utils/rawData'
 
 defineOptions({ name: 'TrayPage' })
@@ -248,7 +248,7 @@ function openSettingWindow() {
 
 async function getData() {
   // The hidden panel keeps its renderer, so refresh the locale when it reopens.
-  locale.value = getInitialLocale(localStorage.getItem('currentLanguage'), navigator.language || 'zh-CN')
+  locale.value = getInitialLocale(localStorage.getItem('currentLanguage'), navigator.language)
   const [result, style] = await Promise.all([
     $$db.get<ImgInfo>({ orderBy: 'desc', limit: RECENT_LIMIT }),
     getConfig<string>(configPaths.settings.pasteStyle),

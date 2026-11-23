@@ -10,7 +10,8 @@ import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis
 import windowManager from 'apis/app/window/windowManager'
 import { app, net, Notification, protocol } from 'electron'
 
-import { II18nLanguage, ISartMode } from '#/constants/app'
+import { ISartMode } from '#/constants/app'
+import { getInitialLocale } from '#/utils/locale'
 import { IWindowList } from '~/constants'
 import { startFileServer } from '~/fileServer'
 import { startLocalFileServer } from '~/fileServer/localFileServer'
@@ -53,8 +54,7 @@ const initializeLanguage = (language: string | undefined) => {
     initializeI18n(language)
     return
   }
-  const locale = app.getLocale() || II18nLanguage.ZH_CN
-  const defaultLanguage = locale.startsWith('zh') ? II18nLanguage.ZH_CN : II18nLanguage.EN
+  const defaultLanguage = getInitialLocale(null, app.getLocale())
   initializeI18n(defaultLanguage)
   picgo.saveConfig({ [configPaths.settings.language]: defaultLanguage })
 }
