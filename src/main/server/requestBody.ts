@@ -79,6 +79,7 @@ export function handleJsonRequest(
   urlparams: URLSearchParams,
 ): void {
   let body = ''
+  request.setEncoding('utf8')
   request.on('data', chunk => {
     body += chunk
   })
