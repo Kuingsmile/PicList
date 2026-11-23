@@ -10,6 +10,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getAgent,
   getOptions,
@@ -42,6 +43,10 @@ class GithubApi {
       Authorization: this.token,
       Accept: 'application/vnd.github+json',
     }
+  }
+
+  private contentsUrl(repo: string, key: string): string {
+    return `${this.baseUrl}/repos/${this.username}/${repo}/contents/${encodeObjectPath(trimPath(key))}`
   }
 
   formatFolder(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
@@ -281,7 +286,7 @@ class GithubApi {
       branch,
     }
     const res = await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/contents/${key}`,
+      this.contentsUrl(repo, key),
       getOptions('DELETE', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
     )
     return res.statusCode === 200
@@ -404,7 +409,7 @@ class GithubApi {
     const { bucketName: repo, customUrl: branch, key, rawUrl, githubPrivate: isPrivate } = configMap
     if (!isPrivate) return rawUrl
     const res = (await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/contents/${key}`,
+      this.contentsUrl(repo, key),
       getOptions(
         'GET',
         this.commonHeaders,
@@ -426,7 +431,6 @@ class GithubApi {
    */
   async createBucketFolder(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName: repo, githubBranch: branch, key } = configMap
-    const newFileKey = `${trimPath(key)}/.gitkeep`
     const base64Content = Buffer.from('created by PicList').toString('base64')
     const body = {
       message: `created a new folder named ${key} by PicList`,
@@ -434,7 +438,7 @@ class GithubApi {
       branch,
     }
     const res = await got(
-      `${this.baseUrl}/repos/${this.username}/${repo}/contents/${newFileKey}`,
+      this.contentsUrl(repo, `${key}/.gitkeep`),
       getOptions('PUT', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
     )
     return res.statusCode === 201
@@ -463,7 +467,7 @@ class GithubApi {
         shouldDelay = true
         const result = await gotUpload(instance, id, {
           prepare: () => ({
-            url: `${this.baseUrl}/repos/${this.username}/${repo}/contents/${trimPath(key)}`,
+            url: this.contentsUrl(repo, key),
             method: 'PUT',
             body: JSON.stringify({
               message: 'uploaded by PicList',
