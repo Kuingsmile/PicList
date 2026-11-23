@@ -38,8 +38,10 @@ export const handleResponse = ({
   response.end()
 }
 
-export const ensureHTTPLink = (url: string): string => {
-  return url.startsWith('http') ? url : `http://${url}`
+export const getServerOrigin = (host: string, port: number): string => {
+  if (host === '0.0.0.0') host = '127.0.0.1'
+  if (host === '::') host = '::1'
+  return `http://${host.includes(':') ? `[${host}]` : host}:${port}`
 }
 
 export const deleteChoosedFiles = async (list: ImgInfo[]): Promise<boolean[]> => {

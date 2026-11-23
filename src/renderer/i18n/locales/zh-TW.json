@@ -1182,6 +1182,7 @@
       "selectConfig": "選擇配置",
       "setFailedInfo": "設定失敗，請檢查配置項是否正確",
       "setSuccess": "設定成功",
+      "uploadServerNotRunning": "上傳伺服器尚未執行，請先啟動伺服器再複製 API 位址。",
       "viewDoc": "文檔",
       "viewDocFailed": "查看文件失敗"
     },

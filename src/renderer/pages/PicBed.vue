@@ -332,7 +332,6 @@ async function handleNameClick() {
 
 async function handleCopyApi() {
   try {
-    const { port = 36677, host = '127.0.0.1' } = (await getConfig<IStringKeyMap>(configPaths.settings.server)) || {}
     const serverKey = (await getConfig(configPaths.settings.serverKey)) || ''
     const uploader = ((await getConfig(configPaths.uploader)) as IStringKeyMap) || {}
     const picBedConfigList = uploader[$route.params.type as string].configList || []
@@ -353,7 +352,12 @@ async function handleCopyApi() {
     if (serverKey) {
       urlSearchParams.append('key', serverKey as string)
     }
-    const apiUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}/upload?${urlSearchParams.toString()}`
+    const origin = await window.electron.triggerRPC<string | null>(IRPCActionType.GET_UPLOAD_SERVER_ORIGIN)
+    if (!origin) {
+      message.error(t('pages.picBedConfigs.uploadServerNotRunning'))
+      return
+    }
+    const apiUrl = `${origin}/upload?${urlSearchParams.toString()}`
 
     try {
       await window.electron.clipboard.writeText(apiUrl)

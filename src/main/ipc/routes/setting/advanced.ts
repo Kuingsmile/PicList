@@ -5,6 +5,11 @@ import server from '~/server'
 
 export default [
   {
+    action: IRPCActionType.GET_UPLOAD_SERVER_ORIGIN,
+    handler: async () => server.getStatus().origin,
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.GET_LOCAL_FILE_SERVER,
     handler: async () => getLocalFileServerConfig(),
     type: IRPCType.INVOKE,

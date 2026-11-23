@@ -6,7 +6,7 @@ import axios from 'axios'
 
 import { handleJsonRequest, handleMultipartUpload } from '~/server/requestBody'
 import routers from '~/server/routerManager'
-import { ensureHTTPLink, handleResponse } from '~/server/utils'
+import { getServerOrigin, handleResponse } from '~/server/utils'
 import { configPaths } from '~/utils/configPaths'
 import { closeServer, listenOnce } from '~/utils/serverLifecycle'
 
@@ -137,13 +137,11 @@ class Server {
           logger.error('[PicList Server]', error as Error)
           return
         }
-        const probeHost = host === '0.0.0.0' ? '127.0.0.1' : host === '::' ? '::1' : host
         try {
-          const response = await axios.post(
-            ensureHTTPLink(`${probeHost.includes(':') ? `[${probeHost}]` : probeHost}:${port}/heartbeat`),
-            undefined,
-            { timeout: 1000, proxy: false },
-          )
+          const response = await axios.post(`${getServerOrigin(host, port)}/heartbeat`, undefined, {
+            timeout: 1000,
+            proxy: false,
+          })
           if (response.data?.success === true && response.data?.result === 'alive') {
             logger.info(`[PicList Server] server is already running at ${port}`)
             return
@@ -166,12 +164,14 @@ class Server {
 
   getStatus() {
     const address = this.#httpServer.address()
+    const socketAddress = typeof address === 'string' ? null : address
     return {
       enabled: !!this.#config.enable,
       listening: this.#httpServer.listening,
       host: this.#config.host,
       configuredPort: Number(this.#config.port),
-      port: address && typeof address === 'object' ? address.port : undefined,
+      port: socketAddress?.port,
+      origin: socketAddress ? getServerOrigin(socketAddress.address, socketAddress.port) : null,
     }
   }
 

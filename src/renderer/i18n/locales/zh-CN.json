@@ -1182,6 +1182,7 @@
       "selectConfig": "选择配置",
       "setFailedInfo": "设置失败, 请检查配置项是否正确",
       "setSuccess": "设置成功",
+      "uploadServerNotRunning": "上传服务器未运行，请先启动服务器再复制 API 地址。",
       "viewDoc": "文档",
       "viewDocFailed": "查看文档失败"
     },

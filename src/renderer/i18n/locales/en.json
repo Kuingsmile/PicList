@@ -1182,6 +1182,7 @@
       "selectConfig": "Select Configuration",
       "setFailedInfo": "Set Failed, Please Check If Config Options Are Correct",
       "setSuccess": "Set Success",
+      "uploadServerNotRunning": "The upload server is not running. Start it before copying the API address.",
       "viewDoc": "Documentation",
       "viewDocFailed": "View Document Failed"
     },
