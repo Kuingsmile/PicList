@@ -123,9 +123,9 @@ class Server {
       return
     }
     const host = this.#config.host
-    for (let attempt = 0; attempt < MAX_PORT_ATTEMPTS && firstPort + attempt <= 65535; attempt++) {
+    const lastPort = Math.min(firstPort + MAX_PORT_ATTEMPTS - 1, 65535)
+    for (let port = firstPort; port <= lastPort; port++) {
       if (generation !== this.#lifecycleGeneration) return
-      const port = firstPort + attempt
       try {
         await listenOnce(this.#httpServer, port, host)
         logger.info(`[PicList Server] is listening at ${port} of ${host}`)
@@ -133,7 +133,10 @@ class Server {
       } catch (error) {
         await closeServer(this.#httpServer)
         if (generation !== this.#lifecycleGeneration) return
-        if ((error as NodeJS.ErrnoException).code !== 'EADDRINUSE') {
+        const { code } = error as NodeJS.ErrnoException
+        // Windows can report EACCES when another listener holds the port exclusively.
+        const retryable = code === 'EADDRINUSE' || (process.platform === 'win32' && code === 'EACCES')
+        if (!retryable) {
           logger.error('[PicList Server]', error as Error)
           return
         }
@@ -149,10 +152,10 @@ class Server {
         } catch (_error) {
           // The occupied port belongs to another service or does not answer in time.
         }
-        logger.warn(`[PicList Server] ${port} is busy`)
+        logger.warn(`[PicList Server] cannot listen on ${host}:${port} (${code})`)
       }
     }
-    logger.error(`[PicList Server] unable to start after bounded port retries from ${firstPort}`)
+    logger.error(`[PicList Server] no available port on ${host} in range ${firstPort}-${lastPort}`)
   }
 
   #enqueueLifecycleOperation(operation: () => Promise<void>) {
