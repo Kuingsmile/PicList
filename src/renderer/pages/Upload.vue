@@ -486,7 +486,7 @@ onBeforeMount(async () => {
     updatePicBeds()
   })
   $bus.on(SHOW_INPUT_BOX_RESPONSE, handleInputBoxValue)
-  await loadUploadSettings()
+  await Promise.all([updatePicBeds(), loadUploadSettings()])
 })
 
 onBeforeUnmount(() => {

@@ -14,6 +14,7 @@
             <CustomInput
               v-model="draft.root"
               :title="t('pages.localFileServer.folder')"
+              :aria-describedby="sharingNoticeId"
               placeholder=""
               :disabled="saving"
             />
@@ -25,6 +26,7 @@
             @click="chooseFolder"
           />
         </div>
+        <p :id="sharingNoticeId" class="text-sm text-secondary">{{ t('pages.localFileServer.sharingNotice') }}</p>
         <div class="grid grid-cols-2 gap-4">
           <CustomInput
             v-model.trim="draft.host"
@@ -42,7 +44,6 @@
             :disabled="saving"
           />
         </div>
-        <p class="text-sm text-secondary">{{ t('pages.localFileServer.hint', { url: baseUrl }) }}</p>
       </template>
     </div>
     <p v-else class="p-5" role="status">{{ t('pages.configForm.loading') }}</p>
@@ -54,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -69,13 +70,9 @@ import { RpcError } from '#/rpc'
 const visible = defineModel<boolean>('visible', { required: true })
 const { t } = useI18n()
 const message = useMessage()
+const sharingNoticeId = useId()
 const draft = ref<ILocalFileServerConfig>()
 const saving = ref(false)
-const baseUrl = computed(() => {
-  const host = draft.value?.host || '127.0.0.1'
-  const address = host === '0.0.0.0' ? '127.0.0.1' : host === '::' ? '[::1]' : host.includes(':') ? `[${host}]` : host
-  return `http://${address}:${draft.value?.port}/`
-})
 
 onMounted(async () => {
   try {

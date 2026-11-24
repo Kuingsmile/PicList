@@ -49,8 +49,8 @@ export function useBucketDownloads({
     const keepStructure = manageStore.config.settings.isDownloadFolderKeepDirStructure !== false
     try {
       const confirmed = await confirm.confirm({
-        message: t('pages.manage.bucket.notice'),
-        title: t('pages.manage.bucket.downloadFolderNotice'),
+        title: t('pages.manage.bucket.notice'),
+        message: t('pages.manage.bucket.downloadFolderNotice'),
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         type: 'warning',
@@ -156,8 +156,8 @@ export function useBucketDownloads({
     const request = downloadListings.request
     try {
       const result = await confirm.confirm({
-        message: t('pages.manage.bucket.notice'),
-        title: t('pages.manage.bucket.stopGetDownloadListMsg'),
+        title: t('pages.manage.bucket.notice'),
+        message: t('pages.manage.bucket.stopGetDownloadListMsg'),
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         type: 'warning',

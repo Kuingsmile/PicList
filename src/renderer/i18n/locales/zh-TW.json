@@ -295,7 +295,6 @@
         "create": "建立「{tag}」",
         "edit": "編輯標籤",
         "editFor": "編輯「{name}」的標籤",
-        "empty": "輸入名稱即可建立第一個標籤。",
         "find": "尋找或建立標籤",
         "label": "標籤",
         "missing": "所選圖片中有圖片已被移除。請關閉編輯視窗並重新選取。",
@@ -595,9 +594,9 @@
     "localFileServer": {
       "enable": "啟用檔案伺服器",
       "folder": "共用資料夾",
-      "hint": "選擇本機上傳使用的目的資料夾，並將本機上傳的自訂網址設為 {url}。能連線到此位址的使用者皆可瀏覽及讀取資料夾中的檔案。",
       "invalidAddress": "請輸入可用的監聽位址和 1 至 65535 之間的連接埠。檔案伺服器需要使用獨立的連接埠。",
       "invalidFolder": "請選擇現有資料夾或輸入其絕對路徑。",
+      "sharingNotice": "任何能連線到此伺服器的人都可以直接瀏覽共用資料夾並讀取其中的檔案，無須登入。",
       "title": "本機檔案伺服器"
     },
     "manage": {
@@ -1939,22 +1938,23 @@
       "outputFormat": "輸出格式",
       "picbedAddedToFavorites": "已添加到快速切換",
       "picbedPicker": {
+        "addFavorite": "釘選到快速切換",
         "clearSearch": "清除搜尋",
-        "collapseAll": "全部摺疊",
         "configurations": "設定",
+        "editConfig": "編輯設定",
         "empty": "暫無可用圖床",
-        "expandAll": "全部展開",
-        "hintClose": "關閉",
-        "hintNavigate": "切換",
-        "hintSelect": "選擇",
+        "favoritesLimit": "最多釘選 {max} 個",
         "loadFailed": "無法載入圖床。",
         "loading": "正在載入圖床…",
+        "manageConfigs": "管理",
         "noMatches": "沒有符合的圖床或設定",
+        "pinned": "已釘選",
+        "providers": "圖床",
+        "recent": "最近",
+        "removeFavorite": "取消釘選",
         "retry": "重試",
         "search": "搜尋圖床或設定…",
-        "selected": "目前",
-        "summary": "{providers} 個圖床 · {configurations} 個設定",
-        "switching": "正在切換圖床…"
+        "selected": "目前"
       },
       "picbedSwitched": "已切換到 {name}",
       "progress": {

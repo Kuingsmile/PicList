@@ -54,9 +54,6 @@
             t('pages.gallery.tags.some')
           }}</span>
         </button>
-        <p v-if="!choices.length && !query" class="m-0 px-2 py-3 text-sm text-secondary">
-          {{ t('pages.gallery.tags.empty') }}
-        </p>
       </div>
       <p v-if="error" role="alert" class="m-0 text-sm text-danger">{{ error }}</p>
     </div>

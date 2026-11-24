@@ -295,7 +295,6 @@
         "create": "Create “{tag}”",
         "edit": "Edit tags",
         "editFor": "Edit tags for {name}",
-        "empty": "Type a name to create your first tag.",
         "find": "Find or create a tag",
         "label": "Tags",
         "missing": "An image in this selection was removed. Close the editor and select the images again.",
@@ -595,9 +594,9 @@
     "localFileServer": {
       "enable": "Enable file server",
       "folder": "Folder to serve",
-      "hint": "Use your Local uploader’s destination folder here and set its custom URL to {url}. Anyone who can reach this address can browse and read the folder.",
       "invalidAddress": "Enter an available listen address and a port between 1 and 65535. The file server needs its own port.",
       "invalidFolder": "Choose an existing folder using its full path.",
+      "sharingNotice": "Anyone who can reach this server can browse the shared folder and read its files without signing in.",
       "title": "Local file server"
     },
     "manage": {
@@ -1939,22 +1938,23 @@
       "outputFormat": "Output Format",
       "picbedAddedToFavorites": "Added to quick switch",
       "picbedPicker": {
+        "addFavorite": "Pin to quick switch",
         "clearSearch": "Clear search",
-        "collapseAll": "Collapse all",
         "configurations": "Configurations",
+        "editConfig": "Edit configuration",
         "empty": "No picbeds available",
-        "expandAll": "Expand all",
-        "hintClose": "Close",
-        "hintNavigate": "Navigate",
-        "hintSelect": "Select",
+        "favoritesLimit": "Up to {max} pinned items",
         "loadFailed": "Could not load picbeds.",
         "loading": "Loading picbeds…",
+        "manageConfigs": "Manage",
         "noMatches": "No matching picbeds or configurations",
+        "pinned": "Pinned",
+        "providers": "PicBeds",
+        "recent": "Recent",
+        "removeFavorite": "Unpin from quick switch",
         "retry": "Retry",
         "search": "Search picbeds or configurations…",
-        "selected": "Current",
-        "summary": "Picbeds: {providers} · Configurations: {configurations}",
-        "switching": "Switching destination…"
+        "selected": "Current"
       },
       "picbedSwitched": "Switched to {name}",
       "progress": {

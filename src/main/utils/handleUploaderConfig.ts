@@ -64,7 +64,7 @@ export const getUploaderConfigList = (type: string): IUploaderConfigItem => {
   const currentUploaderConfig = picgo.getConfig<IStringKeyMap>(`uploader.${type}`) ?? {}
   let configList = currentUploaderConfig.configList
   let defaultId = currentUploaderConfig.defaultId || ''
-  if (!configList) {
+  if (!configList?.length) {
     const res = upgradeUploaderConfig(type)
     configList = res.configList
     defaultId = res.defaultId
