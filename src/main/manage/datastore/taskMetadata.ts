@@ -7,6 +7,22 @@ export interface ManagementCheckpoint {
 
 const activeStatuses = ['queuing', 'uploading', 'downloading', 'paused']
 const terminalStatuses = ['uploaded', 'downloaded', 'failed', 'canceled']
+export const isTerminalManagementTask = (status: string) => terminalStatuses.includes(status)
+const stringFields = [
+  'sourceId',
+  'sourceFileName',
+  'sourceFilePath',
+  'targetFilePath',
+  'targetFileBucket',
+  'targetFileRegion',
+  'provider',
+  'accountId',
+  'alias',
+  'finishTime',
+]
+const timeFields = ['createdAt', 'completedAt', 'interruptedAt']
+const metadataKeys = new Set([...stringFields, ...timeFields, 'status', 'response', 'retryable'])
+export const isManagementMetadataKey = (key: string) => metadataKeys.has(key)
 const safeReasons = [
   'interrupted',
   'file',
@@ -35,21 +51,10 @@ export function managementTaskMetadata<T extends IUploadTask | IDownloadTask>(ta
     status: task.status,
     progress: ['uploaded', 'downloaded'].includes(task.status) ? 100 : 0,
   }
-  for (const key of [
-    'sourceId',
-    'sourceFileName',
-    'sourceFilePath',
-    'targetFilePath',
-    'targetFileBucket',
-    'targetFileRegion',
-    'provider',
-    'accountId',
-    'alias',
-    'finishTime',
-  ]) {
+  for (const key of stringFields) {
     if (typeof task[key] === 'string') metadata[key] = checkpointSource(task[key]) ?? ''
   }
-  for (const key of ['createdAt', 'completedAt', 'interruptedAt']) {
+  for (const key of timeFields) {
     if (typeof task[key] === 'number' && Number.isFinite(task[key])) metadata[key] = task[key]
   }
   if (isRecord(task.response)) {

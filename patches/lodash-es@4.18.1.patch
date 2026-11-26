@@ -1,0 +1,32 @@
+diff --git a/_baseClone.js b/_baseClone.js
+--- a/_baseClone.js
++++ b/_baseClone.js
+@@ -20,6 +20,12 @@
+ import isSet from './isSet.js';
+ import keys from './keys.js';
+ import keysIn from './keysIn.js';
++import root from './_root.js';
++
++var NodeBuffer = root.Buffer,
++    nodeUtil = NodeBuffer && root.process && typeof root.process.getBuiltinModule == 'function'
++      ? root.process.getBuiltinModule('node:util')
++      : undefined;
+ 
+ /** Used to compose bitmasks for cloning. */
+ var CLONE_DEEP_FLAG = 1,
+@@ -136,6 +142,15 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
+   }
+   stack.set(value, result);
+ 
++  // In Node ESM a Buffer takes the typed-array path, which already copied its backing store.
++  // Node compares the bytes and enumerable non-index properties natively. An annotated
++  // Buffer still falls through so its extra properties are cloned with the same stack.
++  if (tag == uint8Tag && isDeep && !isFlat && !customizer && nodeUtil &&
++      Object.getPrototypeOf(value) === NodeBuffer.prototype &&
++      !Object.prototype.hasOwnProperty.call(value, 'constructor') &&
++      nodeUtil.isDeepStrictEqual(value, result)) {
++    return result;
++  }
+   if (isSet(value)) {
+     value.forEach(function(subValue) {
+       result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));

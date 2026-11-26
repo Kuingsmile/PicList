@@ -72,6 +72,7 @@ patchedDependencies:
   busboy@1.6.0: patches/busboy@1.6.0.patch
   electron-updater@6.8.11: patches/electron-updater@6.8.11.patch
   fetch-blob@3.2.0: patches/fetch-blob@3.2.0.patch
+  lodash-es@4.18.1: patches/lodash-es@4.18.1.patch
   sharp@0.35.5: patches/sharp@0.35.5.patch
 
 # Keep both supported CPU targets available when packaging on one host.

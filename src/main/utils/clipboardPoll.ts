@@ -1,9 +1,9 @@
-import crypto from 'node:crypto'
+import { webcrypto } from 'node:crypto'
 import { EventEmitter } from 'node:events'
 
 import logger from '@core/picgo/logger'
 
-import { readUploadClipboard } from '~/utils/clipboard'
+import { readEncodedClipboard } from '~/utils/clipboard'
 
 type ClipboardState = { kind: 'empty'; value: null } | { kind: 'image' | 'path'; value: string }
 
@@ -49,10 +49,11 @@ class ClipboardWatcher extends EventEmitter {
   }
 
   private async getClipboardState(): Promise<ClipboardState> {
-    const { filePath, image } = await readUploadClipboard()
+    const { filePath, image } = await readEncodedClipboard()
     if (filePath) return { kind: 'path', value: filePath }
-    if (image.isEmpty()) return { kind: 'empty', value: null }
-    return { kind: 'image', value: crypto.createHash('sha256').update(image.toBitmap()).digest('hex') }
+    if (!image) return { kind: 'empty', value: null }
+    const digest = await webcrypto.subtle.digest('SHA-256', await image.arrayBuffer())
+    return { kind: 'image', value: Buffer.from(digest).toString('hex') }
   }
 }
 

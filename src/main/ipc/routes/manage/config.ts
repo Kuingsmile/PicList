@@ -2,20 +2,19 @@ import { IRPCActionType, IRPCType } from '~/constants'
 import { defineRpcHandler } from '~/ipc/router'
 import getManageApi from '~/manage'
 
-const manageApi = getManageApi()
-
 export default [
   {
     action: IRPCActionType.MANAGE_GET_CONFIG,
     handler: async (_: IIPCEvent, args: [key?: string]) => {
-      return manageApi.getConfig(args[0])
+      return (await getManageApi()).getConfig(args[0])
     },
     type: IRPCType.INVOKE,
   },
   {
     action: IRPCActionType.MANAGE_SAVE_CONFIG,
     handler: defineRpcHandler(IRPCActionType.MANAGE_SAVE_CONFIG, async (_: IIPCEvent, args: [data: IObj]) => {
-      await manageApi.saveConfig(args[0])
+      const api = await getManageApi()
+      api.saveConfig(args[0])
       return true
     }),
     type: IRPCType.INVOKE,
@@ -25,7 +24,8 @@ export default [
     handler: defineRpcHandler(
       IRPCActionType.MANAGE_REMOVE_CONFIG,
       async (_: IIPCEvent, args: [key: string, propName: string]) => {
-        await manageApi.removeConfig(args[0], args[1])
+        const api = await getManageApi()
+        api.removeConfig(args[0], args[1])
         return true
       },
     ),

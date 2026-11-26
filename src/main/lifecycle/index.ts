@@ -6,6 +6,7 @@ import { clearTimeout, setTimeout } from 'node:timers'
 import bus from '@core/bus'
 import picgo from '@core/picgo'
 import logger from '@core/picgo/logger'
+import { flushLocalLogs } from '@core/utils/localLogger'
 import windowManager from 'apis/app/window/windowManager'
 import { app, globalShortcut, protocol, screen } from 'electron'
 import fs from 'fs-extra'
@@ -18,7 +19,6 @@ import rpcServer from '~/ipc'
 import { setupAutoUpdater } from '~/lifecycle/autoUpdater'
 import fixPath from '~/lifecycle/fixPath'
 import { handleStartUpFiles, initializeStartup } from '~/lifecycle/startup'
-import getManageApi from '~/manage'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { transferScheduler } from '~/manage/transferScheduler'
 import { clearTempFolder } from '~/manage/utils/common'
@@ -127,7 +127,6 @@ class LifeCycle {
     ])
     if (this.#quitting) return
 
-    getManageApi()
     UpDownTaskQueue.getInstance()
     // Register journal references before any uploader can prune finalization history.
     UploadTaskQueueManager.getInstance()
@@ -202,6 +201,7 @@ class LifeCycle {
     results.forEach((result, index) => {
       if (result.status === 'rejected') logger.error(`Failed to clean up ${tasks[index][0]} before quit`)
     })
+    await waitForShutdown(flushLocalLogs()).catch(() => logger.error('Timed out flushing local logs'))
   }
 
   #onQuit() {

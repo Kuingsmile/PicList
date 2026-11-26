@@ -24,6 +24,16 @@ This update restores the built-in local file server, introduces a gallery tag sy
 - S3 upload results now include `s3Object` (`bucket` and unencoded `key`) for more reliable downstream deletion and handling.
 - Added core support for random watermark presets, fixed font sizes, and text placeholders.
 
+#### 🚀 Performance
+
+- Optimized batch uploads and gallery writes: eliminated redundant byte-by-byte traversal when deep-cloning image `Buffer`s, batched gallery database inserts, and grouped upload recovery journal checkpoints by stage to significantly speed up batch uploads and reduce disk flushes.
+- Optimized clipboard monitoring and reading: hashes compressed PNG/JPEG clipboard payloads directly instead of decoding full uncompressed bitmaps to lower idle CPU and memory usage, and verifies clipboard file paths asynchronously with in-flight deduplication and a timeout so slow network shares do not block the main process.
+- Optimized Cloud Management transfer task lists: replaced periodic IPC polling with event-driven subscriptions and batched incremental diffs backed by `Map` lookups; progress-only updates stay in memory, writing checkpoints to disk only when recovery-relevant task metadata changes.
+- Optimized gallery edits and sync performance: tracks modified records incrementally and caches verified sync revisions so gallery reads and edits only revalidate and recalculate changed entries; sync preview now releases the gallery lock while fetching remote data so local edits remain unblocked.
+- Optimized JPEG XL (`.jxl`) previews: offloaded decoding to a pool of background worker threads (with automatic idle cleanup) to keep the UI responsive, and added an LRU preview cache with concurrent request deduplication so reopened images reuse decoded results.
+- Optimized application startup: lazy-loads the Cloud Management module on first use, caches portable-mode and data-directory checks.
+- Reduced frequent synchronous disk I/O: debounces mini-window position saving until dragging pauses or the window closes (skipping unchanged coordinates), and buffers local log writes into asynchronous batches flushed gracefully on shutdown.
+
 ### 🐛 Bug Fixes
 
 #### 📤 Uploads, Gallery, and Settings

@@ -3,90 +3,82 @@ import util from 'node:util'
 import dayjs from 'dayjs'
 import fs from 'fs-extra'
 
-const MB = 1024 * 1024
-const DEFAULT_LOG_FILE_SIZE_LIMIT = 10 * MB
+const LOG_SIZE_LIMIT = 10 * 1024 * 1024
 
-interface CheckLogFileResult {
-  isLarge: boolean
-  logFileSize?: number
-  logFileSizeLimit?: number
+interface LogBuffer {
+  lines: string[]
+  timer?: NodeJS.Timeout
+  writing?: Promise<void>
 }
 
-const checkLogFileIsLarge = (logPath: string): CheckLogFileResult => {
-  try {
-    if (fs.existsSync(logPath)) {
-      const logFileSize = fs.statSync(logPath).size
-      return {
-        isLarge: logFileSize > DEFAULT_LOG_FILE_SIZE_LIMIT,
-        logFileSize,
-        logFileSizeLimit: DEFAULT_LOG_FILE_SIZE_LIMIT,
+const buffers = new Map<string, LogBuffer>()
+
+async function flush(file: string, buffer: LogBuffer): Promise<void> {
+  clearTimeout(buffer.timer)
+  buffer.timer = undefined
+  if (!buffer.writing && buffer.lines.length) {
+    buffer.writing = (async () => {
+      while (buffer.lines.length) {
+        const lines = buffer.lines
+        buffer.lines = []
+        try {
+          let size = await fs.stat(file).then(
+            info => info.size,
+            (error: NodeJS.ErrnoException) => {
+              if (error.code === 'ENOENT') return 0
+              throw error
+            },
+          )
+          // A burst can cross the rotation limit multiple times before the disk catches up.
+          let start = 0
+          let flag = 'a'
+          for (const [i, line] of lines.entries()) {
+            if (size > LOG_SIZE_LIMIT) {
+              flag = 'w'
+              start = i
+              size = 0
+            }
+            size += Buffer.byteLength(line)
+          }
+          await fs.outputFile(file, lines.slice(start).join(''), { flag })
+        } catch (error) {
+          console.log(error)
+        }
       }
-    }
-    return { isLarge: false }
-  } catch (e) {
-    console.log(e)
-    return { isLarge: true }
+    })().finally(() => {
+      buffer.writing = undefined
+    })
   }
+  await buffer.writing
+  if (buffer.lines.length) await flush(file, buffer)
 }
 
-const recreateLogFile = (logPath: string): void => {
-  try {
-    if (fs.existsSync(logPath)) {
-      fs.unlinkSync(logPath)
-      fs.createFileSync(logPath)
-    }
-  } catch (e) {
-    console.log(e)
-  }
+export async function flushLocalLogs(): Promise<void> {
+  await Promise.all([...buffers].map(([file, buffer]) => flush(file, buffer)))
 }
 
-/**
- * for local log before piclist inited
- */
-const getLogger = (logPath: string, logType: string) => {
-  let hasUncathcedError = false
-  try {
-    fs.ensureFileSync(logPath)
-    if (checkLogFileIsLarge(logPath).isLarge) {
-      recreateLogFile(logPath)
-    }
-  } catch (e) {
-    console.log(e)
-    hasUncathcedError = true
-  }
+/** Local logging is available before the core logger starts. Writers share ordering per file. */
+export const getLogger = (logPath: string, logType: string) => {
+  const output: LogBuffer = buffers.get(logPath) ?? { lines: [] }
+  buffers.set(logPath, output)
   return (type: string, ...msg: any[]) => {
-    if (hasUncathcedError) {
-      if (checkLogFileIsLarge(logPath).isLarge) {
-        recreateLogFile(logPath)
-      }
-      return
-    }
     try {
       let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [${logType} ${type.toUpperCase()}] `
       msg.forEach((item: ILogArgvTypeWithError) => {
-        if (typeof item === 'object' && type === 'error') {
+        if (item && typeof item === 'object' && type === 'error') {
           log += `\n------Error Stack Begin------\n${util.format(item.stack)}\n-------Error Stack End------- `
         } else {
-          if (typeof item === 'object') {
-            item = JSON.stringify(item)
-          }
-          log += `${item} `
+          log += `${typeof item === 'object' ? JSON.stringify(item) : item} `
         }
       })
       log += '\n'
       console.log(log)
-      // A synchronized approach to avoid log msg sequence errors
-      if (checkLogFileIsLarge(logPath).isLarge) {
-        recreateLogFile(logPath)
+      output.lines.push(log)
+      if (!output.timer && !output.writing) {
+        output.timer = setTimeout(() => void flush(logPath, output), 100)
       }
-      if (!hasUncathcedError) {
-        fs.appendFileSync(logPath, log)
-      }
-    } catch (e) {
-      console.log(e)
-      hasUncathcedError = true
+    } catch (error) {
+      console.log(error)
     }
   }
 }
-
-export { getLogger }

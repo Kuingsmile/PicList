@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 import { GalleryDB } from '@core/datastore'
 
-import { ManageApi } from '~/manage/manageApi'
+import getManageApi from '~/manage'
 
 import { type BulkContext, type BulkInput, type BulkPolicy, isBulkPolicy } from '../../shared/bulkChanges'
 import { createGalleryAdapter } from './gallery'
@@ -58,7 +58,7 @@ export async function previewRemoteChanges(event: IIPCEvent, context: BulkContex
   ) {
     throw new Error('Invalid provider context')
   }
-  const api = new ManageApi(context.accountId)
+  const api = await getManageApi(context.accountId)
   if (api.currentPicBedConfig.picBedName !== context.provider) throw new Error('Provider context changed')
   const frozenContext = Object.freeze({
     provider: context.provider,

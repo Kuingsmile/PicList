@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { isDeepStrictEqual } from 'node:util'
 
 import { normalizeGalleryTags } from '#/galleryTags'
 import type { GallerySyncChange, GallerySyncResolution, GallerySyncSource } from '#/types/gallerySync'
@@ -59,6 +60,11 @@ const sorted = (values: string[]) => [...new Set(values)].sort()
 const isObject = (value: unknown): value is Record<string, any> =>
   !!value && typeof value === 'object' && !Array.isArray(value)
 const isHash = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+const isGalleryRecord = (value: unknown): value is RecordValue =>
+  isObject(value) &&
+  typeof value.id === 'string' &&
+  !!value.id &&
+  ['createdAt', 'updatedAt'].every(field => value[field] === undefined || Number.isFinite(value[field]))
 
 export function revision(value: RecordValue | null, previous: Revision[] = []): Revision {
   const parents = sorted(previous.map(item => item.revision))
@@ -92,19 +98,15 @@ export function cleanBackupPayloads(document: GalleryDocument): GalleryDocument 
 }
 
 // Missing records in an input are not deletions. Only explicit, validated tombstones delete records.
-export function validateDocument(input: unknown): GalleryDocument {
+export function validateDocument(input: unknown, verified?: ReadonlyMap<string, Revision>): GalleryDocument {
   const invalid = () => {
     throw new GallerySyncError('Invalid gallery database. No changes were applied.')
   }
   if (!isObject(input) || !Array.isArray(input.gallery) || !isObject(input.__gallery_KEY__)) return invalid()
   const values = new Map<string, RecordValue>()
   for (const value of input.gallery) {
-    if (!isObject(value) || typeof value.id !== 'string' || !value.id || values.has(value.id)) return invalid()
-    for (const field of ['createdAt', 'updatedAt']) {
-      if (value[field] !== undefined && (typeof value[field] !== 'number' || !Number.isFinite(value[field])))
-        return invalid()
-    }
-    values.set(value.id, value as RecordValue)
+    if (!isGalleryRecord(value) || values.has(value.id)) return invalid()
+    values.set(value.id, value)
   }
   if (
     Object.keys(input.__gallery_KEY__).length !== values.size ||
@@ -116,6 +118,13 @@ export function validateDocument(input: unknown): GalleryDocument {
   if (!isObject(input.__sync) || input.__sync.version !== 1 || !isObject(input.__sync.records)) return invalid()
   const records: Record<string, Revision> = Object.create(null)
   for (const [id, entry] of Object.entries(input.__sync.records)) {
+    const value = values.get(id) ?? null
+    const known = verified?.get(id)
+    // Older writers and other processes can edit either copy of the value or its ancestry.
+    if (known && isDeepStrictEqual(entry, known) && isDeepStrictEqual(value, known.value)) {
+      records[id] = entry as Revision
+      continue
+    }
     if (
       !id ||
       !isObject(entry) ||
@@ -130,7 +139,6 @@ export function validateDocument(input: unknown): GalleryDocument {
       entry.parents.some(parent => !entry.ancestors.includes(parent))
     )
       return invalid()
-    const value = values.get(id) ?? null
     if (
       canonical(entry.value) !== canonical(value) ||
       (value && value.id !== id) ||
@@ -159,23 +167,34 @@ export function recoverLocalDocument(input: unknown): GalleryDocument {
 
 // Called only by the gallery store's atomic mutation writer. The before/after difference
 // represents a successful user mutation, never a comparison of two sync inputs.
-export function recordMutation(before: GalleryDocument, after: { gallery: RecordValue[] }): GalleryDocument {
-  const next = validateDocument({
-    gallery: after.gallery,
-    __gallery_KEY__: Object.fromEntries(after.gallery.map(item => [item.id, 1])),
-  })
+export function recordMutation(
+  before: GalleryDocument,
+  after: { gallery: RecordValue[] },
+  dirty?: Set<string>,
+): GalleryDocument {
   const records = Object.assign(Object.create(null), before.__sync.records) as Record<string, Revision>
-  for (const [id, entry] of Object.entries(next.__sync.records)) {
-    const previous = records[id]
-    records[id] =
-      previous && canonical(previous.value) === canonical(entry.value)
-        ? previous
-        : revision(entry.value, previous ? [previous] : [])
+  const live = new Set<string>()
+  const gallery = after.gallery.map(item => {
+    const previous = records[item.id]
+    // The store generates IDs for inserts without one. New IDs are always dirty.
+    const changed = !dirty || dirty.has(item.id) || !previous?.value
+    const value = changed ? JSON.parse(JSON.stringify(item)) : item
+    if (!isGalleryRecord(value) || value.id !== item.id || live.has(value.id))
+      throw new GallerySyncError('Invalid gallery record.')
+    live.add(value.id)
+    if (changed && (!previous || !isDeepStrictEqual(previous.value, value))) {
+      records[value.id] = revision(value, previous ? [previous] : [])
+    }
+    return value
+  })
+  for (const id of dirty ?? Object.keys(records)) {
+    if (records[id]?.value && !live.has(id)) records[id] = revision(null, [records[id]])
   }
-  for (const [id, previous] of Object.entries(before.__sync.records)) {
-    if (previous.value && !Object.hasOwn(next.__sync.records, id)) records[id] = revision(null, [previous])
+  return {
+    gallery,
+    __gallery_KEY__: Object.fromEntries(gallery.map(item => [item.id, 1])),
+    __sync: { version: 1, records },
   }
-  return documentFrom(records)
 }
 
 function frontier(candidates: Candidate[]): Candidate[] {

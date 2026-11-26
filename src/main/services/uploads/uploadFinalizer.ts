@@ -431,6 +431,7 @@ interface FinalizationOptions {
   origin?: WebContents
   assertActive?: () => void
   checkpoint?: () => void | Promise<void>
+  journalAlreadySaved?: boolean
 }
 
 const activeFinalizations = new Map<string, Promise<IStringKeyMap[]>>()
@@ -462,27 +463,48 @@ async function finishUpload(state: UploadFinalization, options: FinalizationOpti
   }
   try {
     // Save the completed remote result before formatting, gallery writes, hooks or source deletion.
-    await checkpoint()
+    if (!options.journalAlreadySaved) await checkpoint()
+    let preparedSinceSave = false
     for (const item of state.items) {
       assertActive()
       if (!item.prepared) {
+        const previousShortUrl = item.image.shortUrl
         const [text, shortUrl] = await pasteTemplate(state.settings.pasteStyle, item.image, state.settings.customLink)
         item.image.shortUrl = shortUrl
         item.pasteText = text
         item.prepared = true
-        await checkpoint()
+        preparedSinceSave = true
+        // Creating a remote short link can have a side effect of its own.
+        if (shortUrl && shortUrl !== previousShortUrl) {
+          await checkpoint()
+          preparedSinceSave = false
+        }
       }
-      if (!item.inserted) {
-        const db = GalleryDB.getInstance()
-        // An insert can commit before a journal write fails. Its stable ID makes recovery idempotent.
-        item.image = (await db.getById(item.image.id!)) || (await db.insert(cloneDeep(item.image)))
-        item.inserted = true
-        await checkpoint()
-      }
+    }
+    if (preparedSinceSave) await checkpoint()
+    const pending = state.items.filter(item => !item.inserted)
+    if (pending.length) {
+      const db = GalleryDB.getInstance()
+      await db.withSnapshot(async ({ data }) => {
+        assertActive()
+        // An insert may have committed before its journal. Keep existing records (and any later edits).
+        const records = new Map(data.map(record => [record.id, record]))
+        const missing = pending.filter(item => !records.has(item.image.id!))
+        if (missing.length) {
+          const inserted = await db.insertMany(missing.map(item => cloneDeep(item.image)))
+          for (const record of inserted) records.set(record.id, record)
+        }
+        for (const item of pending) {
+          item.image = records.get(item.image.id!)!
+          item.inserted = true
+        }
+      })
+      await checkpoint()
     }
     assertActive()
     publishGallery(options.origin)
     // All primary and secondary metadata must be durable before hooks and cleanup.
+    let ranHooks = false
     for (const item of state.items) {
       assertActive()
       if (item.hooksCompleted) continue
@@ -505,10 +527,10 @@ async function finishUpload(state: UploadFinalization, options: FinalizationOpti
         },
       )
       item.hooksCompleted = true
-      await checkpoint()
+      ranHooks = true
     }
     // A failed checkpoint or hook never authorizes deleting a source.
-    await checkpoint()
+    if (ranHooks) await checkpoint()
     if (state.settings.deleteLocalFile) {
       const destinations = await getLocalDestinations(state.items)
       const sources = new Set(state.items.map(item => item.sourcePath).filter((source): source is string => !!source))

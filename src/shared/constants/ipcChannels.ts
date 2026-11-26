@@ -41,3 +41,5 @@ export const UPDATE_MINI_ICON = 'updateMiniIcon'
 export const UPLOAD_PROGRESS = 'uploadProgress'
 
 export const UPLOAD_TASK_QUEUE_UPDATE = 'uploadTaskQueueUpdate'
+export const MANAGE_UPLOAD_TASKS_CHANGED = 'manageUploadTasksChanged'
+export const MANAGE_DOWNLOAD_TASKS_CHANGED = 'manageDownloadTasksChanged'

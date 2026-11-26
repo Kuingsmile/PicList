@@ -5,7 +5,6 @@ import picgo from '@core/picgo'
 import { uploadChoosedFiles, uploadClipboardFiles } from 'apis/app/uploader/apis'
 import windowManager from 'apis/app/window/windowManager'
 import { app, Menu, MenuItem, MenuItemConstructorOptions, nativeTheme, screen, Tray } from 'electron'
-import fs from 'fs-extra'
 
 import { getDefaultTrayClickAction, ITrayClickAction } from '#/constants/app'
 import { CLIPBOARD_FILES, UPDATE_FILES } from '#/constants/ipcChannels'
@@ -322,15 +321,9 @@ function toggleTrayPanel(bounds: Electron.Rectangle) {
 
 // Preview what the built-in clipboard upload would send: a copied file (Finder/Explorer) or raw image data.
 async function sendClipboardFiles() {
-  const { filePath, image: img } = await readUploadClipboard()
+  const { filePath, image: img } = await readUploadClipboard({ verifyFileDrop: true })
   const files: ImgInfo[] = []
-  const isFile = filePath
-    ? await fs.stat(filePath).then(
-        stat => stat.isFile(),
-        () => false,
-      )
-    : false
-  if (isFile) {
+  if (filePath) {
     const fileName = path.basename(filePath)
     files.push({ fileName, imgUrl: isImage(fileName) ? pathToFileURL(filePath).href : '' })
   } else if (!img.isEmpty()) {

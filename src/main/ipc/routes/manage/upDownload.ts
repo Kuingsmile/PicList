@@ -1,12 +1,31 @@
 import { app, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 
+import type { TransferListKind } from '#/types/transferTasks'
 import { IRPCActionType, IRPCType } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { transferScheduler } from '~/manage/transferScheduler'
 import { downloadFileFromUrl } from '~/manage/utils/common'
 
+function transferList(kind: TransferListKind, token: string) {
+  if (!['upload', 'download'].includes(kind) || typeof token !== 'string' || !token || token.length > 128)
+    throw new Error('Invalid transfer subscription')
+  const queue = UpDownTaskQueue.getInstance()
+  return kind === 'upload' ? queue.uploads : queue.downloads
+}
+
 export default [
+  {
+    action: IRPCActionType.MANAGE_WATCH_TRANSFER_TASKS,
+    handler: async (event: IIPCEvent, [kind, token]: [TransferListKind, string]) =>
+      transferList(kind, token).subscribe(event.sender, token),
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.MANAGE_UNWATCH_TRANSFER_TASKS,
+    handler: async (event: IIPCEvent, [kind, token]: [TransferListKind, string]) =>
+      transferList(kind, token).unsubscribe(event.sender, token),
+  },
   {
     action: IRPCActionType.MANAGE_CANCEL_UPLOAD_TASK,
     handler: async (_: IIPCEvent, args: [id: string]) => transferScheduler.cancel(args[0]),

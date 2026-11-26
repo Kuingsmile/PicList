@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import path from 'node:path'
 
 import type { DBStore, IGetResult, IObject } from '@piclist/store'
@@ -7,7 +8,7 @@ import { hasBackupPayload, withoutBackupPayload } from '~/services/uploads/backu
 
 import { cleanupGallery } from './cleanup'
 import { galleryLockHeld, withGalleryLock } from './lock'
-import { type GalleryDocument, GallerySyncError, recordMutation, validateDocument } from './model'
+import { type GalleryDocument, GallerySyncError, recordMutation, type Revision, validateDocument } from './model'
 import { recoverLocalGallery, stateDir } from './storage'
 
 export interface GalleryStore extends DBStore {
@@ -15,11 +16,47 @@ export interface GalleryStore extends DBStore {
   withSnapshot<T>(operation: (snapshot: IGetResult<IObject>) => Promise<T>): Promise<T>
 }
 
+function mutationIds(method: PropertyKey, args: any[]): Set<string> | undefined {
+  let ids: unknown[]
+  switch (method) {
+    case 'insert':
+      ids = [args[0].id]
+      break
+    case 'insertMany':
+    case 'updateMany':
+      ids = args[0].map((item: IObject) => item.id)
+      break
+    case 'updateById':
+    case 'removeById':
+      ids = [args[0]]
+      break
+    case 'removeMany':
+      ids = args[0]
+      break
+    // Overwrite and direct adapter writes can change every record.
+    default:
+      return undefined
+  }
+  return new Set(ids.filter((id): id is string => typeof id === 'string'))
+}
+
 export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
   const adapter = store.getAdapter()
   const read = adapter.read.bind(adapter)
   const write = adapter.write.bind(adapter)
   let before: GalleryDocument | undefined
+  const mutations = new AsyncLocalStorage<Set<string>>()
+  let verified = new Map<string, Revision>()
+  const remember = (document: GalleryDocument) => {
+    const next = new Map<string, Revision>()
+    for (const [id, record] of Object.entries(document.__sync.records)) {
+      const known = verified.get(id)
+      // Public store reads return live objects. Cache a private copy only for new revisions.
+      next.set(id, known?.revision === record.revision ? known : structuredClone(record))
+    }
+    verified = next
+    before = document
+  }
   adapter.read = async () => {
     let data = await read()
     // An older writer can introduce plugin payloads again while PicList is running.
@@ -28,11 +65,11 @@ export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
       data = await read()
     }
     try {
-      before = validateDocument(data)
+      remember(validateDocument(data, verified))
     } catch (error) {
       if (!(error instanceof GallerySyncError) || !recoverLocalGallery(root)) throw error
       data = await read()
-      before = validateDocument(data)
+      remember(validateDocument(data))
     }
     return data
   }
@@ -42,14 +79,17 @@ export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
     // properties and Buffer/Date toJSON values. Never hash an in-memory object and
     // then persist a different representation of it.
     const gallery = data.gallery.map(withoutBackupPayload)
-    const serialized = JSON.parse(JSON.stringify({ ...data, gallery, __sync: undefined }))
-    const next = recordMutation(before, serialized)
+    const dirty = mutations.getStore()
+    // A raw adapter client can change its last read in place, including __sync.
+    const baseline = dirty
+      ? before
+      : { ...before, __sync: { version: 1 as const, records: structuredClone(Object.fromEntries(verified)) } }
+    const next = recordMutation(baseline, { gallery }, dirty)
     // The store atomically writes records and their revisions/tombstones together.
-    serialized.__sync = next.__sync
-    await write(serialized)
+    await write({ ...data, ...next })
     data.__sync = next.__sync
     data.gallery = gallery
-    before = next
+    remember(next)
   }
   const locked = <T>(operation: () => Promise<T>): Promise<T> => {
     const nested = galleryLockHeld()
@@ -72,7 +112,12 @@ export function trackGalleryStore(store: DBStore, root: string): GalleryStore {
       const value = Reflect.get(target, property)
       if (typeof value !== 'function') return value
       if (property === 'getAdapter') return value.bind(target)
-      return (...args: unknown[]) => locked(async () => Reflect.apply(value, target, args))
+      return (...args: unknown[]) =>
+        locked(async () => {
+          const dirty = mutationIds(property, args)
+          const operation = () => Reflect.apply(value, target, args)
+          return dirty ? mutations.run(dirty, operation) : operation()
+        })
     },
   }) as GalleryStore
 }

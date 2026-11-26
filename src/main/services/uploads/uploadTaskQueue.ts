@@ -419,6 +419,7 @@ class UploadTaskQueueManager {
         }
         assertActive()
         const results = await finalizeUpload(task.finalization, {
+          journalAlreadySaved: true,
           contexts,
           origin: webContents,
           assertActive,

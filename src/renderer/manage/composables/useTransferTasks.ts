@@ -1,7 +1,8 @@
 import type { Ref } from 'vue'
 
-import { usePolling } from '@/composables/usePolling'
 import { IRPCActionType } from '#/constants/rpcActions'
+
+import { useTransferTaskList } from './useTransferTaskList'
 
 interface TransferTaskOptions {
   tableActive: Ref<boolean>
@@ -24,18 +25,16 @@ export function useTransferTasks(options: TransferTaskOptions) {
     }
   }
 
-  const uploadTasks = usePolling(
-    () => window.electron.triggerRPC<IUploadTask[]>(IRPCActionType.MANAGE_GET_UPLOAD_TASK_LIST),
-    tasks => (uploadTaskList.value = tasks ?? []),
+  const uploadTasks = useTransferTaskList(
+    'upload',
+    uploadTaskList,
     () => tableActive.value && (layoutStyle.value === 'table' || isShowUploadPanel.value),
-    () => (isShowUploadPanel.value ? 300 : 1500),
   )
 
-  const downloadTasks = usePolling(
-    () => window.electron.triggerRPC<IDownloadTask[]>(IRPCActionType.MANAGE_GET_DOWNLOAD_TASK_LIST),
-    tasks => (downloadTaskList.value = tasks ?? []),
+  const downloadTasks = useTransferTaskList(
+    'download',
+    downloadTaskList,
     () => tableActive.value && isShowDownloadPanel.value,
-    300,
   )
 
   async function handleCopyUploadingTaskInfo() {

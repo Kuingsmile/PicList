@@ -1,90 +1,104 @@
-import { readFileSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
+import { stat } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { Worker } from 'node:worker_threads'
 
-import { initSync, JxlImage } from 'jxl-oxide-wasm'
+import { PreviewCache } from '#/utils/previewCache'
 
-let isJxlDecoderInitialized = false
-let pendingDecode: Promise<unknown> = Promise.resolve()
+import decoderPath from './jxlPreview.worker?modulePath'
 
-function isHttpSource(source: string): boolean {
-  return /^https?:\/\//i.test(source)
+const MAX_CACHE_SIZE = 16 * 1024 * 1024
+const cache = new PreviewCache(Object.create(null), MAX_CACHE_SIZE)
+const pending = new Map<string, Promise<string | undefined>>()
+
+interface DecodeJob {
+  source: string
+  resolve: (result: string | undefined) => void
+  reject: (error: Error) => void
+}
+interface Decoder {
+  worker: Worker
+  job?: DecodeJob
+  idle?: NodeJS.Timeout
 }
 
-function isInlineSource(source: string): boolean {
-  return /^(data:|blob:)/i.test(source)
-}
+const workers = new Set<Decoder>()
+const waiting: DecodeJob[] = []
 
-function isJxlSource(source: string): boolean {
-  const sourcePath = isHttpSource(source) ? new URL(source).pathname : source
-  return path.extname(sourcePath.split(/[?#]/, 1)[0]).toLowerCase() === '.jxl'
-}
-
-function normalizeLocalFilePath(source: string): string {
-  if (source.startsWith('file://')) {
-    return fileURLToPath(source)
+function createDecoder(): Decoder {
+  // A Node worker must be able to open its entry point and WASM dependency outside the app archive.
+  const worker = new Worker(
+    decoderPath.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`),
+  )
+  const decoder: Decoder = { worker }
+  workers.add(decoder)
+  const stopped = () => {
+    if (!workers.delete(decoder)) return
+    clearTimeout(decoder.idle)
+    decoder.job?.reject(new Error('JPEG XL preview worker stopped'))
+    dispatch()
   }
-  return source
+  worker.once('error', stopped)
+  worker.once('exit', stopped)
+  worker.on('message', (value: string | undefined | null) => {
+    if (value === null) decoder.job?.reject(new Error('JPEG XL preview failed'))
+    else decoder.job?.resolve(value)
+    decoder.job = undefined
+    worker.unref()
+    decoder.idle = setTimeout(() => {
+      workers.delete(decoder)
+      void worker.terminate()
+    }, 30_000).unref()
+    dispatch()
+  })
+  return decoder
 }
 
-function initJxlDecoder() {
-  if (isJxlDecoderInitialized) return
-
-  const require = createRequire(import.meta.url)
-  const packageJsonPath = require.resolve('jxl-oxide-wasm/package.json')
-  const wasmPath = path.join(path.dirname(packageJsonPath), 'jxl_oxide_wasm_bg.wasm')
-  const wasmBytes = readFileSync(wasmPath)
-  initSync({ module: wasmBytes })
-  isJxlDecoderInitialized = true
-}
-
-async function readJxlSource(source: string): Promise<Buffer> {
-  if (isHttpSource(source)) {
-    const response = await fetch(source, { signal: AbortSignal.timeout(30_000) })
-    if (!response.ok) {
-      throw new Error(`request failed with status ${response.status}`)
-    }
-    return Buffer.from(await response.arrayBuffer())
-  }
-
-  return await readFile(normalizeLocalFilePath(source))
-}
-
-async function decodeJxlSource(source: string): Promise<string | undefined> {
-  const fileBytes = await readJxlSource(source)
-  initJxlDecoder()
-
-  const image = new JxlImage()
-  try {
-    image.feedBytes(fileBytes)
-    image.forceSrgb = true
-
-    if (!image.tryInit() || !image.loaded) {
-      return undefined
-    }
-
-    const frame = image.render()
+function dispatch() {
+  while (waiting.length) {
+    let decoder = [...workers].find(slot => !slot.job)
+    if (!decoder && workers.size >= 2) return
+    const job = waiting.shift()!
     try {
-      const pngBytes = frame.encodeToPng()
-      // encodeToPng returns an owned Uint8Array; a Buffer view avoids another full PNG copy.
-      return `data:image/png;base64,${Buffer.from(pngBytes.buffer, pngBytes.byteOffset, pngBytes.byteLength).toString('base64')}`
-    } finally {
-      frame.free()
+      decoder ??= createDecoder()
+      clearTimeout(decoder.idle)
+      decoder.worker.ref()
+      decoder.job = job
+      decoder.worker.postMessage(job.source)
+    } catch (error) {
+      if (decoder) {
+        workers.delete(decoder)
+        void decoder.worker.terminate()
+      }
+      job.reject(error as Error)
     }
-  } finally {
-    image.free()
   }
 }
 
 export async function convertJxlSourceToPngDataUrl(source: string, isKnownJxl = false): Promise<string | undefined> {
-  if (!source || isInlineSource(source) || (!isKnownJxl && !isJxlSource(source))) return undefined
-  // Queue before reading: scrolling must not preload many compressed images at once.
-  const result = pendingDecode.then(() => decodeJxlSource(source))
-  pendingDecode = result.then(
-    () => {},
-    () => {},
-  )
+  if (!source || /^(data:|blob:)/i.test(source)) return
+  const remote = /^https?:\/\//i.test(source)
+  const sourcePath = remote ? new URL(source).pathname : source
+  if (!isKnownJxl && path.extname(sourcePath.split(/[?#]/, 1)[0]).toLowerCase() !== '.jxl') return
+  const location = source.startsWith('file://') ? fileURLToPath(source) : source
+  let key = location
+  if (!remote) {
+    const info = await stat(location, { bigint: true })
+    key = `${info.dev}:${info.ino}:${info.size}:${info.mtimeNs}:${info.ctimeNs}:${location}`
+  }
+  const cached = cache.get(key)
+  if (cached) return cached
+  const existing = pending.get(key)
+  if (existing) return existing
+  const result = new Promise<string | undefined>((resolve, reject) => {
+    waiting.push({ source: location, resolve, reject })
+    dispatch()
+  })
+    .then(preview => {
+      if (preview && preview.length <= MAX_CACHE_SIZE) cache.set(key, preview, remote ? Date.now() + 60_000 : Infinity)
+      return preview
+    })
+    .finally(() => pending.delete(key))
+  pending.set(key, result)
   return result
 }

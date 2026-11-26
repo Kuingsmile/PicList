@@ -1,29 +1,27 @@
-// a singleton class to manage the up/down task queue
-// qiniu tcyun aliyun smms imgur github upyun
-
 import path from 'node:path'
 
 import { dataDir } from '@core/datastore/dirs'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/constants'
+import { MANAGE_DOWNLOAD_TASKS_CHANGED, MANAGE_UPLOAD_TASKS_CHANGED } from '#/constants/ipcChannels'
 import { TaskCheckpoint } from '~/services/taskCheckpoint'
 
 import { finishImportedFileUpload, retainImportedFileForUpload } from '../utils/urlImportFiles'
-import { decodeManagementCheckpoint, managementTaskMetadata, retainManagementHistory } from './taskMetadata'
+import { decodeManagementCheckpoint, isTerminalManagementTask, managementTaskMetadata } from './taskMetadata'
+import { TransferTaskList } from './transferTaskList'
 
 class UpDownTaskQueue {
   private static instance: UpDownTaskQueue
-
-  private uploadTaskQueue = [] as IUploadTask[]
-
-  private downloadTaskQueue = [] as IDownloadTask[]
+  readonly uploads = new TransferTaskList<IUploadTask>(MANAGE_UPLOAD_TASKS_CHANGED, () => this.checkpoint.schedule())
+  readonly downloads = new TransferTaskList<IDownloadTask>(MANAGE_DOWNLOAD_TASKS_CHANGED, () =>
+    this.checkpoint.schedule(),
+  )
 
   private checkpoint = new TaskCheckpoint({
     file: path.join(dataDir(), 'UpDownTaskQueue.json'),
     decode: decodeManagementCheckpoint,
     snapshot: () => ({
-      uploadTaskQueue: this.uploadTaskQueue.map(managementTaskMetadata),
-      downloadTaskQueue: this.downloadTaskQueue.map(managementTaskMetadata),
+      uploadTaskQueue: this.uploads.all().map(managementTaskMetadata),
+      downloadTaskQueue: this.downloads.all().map(managementTaskMetadata),
     }),
     onError: () => console.error('Management task checkpoint unavailable'),
   })
@@ -31,132 +29,72 @@ class UpDownTaskQueue {
   private constructor() {
     const restored = this.checkpoint.load()
     if (restored) {
-      this.uploadTaskQueue = restored.uploadTaskQueue
-      this.downloadTaskQueue = restored.downloadTaskQueue
-      this.persist()
+      this.uploads.restore(restored.uploadTaskQueue)
+      this.downloads.restore(restored.downloadTaskQueue)
+      this.checkpoint.schedule()
     }
   }
 
   static getInstance() {
-    if (!UpDownTaskQueue.instance) {
-      UpDownTaskQueue.instance = new UpDownTaskQueue()
-    }
-    return UpDownTaskQueue.instance
+    return (UpDownTaskQueue.instance ??= new UpDownTaskQueue())
   }
 
   getAllUploadTask() {
-    return UpDownTaskQueue.getInstance().uploadTaskQueue
+    return this.uploads.all()
   }
 
   addUploadTask(task: IUploadTask) {
     retainImportedFileForUpload(task.sourceFilePath, task.id)
-    UpDownTaskQueue.getInstance().uploadTaskQueue.push(task)
-    task.createdAt ??= Date.now()
-    this.persist()
+    this.uploads.add(task)
   }
 
   updateUploadTask(task: Partial<IUploadTask>) {
-    const taskIndex = UpDownTaskQueue.getInstance().uploadTaskQueue.findIndex(item => item.id === task.id)
-    if (taskIndex !== -1) {
-      const current = UpDownTaskQueue.getInstance().uploadTaskQueue[taskIndex]
-      if (['uploaded', 'failed', 'canceled'].includes(current.status)) return
-      const taskKeys = Object.keys(task)
-      taskKeys.forEach(key => {
-        if (key !== 'id') {
-          UpDownTaskQueue.getInstance().uploadTaskQueue[taskIndex][key] = task[key]
-        }
-      })
-      if (['uploaded', 'failed', 'canceled'].includes(current.status)) current.completedAt = Date.now()
-      this.persist()
-    }
-    // Providers finish asynchronously, even if the visible task list was cleared.
-    if (
-      task.id &&
-      (task.status === uploadTaskSpecialStatus.uploaded ||
-        task.status === commonTaskStatus.failed ||
-        task.status === commonTaskStatus.canceled)
-    ) {
-      finishImportedFileUpload(task.id)
-    }
+    this.uploads.update(task)
+    // Providers can finish after the user clears the visible list.
+    if (task.id && isTerminalManagementTask(task.status)) finishImportedFileUpload(task.id)
   }
 
   removeDownloadTask(taskId: string) {
-    const taskIndex = UpDownTaskQueue.getInstance().downloadTaskQueue.findIndex(item => item.id === taskId)
-    if (taskIndex !== -1) {
-      UpDownTaskQueue.getInstance().downloadTaskQueue.splice(taskIndex, 1)
-      this.persist()
-    }
+    this.downloads.removeWhere(task => task.id === taskId)
   }
 
   getDownloadTask(taskId: string) {
-    return UpDownTaskQueue.getInstance().downloadTaskQueue.find(item => item.id === taskId)
+    return this.downloads.get(taskId)
   }
 
   getAllDownloadTask() {
-    return UpDownTaskQueue.getInstance().downloadTaskQueue
+    return this.downloads.all()
   }
 
   addDownloadTask(task: IDownloadTask) {
-    UpDownTaskQueue.getInstance().downloadTaskQueue.push(task)
-    task.createdAt ??= Date.now()
-    this.persist()
+    this.downloads.add(task)
   }
 
   updateDownloadTask(task: Partial<IDownloadTask>) {
-    const taskIndex = UpDownTaskQueue.getInstance().downloadTaskQueue.findIndex(item => item.id === task.id)
-    if (taskIndex !== -1) {
-      const current = this.downloadTaskQueue[taskIndex]
-      if (['downloaded', 'failed', 'canceled'].includes(current.status)) return
-      const taskKeys = Object.keys(task)
-      taskKeys.forEach(key => {
-        if (key !== 'id') {
-          UpDownTaskQueue.getInstance().downloadTaskQueue[taskIndex][key] = task[key]
-        }
-      })
-      if (['downloaded', 'failed', 'canceled'].includes(current.status)) current.completedAt = Date.now()
-      this.persist()
-    }
+    this.downloads.update(task)
   }
 
   clearUploadTaskQueue() {
-    UpDownTaskQueue.getInstance().uploadTaskQueue = []
-    this.persist()
+    this.uploads.removeWhere(() => true)
   }
 
   removeUploadedTask() {
-    UpDownTaskQueue.getInstance().uploadTaskQueue = UpDownTaskQueue.getInstance().uploadTaskQueue.filter(
-      item =>
-        item.status !== uploadTaskSpecialStatus.uploaded &&
-        item.status !== commonTaskStatus.canceled &&
-        item.status !== commonTaskStatus.failed,
-    )
-    this.persist()
+    this.uploads.removeWhere(task => isTerminalManagementTask(task.status))
   }
 
   removeDownloadedTask() {
-    UpDownTaskQueue.getInstance().downloadTaskQueue = UpDownTaskQueue.getInstance().downloadTaskQueue.filter(
-      item =>
-        item.status !== downloadTaskSpecialStatus.downloaded &&
-        item.status !== commonTaskStatus.canceled &&
-        item.status !== commonTaskStatus.failed,
-    )
-    this.persist()
+    this.downloads.removeWhere(task => isTerminalManagementTask(task.status))
   }
 
   clearDownloadTaskQueue() {
-    UpDownTaskQueue.getInstance().downloadTaskQueue = []
-    this.persist()
+    this.downloads.removeWhere(() => true)
   }
 
-  persist() {
-    this.uploadTaskQueue = retainManagementHistory(this.uploadTaskQueue)
-    this.downloadTaskQueue = retainManagementHistory(this.downloadTaskQueue)
-    this.checkpoint.schedule()
-  }
-
-  async flush(): Promise<void> {
-    this.persist()
-    await this.checkpoint.flush()
+  flush(): Promise<void> {
+    const prunedUploads = this.uploads.pruneHistory()
+    const prunedDownloads = this.downloads.pruneHistory()
+    if (prunedUploads || prunedDownloads) this.checkpoint.schedule()
+    return this.checkpoint.flush()
   }
 }
 

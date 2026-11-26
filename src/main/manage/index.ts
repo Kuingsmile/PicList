@@ -1,9 +1,9 @@
-import { manageDbChecker } from '~/manage/datastore/dbChecker'
-import { ManageApi } from '~/manage/manageApi'
+import type { ManageApi } from './manageApi'
 
-manageDbChecker()
-const getManageApi = (picBedName: string = 'placeholder'): ManageApi => {
+let configApi: ManageApi | undefined
+
+export default async function getManageApi(picBedName?: string): Promise<ManageApi> {
+  const { ManageApi } = await import('./manageApi')
+  if (picBedName === undefined) return (configApi ??= new ManageApi())
   return new ManageApi(picBedName)
 }
-
-export default getManageApi

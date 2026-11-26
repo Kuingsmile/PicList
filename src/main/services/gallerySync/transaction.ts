@@ -146,48 +146,53 @@ export class GallerySyncTransaction {
     return withGalleryLock(() => this.discard(id))
   }
 
-  preview(): Promise<GallerySyncPlan> {
-    return withGalleryLock(async () => {
-      await this.recover()
-      for (const [id, item] of this.plans) {
-        if (this.now() - item.startedAt > 30 * 60_000 || this.plans.size >= 8) await this.discard(id)
-      }
-      const startedAt = this.now()
-      const startingWatermark = this.deps.getWatermark()
-      const configKey = this.deps.configurationKey()
-      const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'piclist-gallery-sync-'))
-      try {
-        const transport = this.deps.transport()
-        const local = await this.localFiles()
-        // Validate the local input before starting any remote mutation.
-        const localDocs = local.map(content => (content ? validateDocument(decode(content)) : documentFrom({})))
-        const bundle = await this.readRemote(transport, BUNDLE_NAME)
-        const legacy: (RemoteFile | null)[] = []
-        if (bundle === null) {
-          for (const file of DATABASES) legacy.push(await this.readRemote(transport, file))
+  async preview(): Promise<GallerySyncPlan> {
+    try {
+      const { startedAt, startingWatermark, configKey, local, transport } = await withGalleryLock(async () => {
+        await this.recover()
+        return {
+          startedAt: this.now(),
+          startingWatermark: this.deps.getWatermark(),
+          configKey: this.deps.configurationKey(),
+          transport: this.deps.transport(),
+          local: await this.localFiles(),
         }
-        const remoteDocs = bundle
-          ? [decodeBundle(bundle.content)]
-          : legacy.map(item => (item ? validateDocument(decode(item.content)) : documentFrom({})))
-        const id = randomUUID()
-        const { entries, changes } = planMerge(
-          [
-            { source: 'local-primary', document: localDocs[0] },
-            { source: 'remote-primary', document: remoteDocs[0] },
-          ],
-          id,
-        )
-        const counts = { addition: 0, update: 0, conflict: 0, deletion: 0 }
-        changes.forEach(change => counts[change.kind]++)
-        const plan: GallerySyncPlan = { id, startingWatermark, changes, counts, migration: bundle === null }
+      })
+      // These bytes belong to this preview. Apply rechecks both inputs before publication.
+      const localDocs = local.map(content => (content ? validateDocument(decode(content)) : documentFrom({})))
+      const bundle = await this.readRemote(transport, BUNDLE_NAME)
+      const legacy: (RemoteFile | null)[] = []
+      if (bundle === null) {
+        for (const file of DATABASES) legacy.push(await this.readRemote(transport, file))
+      }
+      const remoteDocs = bundle
+        ? [decodeBundle(bundle.content)]
+        : legacy.map(item => (item ? validateDocument(decode(item.content)) : documentFrom({})))
+      const id = randomUUID()
+      const { entries, changes } = planMerge(
+        [
+          { source: 'local-primary', document: localDocs[0] },
+          { source: 'remote-primary', document: remoteDocs[0] },
+        ],
+        id,
+      )
+      const counts = { addition: 0, update: 0, conflict: 0, deletion: 0 }
+      changes.forEach(change => counts[change.kind]++)
+      const plan: GallerySyncPlan = { id, startingWatermark, changes, counts, migration: bundle === null }
+      return await withGalleryLock(async () => {
+        if (configKey !== this.deps.configurationKey() || startingWatermark !== this.deps.getWatermark())
+          throw new GallerySyncError('Sync settings or watermark changed. Preview again.')
+        for (const [key, item] of this.plans) {
+          if (this.now() - item.startedAt > 30 * 60_000 || this.plans.size >= 8) await this.discard(key)
+        }
+        const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'piclist-gallery-sync-'))
         this.plans.set(id, { plan, startedAt, directory, configKey, local, bundle, legacy, entries })
         return structuredClone(plan)
-      } catch (error) {
-        await fs.remove(directory)
-        if (error instanceof GallerySyncError) throw error
-        throw new GallerySyncError('Unable to prepare gallery sync. No changes were applied.')
-      }
-    })
+      })
+    } catch (error) {
+      if (error instanceof GallerySyncError) throw error
+      throw new GallerySyncError('Unable to prepare gallery sync. No changes were applied.')
+    }
   }
 
   apply(id: string, resolutions: Record<string, GallerySyncResolution>): Promise<GallerySyncResult> {

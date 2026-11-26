@@ -10,6 +10,8 @@ import { notificationList } from '~/utils/notifications'
 
 let _configFilePath = ''
 let _manageConfigFilePath = ''
+let portable: boolean | undefined
+let ensuredDataDir: string | undefined
 
 function resolveConfigPath(defaultPath: string, getLogPath: () => string, logType: string): string {
   try {
@@ -30,7 +32,7 @@ function resolveConfigPath(defaultPath: string, getLogPath: () => string, logTyp
 }
 
 export function isPortable() {
-  return fs.existsSync(path.join(exeDir(), 'PORTABLE'))
+  return (portable ??= fs.existsSync(path.join(exeDir(), 'PORTABLE')))
 }
 
 export function exePath() {
@@ -46,9 +48,11 @@ export function userDataDir() {
 }
 
 export function dataDir() {
+  if (ensuredDataDir) return ensuredDataDir
   const configDir = path.dirname(appConfigPath())
   try {
     fs.ensureDirSync(configDir)
+    ensuredDataDir = configDir
   } catch (_e) {}
   return configDir
 }

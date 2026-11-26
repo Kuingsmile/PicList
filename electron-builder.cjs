@@ -18,6 +18,8 @@ module.exports = {
     buildResources: 'build',
   },
   asarUnpack: [
+    'out/main/**/jxlPreview.worker-*.js',
+    '**/node_modules/jxl-oxide-wasm/**',
     '**/node_modules/sharp/**',
     '**/node_modules/ssh2-no-cpu-features/**',
     '**/node_modules/@img/**',

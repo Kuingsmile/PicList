@@ -10,6 +10,7 @@ import { get, set, unset } from 'lodash-es'
 import { IWindowList } from '~/constants'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
+import { manageDbChecker } from '~/manage/datastore/dbChecker'
 import { formatError, isInputConfigValid } from '~/manage/utils/common'
 import { deletionError } from '~/manage/utils/deleteObjects'
 import { invalidateDogecloudTokens } from '~/manage/utils/dogeAPI'
@@ -26,6 +27,8 @@ import {
 import { isListingRequest, listingChannels, type ListingData, type ListingRequest } from '../../shared/listing'
 import { runListingRequest } from './listingRequest'
 import { transferScheduler } from './transferScheduler'
+
+manageDbChecker()
 
 export class ManageApi extends EventEmitter implements IManageApiType {
   private _config!: Partial<IManageConfigType>
