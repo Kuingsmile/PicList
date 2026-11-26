@@ -392,6 +392,7 @@ class AliyunApi {
    */
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
+    if (oldKey === newKey) return true
     const client = this.getNewCtx(region, bucketName)
     const copyRes = (await client.copy(newKey, oldKey)) as any
     if (copyRes?.res.statusCode === 200) {

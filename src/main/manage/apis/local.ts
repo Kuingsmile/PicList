@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { open } from 'node:fs/promises'
 import path from 'node:path'
 import { finished, pipeline } from 'node:stream/promises'
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
@@ -12,14 +13,18 @@ import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils
 import ManageLogger from '~/manage/utils/logger'
 import { scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
+import { scopedLocalPath, unlinkScopedLocalFile } from '~/utils/scopedPath'
 
 class LocalApi {
   logger: ManageLogger
   isWindows: boolean
 
-  constructor(logger: ManageLogger) {
+  readonly baseDir: string
+
+  constructor(logger: ManageLogger, baseDir: string) {
     this.logger = logger
     this.isWindows = process.platform === 'win32'
+    this.baseDir = this.transBack(baseDir)
   }
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'LocalApi', method }))
@@ -39,6 +44,10 @@ class LocalApi {
           .split(path.posix.sep)
           .join(path.sep)
       : `/${filePath.replace(/^\/+|\/+$/g, '')}`
+  }
+
+  async scopedPath(key: string, allowBase = false) {
+    return scopedLocalPath(this.baseDir, this.transBack(key), allowBase)
   }
 
   /**
@@ -133,7 +142,8 @@ class LocalApi {
       finished: false,
     }
     try {
-      for await (const entry of this.walkDirectory(this.transBack(prefix), listing, true)) {
+      const directory = await this.scopedPath(prefix, true)
+      for await (const entry of this.walkDirectory(directory, listing, true)) {
         result.fullList.push(this.formatFile(entry.stats, urlPrefix, entry.name, entry.path, true))
         if (result.fullList.length === LISTING_PAGE_ITEMS) {
           await listing.publish(result)
@@ -152,9 +162,7 @@ class LocalApi {
   }
 
   async getBucketListBackstage(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
-    const { customUrl = '', baseDir } = configMap
-    let prefix = configMap.prefix
-    prefix = this.transBack(prefix)
+    const { customUrl = '', prefix } = configMap
     const urlPrefix = customUrl.replace(/\/+$/, '')
     let webPath = configMap.webPath || ''
     if (webPath && customUrl && webPath !== '/') {
@@ -167,10 +175,11 @@ class LocalApi {
       finished: false,
     }
     try {
-      for await (const entry of this.walkDirectory(prefix, listing, false)) {
+      const directory = await this.scopedPath(prefix, true)
+      for await (const entry of this.walkDirectory(directory, listing, false)) {
         let urlPrefixF = entry.path
         if (customUrl) {
-          const relativePath = path.relative(this.transBack(baseDir), entry.path)
+          const relativePath = path.relative(this.baseDir, entry.path)
           const relative =
             urlPrefix + `/${path.join(webPath, relativePath)}`.split(path.sep).join('/').replace(/\/+/g, '/')
           urlPrefixF = this.isWindows ? relative.replace(/\/[a-zA-Z]:\//, '/') : relative
@@ -200,7 +209,7 @@ class LocalApi {
     const { oldKey, newKey } = configMap
     let result = false
     try {
-      await fs.rename(this.transBack(oldKey), this.transBack(newKey))
+      await fs.rename(await this.scopedPath(oldKey), await this.scopedPath(newKey))
       result = true
     } catch (error) {
       this.logParam(error, 'renameBucketFile')
@@ -212,7 +221,7 @@ class LocalApi {
     const { key } = configMap
     let result = false
     try {
-      await fs.remove(this.transBack(key))
+      await unlinkScopedLocalFile(this.baseDir, this.transBack(key))
       result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFile')
@@ -224,7 +233,9 @@ class LocalApi {
     const { key } = configMap
     let result = false
     try {
-      await fs.rm(this.transBack(key), {
+      const folder = await this.scopedPath(key)
+      if (!(await fs.lstat(folder)).isDirectory()) return false
+      await fs.rm(folder, {
         recursive: true,
       })
       result = true
@@ -239,18 +250,21 @@ class LocalApi {
       configMap,
       { provider: 'local', account: ['local'] },
       async ({ key, filePath }, { signal }) => {
-        const target = this.transBack(key)
+        const target = await this.scopedPath(key)
         // Stage the copy so cancellation never leaves a partial destination or truncates the source.
         await fs.ensureDir(path.dirname(target))
         const staged = path.join(path.dirname(target), '.piclist-upload-' + randomUUID() + '.tmp')
+        const file = await open(await this.scopedPath(staged), 'wx')
         try {
-          await withUploadStream(filePath, signal, source =>
-            pipeline(source, fs.createWriteStream(staged, { flags: 'wx' }), { signal }),
-          )
+          await withUploadStream(filePath, signal, source => pipeline(source, file.createWriteStream(), { signal }))
+          const source = await this.scopedPath(staged)
+          const destination = await this.scopedPath(target)
           signal.throwIfAborted()
-          await fs.rename(staged, target)
-        } finally {
-          await fs.remove(staged)
+          await fs.rename(source, destination)
+        } catch (error) {
+          await file.close()
+          await unlinkScopedLocalFile(this.baseDir, staged)
+          throw error
         }
       },
     )
@@ -260,7 +274,7 @@ class LocalApi {
     const { key } = configMap
     let result = false
     try {
-      await fs.mkdir(this.transBack(key), {
+      await fs.mkdir(await this.scopedPath(key), {
         recursive: true,
       })
       result = true
@@ -271,12 +285,12 @@ class LocalApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, baseDir, keepDirStructure = false, downloadConflictPolicy = 'rename' } = configMap
+    const { downloadPath, fileArray, keepDirStructure = false, downloadConflictPolicy = 'rename' } = configMap
     const instance = UpDownTaskQueue.getInstance()
     for (const item of fileArray) {
       const { alias, bucketName, key } = item
       // Local keys identify absolute source paths; only relative names belong in the destination.
-      const fileName = keepDirStructure ? path.relative(this.transBack(baseDir), this.transBack(key)) : item.fileName
+      const fileName = keepDirStructure ? path.relative(this.baseDir, this.transBack(key)) : item.fileName
       const sourceId = `${alias}-${bucketName}-local-${key}`
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue
@@ -286,9 +300,10 @@ class LocalApi {
         id,
         destination,
         async (_partPath, createWriteStream) => {
+          const source = await this.scopedPath(key)
           const output = createWriteStream()
           try {
-            await pipeline(fs.createReadStream(this.transBack(key)), output)
+            await pipeline(fs.createReadStream(source), output)
           } finally {
             output.destroy()
             await finished(output).catch(() => {})

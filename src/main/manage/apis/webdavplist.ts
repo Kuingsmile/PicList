@@ -22,6 +22,7 @@ import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploa
 import { getAuthHeader } from '~/utils/digestAuth'
 import { isImage } from '~/utils/filesystem'
 import { formatHttpProxy } from '~/utils/network'
+import { scopedRemotePath } from '~/utils/scopedPath'
 
 class WebdavplistApi {
   endpoint: string
@@ -43,6 +44,7 @@ class WebdavplistApi {
     proxy: string | undefined,
     authType: 'basic' | 'digest' | undefined,
     logger: ManageLogger,
+    readonly baseDir: string,
   ) {
     this.endpoint = formatEndpoint(endpoint, sslEnabled)
     this.username = username
@@ -68,6 +70,11 @@ class WebdavplistApi {
   }
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'WebdavplistApi', method }))
+
+  scopedPath(key: string, allowBase = false): string {
+    if (key.includes('\\')) throw new Error('Invalid WebDAV path separator')
+    return scopedRemotePath(this.baseDir, key, allowBase)
+  }
 
   formatFolder(item: FileStat, urlPrefix: string, isWebPath = false) {
     const key = item.filename.replace(/^\/+/, '')
@@ -115,7 +122,7 @@ class WebdavplistApi {
     }
     try {
       const res = (await listing.wait(() =>
-        this.ctx.getDirectoryContents(prefix, {
+        this.ctx.getDirectoryContents(this.scopedPath(prefix, true), {
           deep: true,
           details: true,
           signal: listing.signal,
@@ -154,7 +161,7 @@ class WebdavplistApi {
     }
     try {
       const res = (await listing.wait(() =>
-        this.ctx.getDirectoryContents(prefix, {
+        this.ctx.getDirectoryContents(this.scopedPath(prefix, true), {
           deep: false,
           details: true,
           signal: listing.signal,
@@ -196,7 +203,7 @@ class WebdavplistApi {
     const { oldKey, newKey } = configMap
     let result = false
     try {
-      await this.ctx.moveFile(oldKey, newKey)
+      await this.ctx.moveFile(this.scopedPath(oldKey), this.scopedPath(newKey))
       result = true
     } catch (error) {
       this.logParam(error, 'renameBucketFile')
@@ -208,7 +215,10 @@ class WebdavplistApi {
     const { key } = configMap
     let result = false
     try {
-      await this.ctx.deleteFile(key)
+      const target = this.scopedPath(key)
+      const stat = (await this.ctx.stat(target)) as FileStat
+      if (stat.type !== 'file') return false
+      await this.ctx.deleteFile(target)
       result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFile')
@@ -220,7 +230,7 @@ class WebdavplistApi {
     const { key } = configMap
     let result = false
     try {
-      await this.ctx.deleteFile(key)
+      await this.ctx.deleteFile(this.scopedPath(key))
       result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFolder')
@@ -232,7 +242,7 @@ class WebdavplistApi {
     const { key } = configMap
     let result = ''
     try {
-      const res = this.ctx.getFileDownloadLink(key)
+      const res = this.ctx.getFileDownloadLink(this.scopedPath(key))
       result = res
     } catch (error) {
       this.logParam(error, 'getPreSignedUrl')
@@ -250,6 +260,7 @@ class WebdavplistApi {
         memory: file => (this.authType === 'digest' ? file.fileSize * 2 + MIB : MIB),
       },
       async ({ key, filePath }, { signal, progress }) => {
+        const target = this.scopedPath(key)
         const options = {
           overwrite: true,
           signal,
@@ -257,8 +268,8 @@ class WebdavplistApi {
         }
         const result =
           this.authType === 'digest'
-            ? await this.ctx.putFileContents(key, await readFile(filePath, { signal }), options)
-            : await withUploadStream(filePath, signal, source => this.ctx.putFileContents(key, source, options))
+            ? await this.ctx.putFileContents(target, await readFile(filePath, { signal }), options)
+            : await withUploadStream(filePath, signal, source => this.ctx.putFileContents(target, source, options))
         if (!result) throw new TransferError('provider')
       },
     )
@@ -268,7 +279,7 @@ class WebdavplistApi {
     const { key } = configMap
     let result = false
     try {
-      await this.ctx.createDirectory(key, {
+      await this.ctx.createDirectory(this.scopedPath(key), {
         recursive: true,
       })
       result = true
@@ -283,7 +294,8 @@ class WebdavplistApi {
     const instance = UpDownTaskQueue.getInstance()
     const promises = [] as any
     for (const item of fileArray) {
-      const { alias, bucketName, region, key, fileName } = item
+      const { alias, bucketName, region, fileName } = item
+      const key = this.scopedPath(item.key)
       const sourceId = `${alias}-${bucketName}-${region}-${key}`
       const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
       if (!task) continue

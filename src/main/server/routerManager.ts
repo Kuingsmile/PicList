@@ -90,6 +90,7 @@ async function handleUpload({
       const job = new UploadJob({
         profile: uploadOptions,
         origin: windowManager.getAvailableWindow()?.webContents,
+        cancelOnOriginDestroyed: false,
       })
       const finalizationId = urlparams?.get('finalizationId')
       if (finalizationId) {

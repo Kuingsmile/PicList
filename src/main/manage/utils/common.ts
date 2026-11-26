@@ -199,7 +199,7 @@ export interface UploadOptions {
   prepare: () => UploadRequest
   validateResponse: (body: unknown, statusCode: number) => boolean
   signal?: AbortSignal
-  timeout?: { request?: number; response?: number }
+  timeout?: { socket?: number; request?: number; response?: number }
   logger?: ManageLogger
   // The shared scheduler owns terminal status and imported-file cleanup.
   managed?: boolean
@@ -236,8 +236,9 @@ export const gotUpload = async (
       signal,
       timeout: {
         lookup: 30000,
-        request: timeout?.request ?? 30000,
-        response: timeout?.response ?? 30000,
+        connect: 30000,
+        socket: 60000,
+        ...timeout,
       },
       // Uploads may create commits or consume streams; never replay them automatically.
       retry: { limit: 0 },

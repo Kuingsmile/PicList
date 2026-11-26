@@ -131,11 +131,27 @@ function prepareDirectory(destination: DownloadDestination) {
   return { filePath: path.join(directory, path.basename(requestedPath)), checkDirectories }
 }
 
+async function publishNewFile(source: string, destination: string): Promise<void> {
+  try {
+    fs.linkSync(source, destination)
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code
+    if (
+      !['EPERM', 'EACCES', 'ENOTSUP', 'EOPNOTSUPP', 'ENOSYS', 'EXDEV'].includes(code ?? '') &&
+      // libuv maps Windows ERROR_INVALID_FUNCTION to EISDIR on volumes without hard links.
+      !(process.platform === 'win32' && (code === 'EISDIR' || code === 'UNKNOWN'))
+    )
+      throw error
+    // FAT volumes and some network shares cannot hard-link. Keep exclusive creation
+    // for skip/rename and keep a potentially large copy off the Electron main thread.
+    await fs.promises.copyFile(source, destination, fs.constants.COPYFILE_EXCL)
+  }
+}
+
 /**
  * Transfer implementations must close their writers before resolving. They only
  * receive a unique, exclusively-created .part sibling, never the final path.
- * Filesystem checks and publication are synchronous to avoid yielding between
- * validation and commit. Node has no portable directory-relative rename API.
+ * Node has no portable directory-relative rename API.
  */
 export async function downloadToFile(
   destination: DownloadDestination,
@@ -191,9 +207,7 @@ export async function downloadToFile(
       checkDirectories()
       checkFile(candidate)
       try {
-        // link publishes a complete file atomically, failing if another transfer
-        // or process claimed the name. An exists-then-rename check would clobber it.
-        fs.linkSync(partPath, candidate)
+        await publishNewFile(partPath, candidate)
         return { filePath: candidate, skipped: false }
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error

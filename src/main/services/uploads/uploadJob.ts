@@ -11,6 +11,8 @@ export const UPLOAD_TIMEOUT_MS = 10 * 60 * 1000
 
 export interface UploadJobOptions {
   origin?: WebContents
+  /** Background transfers can report to a window without tying cancellation to its lifetime. */
+  cancelOnOriginDestroyed?: boolean
   profile?: IUploadOptions
   signal?: AbortSignal
   timeoutMs?: number
@@ -68,6 +70,7 @@ export function sendToWindow(origin: WebContents | undefined, channel: string, .
 export class UploadJob {
   readonly context: UploadJobContext
   private readonly controller = new AbortController()
+  private readonly cancellationOwner?: WebContents
   private readonly externalSignal?: AbortSignal
   private readonly timeoutMs: number
   private readonly onProgress?: UploadJobOptions['onProgress']
@@ -82,6 +85,7 @@ export class UploadJob {
       origin: options.origin,
       requestedProfile: Object.freeze({ ...options.profile }),
     })
+    this.cancellationOwner = options.cancelOnOriginDestroyed === false ? undefined : options.origin
     this.externalSignal = options.signal
     this.onProgress = options.onProgress
     this.timeoutMs =
@@ -175,11 +179,11 @@ export class UploadJob {
     if (this.started) throw new Error('Upload job already started')
     this.started = true
     const onCancel = () => this.cancel()
-    const origin = this.context.origin
+    const owner = this.cancellationOwner
     const timer = setTimeout(() => this.cancel('timeout'), this.timeoutMs)
     this.externalSignal?.addEventListener('abort', onCancel, { once: true })
-    origin?.on('destroyed', onCancel)
-    if (this.externalSignal?.aborted || origin?.isDestroyed()) onCancel()
+    owner?.on('destroyed', onCancel)
+    if (this.externalSignal?.aborted || owner?.isDestroyed()) onCancel()
     return jobs.run(this, async () => {
       try {
         this.reportProgress(0)
@@ -196,7 +200,7 @@ export class UploadJob {
         this.settled = true
         clearTimeout(timer)
         this.externalSignal?.removeEventListener('abort', onCancel)
-        origin?.removeListener('destroyed', onCancel)
+        owner?.removeListener('destroyed', onCancel)
         // Close any still-pending dialogs, including siblings of a failed dialog.
         this.controller.abort(new UploadJobError('cancelled'))
       }

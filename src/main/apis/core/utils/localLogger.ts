@@ -57,6 +57,15 @@ export async function flushLocalLogs(): Promise<void> {
   await Promise.all([...buffers].map(([file, buffer]) => flush(file, buffer)))
 }
 
+function formatArgument(item: unknown): string {
+  if (item === null || typeof item !== 'object') return String(item)
+  try {
+    return JSON.stringify(item)
+  } catch {
+    return util.inspect(item, { customInspect: false })
+  }
+}
+
 /** Local logging is available before the core logger starts. Writers share ordering per file. */
 export const getLogger = (logPath: string, logType: string) => {
   const output: LogBuffer = buffers.get(logPath) ?? { lines: [] }
@@ -65,10 +74,10 @@ export const getLogger = (logPath: string, logType: string) => {
     try {
       let log = `${dayjs().format('YYYY-MM-DD HH:mm:ss')} [${logType} ${type.toUpperCase()}] `
       msg.forEach((item: ILogArgvTypeWithError) => {
-        if (item && typeof item === 'object' && type === 'error') {
+        if (item && typeof item === 'object' && type === 'error' && item.stack) {
           log += `\n------Error Stack Begin------\n${util.format(item.stack)}\n-------Error Stack End------- `
         } else {
-          log += `${typeof item === 'object' ? JSON.stringify(item) : item} `
+          log += `${formatArgument(item)} `
         }
       })
       log += '\n'

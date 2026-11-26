@@ -564,7 +564,8 @@ class QiniuApi {
     const config = new qiniu.conf.Config()
     const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const urlPrefix = customUrl
-    const expiration = parseInt(Date.now() / 1000 + expires)
+    const ttl = Number(expires)
+    const expiration = Math.floor(Date.now() / 1000) + (Number.isFinite(ttl) && ttl > 0 ? Math.ceil(ttl) : 3600)
     const res = bucketManager.privateDownloadUrl(urlPrefix, encodeObjectPath(key), expiration)
     return res
   }

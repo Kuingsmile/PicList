@@ -190,16 +190,27 @@ export function assertFinalizationStorageAvailable(): void {
   }
 }
 
+export function encryptFinalizationReceipt(state: UploadFinalization): string {
+  assertFinalizationStorageAvailable()
+  return safeStorage.encryptString(JSON.stringify(state)).toString('base64')
+}
+
+export function recoverFinalizationReceipt(id: string, ciphertext: string): UploadFinalization {
+  assertFinalizationStorageAvailable()
+  const state: unknown = JSON.parse(safeStorage.decryptString(Buffer.from(ciphertext, 'base64')))
+  if (!isUploadFinalization(state) || state.id !== id) throw new Error('Invalid upload recovery receipt')
+  return state
+}
+
 export async function saveUploadFinalization(state: UploadFinalization): Promise<void> {
   if (!isUploadFinalization(state)) throw new Error('Invalid upload finalization')
   // Older retry journals and queue checkpoints may still contain the plugin's copies.
   for (const item of state.items) item.image = withoutBackupPayload(item.image)
   await withJournalLock(state.id, async () => {
     await app.whenReady()
-    assertFinalizationStorageAvailable()
     const file = journalPath(state.id)
     // Completed receipts need result metadata for idempotent replies, but no recovery-only configuration or paths.
-    const saved = state.completed
+    const saved: UploadFinalization = state.completed
       ? {
           ...state,
           inputs: [],
@@ -214,7 +225,7 @@ export async function saveUploadFinalization(state: UploadFinalization): Promise
         }
       : state
     // Plugin result metadata can contain credentials. Keep it encrypted even after completion.
-    const ciphertext = safeStorage.encryptString(JSON.stringify(saved)).toString('base64')
+    const ciphertext = encryptFinalizationReceipt(saved)
     await writeAtomicTaskFile(
       file,
       JSON.stringify({ version: 1, savedAt: Date.now(), completed: !!state.completed, ciphertext }),

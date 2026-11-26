@@ -799,10 +799,7 @@ function restoreSelection() {
 function transPathToUnix(filePath: string | undefined) {
   if (!filePath) return ''
   return window.electron.platform === 'win32'
-    ? filePath
-        .split(window.node.path.sep)
-        .join(window.node.path.posix.sep)
-        .replace(/^\/+|\/+$/g, '')
+    ? filePath.split(window.node.path.sep).join(window.node.path.posix.sep).replace(/\/+$/, '')
     : filePath.replace(/^\/+|\/+$/g, '')
 }
 
@@ -810,8 +807,9 @@ function handleSelectMenu(bucketName: string) {
   const currentPicBedConfig = manageStore.config.picBed[currentAlias.value]
   const transformedConfig = JSON.parse(currentPicBedConfig.transformedConfig ?? '{}')
 
-  let prefix = transformedConfig[bucketName]?.baseDir || '/'
   const cpicBedName = currentPicBedConfig.picBedName ?? currentPicBedName.value
+  const filesystemBucket = ['local', 'sftp', 'webdavplist'].includes(cpicBedName)
+  let prefix = transformedConfig[bucketName]?.baseDir || (filesystemBucket && currentPicBedConfig.baseDir) || '/'
   if (cpicBedName === 'local') {
     prefix = `/${transPathToUnix(prefix)}/`
   } else {

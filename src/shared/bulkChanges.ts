@@ -80,9 +80,17 @@ export function canCommitBulkPlan(plan: BulkPlan, policy: BulkPolicy): boolean {
 /** Work is pulled by a fixed number of workers; one rejection never drops other outcomes. */
 export async function bulkMap<T>(items: readonly T[], action: (item: T) => Promise<void>): Promise<void> {
   let index = 0
+  const failures: unknown[] = []
   await Promise.all(
     Array.from({ length: Math.min(BULK_CONCURRENCY, items.length) }, async () => {
-      while (index < items.length) await action(items[index++])
+      while (index < items.length) {
+        try {
+          await action(items[index++])
+        } catch (error) {
+          failures.push(error)
+        }
+      }
     }),
   )
+  if (failures.length) throw new AggregateError(failures, 'Bulk operation failed')
 }

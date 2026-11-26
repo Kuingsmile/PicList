@@ -89,6 +89,12 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     this.logger.error(formatError(err, param))
   }
 
+  private configuredBaseDir(bucket: string): string {
+    const config = this.currentPicBedConfig
+    const buckets = JSON.parse(config.transformedConfig || '{}')
+    return buckets[bucket]?.baseDir || config.baseDir || (bucket === 'local' ? '' : '/')
+  }
+
   private readonly clientFactories = {
     aliyun: () =>
       API.AliyunApi(this.currentPicBedConfig.accessKeyId, this.currentPicBedConfig.accessKeySecret, this.logger),
@@ -106,7 +112,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.proxy,
         this.logger,
       ),
-    local: () => API.LocalApi(this.logger),
+    local: () => API.LocalApi(this.logger, this.configuredBaseDir('local')),
     qiniu: () => API.QiniuApi(this.currentPicBedConfig.accessKey, this.currentPicBedConfig.secretKey, this.logger),
     smms: () => API.SmmsApi(this.currentPicBedConfig.token, this.logger),
     s3plist: () =>
@@ -134,6 +140,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.fileMode,
         this.currentPicBedConfig.dirMode,
         this.logger,
+        this.configuredBaseDir('sftp'),
       ),
     tcyun: () => API.TcyunApi(this.currentPicBedConfig.secretId, this.currentPicBedConfig.secretKey, this.logger),
     upyun: () =>
@@ -154,6 +161,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
         this.currentPicBedConfig.proxy,
         this.currentPicBedConfig.authType,
         this.logger,
+        this.configuredBaseDir('webdav'),
       ),
   }
 

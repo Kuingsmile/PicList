@@ -179,7 +179,7 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
   } else if (provider === 'webdavplist') {
     read = key =>
       existing(async () => {
-        const result = await client.ctx.stat(key)
+        const result = await client.ctx.stat(client.scopedPath(key))
         return {
           version: version(result.etag, result.size, result.lastmod),
           identity: result.filename ? JSON.stringify([context, result.filename]) : undefined,
@@ -187,7 +187,7 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
         }
       }, provider)
     write = async (item, overwrite) => {
-      await client.ctx.moveFile(item.source, item.target, { overwrite })
+      await client.ctx.moveFile(client.scopedPath(item.source), client.scopedPath(item.target), { overwrite })
     }
   } else if (provider === 'upyun') {
     read = key =>
@@ -209,7 +209,7 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
   } else if (provider === 'local') {
     read = key =>
       existing(async () => {
-        const result = await fs.lstat(client.transBack(key))
+        const result = await fs.lstat(await client.scopedPath(key))
         return {
           version: version(result.dev, result.ino, result.size, result.mtimeMs),
           identity: version(result.dev, result.ino),
@@ -218,13 +218,13 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
       }, provider)
     write = async (item, overwrite) => {
       await fs.copyFile(
-        client.transBack(item.source),
-        client.transBack(item.target),
+        await client.scopedPath(item.source),
+        await client.scopedPath(item.target),
         overwrite ? 0 : constants.COPYFILE_EXCL,
       )
     }
     removeSource = async item => {
-      await fs.unlink(client.transBack(item.source))
+      await fs.unlink(await client.scopedPath(item.source))
     }
   } else if (provider === 'sftp') {
     const withConnection = async <T>(action: (ssh: SSHClient) => Promise<T>): Promise<T> => {
@@ -240,14 +240,18 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
       existing(
         () =>
           withConnection(async ssh => {
-            const result = await ssh.lstat(`/${key.replace(/^\/+/, '')}`)
+            const result = await ssh.lstat(await ssh.scopedPath(client.baseDir, key))
             return { version: version(result.size, result.mtime, result.mode), isDirectory: !result.isFile() }
           }),
         provider,
       )
     write = async (item, overwrite) => {
-      await withConnection(ssh =>
-        ssh.renameFile(`/${item.source.replace(/^\/+/, '')}`, `/${item.target.replace(/^\/+/, '')}`, overwrite),
+      await withConnection(async ssh =>
+        ssh.renameFile(
+          await ssh.scopedPath(client.baseDir, item.source),
+          await ssh.scopedPath(client.baseDir, item.target),
+          overwrite,
+        ),
       )
     }
   } else {

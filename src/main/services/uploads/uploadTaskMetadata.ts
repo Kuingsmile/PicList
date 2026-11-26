@@ -3,7 +3,7 @@ import path from 'node:path'
 import { PicGoUtils } from 'piclist'
 
 import { checkpointSource, isRecord, retainTaskHistory } from '../taskCheckpoint'
-import { isUploadFinalization } from './uploadFinalizer'
+import { encryptFinalizationReceipt, isUploadFinalization } from './uploadFinalizer'
 import type { IUploadTaskItem, IUploadTaskQueueConfig } from './uploadTaskQueue'
 
 export interface UploadQueueCheckpoint {
@@ -47,7 +47,11 @@ export function uploadTaskMetadata(task: IUploadTaskItem): IUploadTaskItem {
     priority: task.priority,
     failureStage: task.failureStage,
     finalizationId: task.finalizationId,
-    remoteCompleted: !!task.finalization || task.remoteCompleted,
+    remoteCompleted: task.remoteCompleted,
+    // A checkpoint can race the first journal write or outlive a failed write.
+    recoveryReceipt:
+      task.recoveryReceipt ??
+      (task.finalization && !task.remoteCompleted ? encryptFinalizationReceipt(task.finalization) : undefined),
     interrupted: task.interrupted,
     sourceRequired: !filePath || task.sourceRequired,
     // Raw provider errors, results (including fullResult.config), and finalization contexts never belong here.
@@ -70,6 +74,8 @@ export function decodeUploadCheckpoint(value: unknown, legacy: boolean): UploadQ
       typeof task.fileName !== 'string' ||
       typeof task.filePath !== 'string' ||
       !['pending', 'uploading', 'completed', 'failed', 'cancelled', 'paused'].includes(task.status) ||
+      (task.recoveryReceipt !== undefined &&
+        (typeof task.recoveryReceipt !== 'string' || !task.recoveryReceipt || !task.finalizationId)) ||
       (task.finalizationId !== undefined &&
         (typeof task.finalizationId !== 'string' || !/^[\w-]+$/.test(task.finalizationId)))
     ) {
@@ -89,6 +95,7 @@ export function decodeUploadCheckpoint(value: unknown, legacy: boolean): UploadQ
       priority: Math.min(2, Math.floor(number(task.priority, 1))),
       failureStage: ['transfer', 'finalization'].includes(task.failureStage) ? task.failureStage : undefined,
       finalizationId: task.finalizationId,
+      recoveryReceipt: task.recoveryReceipt,
       remoteCompleted: task.remoteCompleted === true || (legacy && task.finalization !== undefined),
       interrupted: task.interrupted === true,
       sourceRequired: task.sourceRequired === true,

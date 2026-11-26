@@ -61,6 +61,7 @@ class SftpApi {
     fileMode: Undefinable<string>,
     dirMode: Undefinable<string>,
     logger: ManageLogger,
+    readonly baseDir: string,
   ) {
     this.host = host
     this.port = Number(port) || 22
@@ -197,7 +198,8 @@ class SftpApi {
     try {
       await listing.wait(() =>
         this.withClient(async client => {
-          for await (const item of this.walkDirectory(prefix, listing, client, true)) {
+          const directory = await client.scopedPath(this.baseDir, prefix, true)
+          for await (const item of this.walkDirectory(directory, listing, client, true)) {
             const url = isWebPath ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
             result.fullList.push(this.formatFile(item, url, isWebPath))
             if (result.fullList.length === LISTING_PAGE_ITEMS) {
@@ -251,7 +253,8 @@ class SftpApi {
     try {
       await listing.wait(() =>
         this.withClient(async client => {
-          for await (const item of this.walkDirectory(prefix, listing, client, false)) {
+          const directory = await client.scopedPath(this.baseDir, prefix, true)
+          for await (const item of this.walkDirectory(directory, listing, client, false)) {
             const url = isWebPath ? this.getWebUrl(item.key, urlPrefix, baseDir, webPath) : urlPrefix
             result.fullList.push(
               item.isDir ? this.formatFolder(item, url, isWebPath) : this.formatFile(item, url, isWebPath),
@@ -281,8 +284,8 @@ class SftpApi {
     const { oldKey, newKey } = configMap
     let result = false
     try {
-      await this.withClient(client =>
-        client.renameFile(`/${oldKey.replace(/^\/+/, '')}`, `/${newKey.replace(/^\/+/, '')}`),
+      await this.withClient(async client =>
+        client.renameFile(await client.scopedPath(this.baseDir, oldKey), await client.scopedPath(this.baseDir, newKey)),
       )
       result = true
     } catch (error) {
@@ -295,7 +298,7 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.withClient(client => client.deleteFile(`/${key.replace(/^\/+/, '')}`, true))
+      await this.withClient(async client => client.deleteFile(await client.scopedPath(this.baseDir, key), true))
       result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFile')
@@ -307,7 +310,7 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.withClient(client => client.deleteDirectory(`/${key.replace(/^\/+/, '')}`))
+      await this.withClient(async client => client.deleteDirectory(await client.scopedPath(this.baseDir, key)))
       result = true
     } catch (error) {
       this.logParam(error, 'deleteBucketFolder')
@@ -326,7 +329,7 @@ class SftpApi {
         try {
           await client.connect(this.config)
           signal.throwIfAborted()
-          await client.putFile(filePath, '/' + key.replace(/^\/+/, ''), {
+          await client.putFile(filePath, await client.scopedPath(this.baseDir, key), {
             fileMode: this.fileMode,
             dirMode: this.dirMode,
           })
@@ -342,7 +345,9 @@ class SftpApi {
     const { key } = configMap
     let result = false
     try {
-      await this.withClient(client => client.mkdir(`/${key.replace(/^\/+/, '')}`, { dirMode: this.dirMode }))
+      await this.withClient(async client =>
+        client.mkdir(await client.scopedPath(this.baseDir, key), { dirMode: this.dirMode }),
+      )
       result = true
     } catch (error) {
       this.logParam(error, 'createBucketFolder')
@@ -355,7 +360,7 @@ class SftpApi {
     return this.withClient(async client => {
       const chunks: Buffer[] = []
       await client.getFileToStream(
-        `/${key.replace(/^\/+/, '')}`,
+        await client.scopedPath(this.baseDir, key),
         () =>
           new Writable({
             write(chunk: Buffer, _encoding, callback) {
@@ -385,7 +390,7 @@ class SftpApi {
           destination,
           async (_partPath, createWriteStream) => {
             if (!client.isConnected) await client.connect(this.config)
-            await client.getFileToStream(`/${key.replace(/^\/+/, '')}`, createWriteStream)
+            await client.getFileToStream(await client.scopedPath(this.baseDir, key), createWriteStream)
           },
           this.logger,
         )

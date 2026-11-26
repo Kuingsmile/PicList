@@ -51,7 +51,7 @@ const TencentAreaCodeName: IStringKeyMap = {
   'ap-chengdu': '成都',
   'ap-chongqing': '重庆',
   'ap-shenzhen-fsi': '深圳金融',
-  'ap-shagnhai-fsi': '上海金融',
+  'ap-shanghai-fsi': '上海金融',
   'ap-beijing-fsi': '北京金融',
   'ap-hongkong': '香港',
   'ap-singapore': '新加坡',

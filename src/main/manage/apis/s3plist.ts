@@ -33,6 +33,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getAgent,
   getFileMimeType,
@@ -525,6 +526,7 @@ class S3plistApi {
    */
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
+    if (oldKey === newKey) return true
     let result = false
     try {
       await this.getDogeCloudToken()
@@ -535,7 +537,7 @@ class S3plistApi {
       const client = this.createS3Client(options)
       const command = new CopyObjectCommand({
         Bucket: bucketName,
-        CopySource: encodeURI(`${bucketName}/${oldKey}`),
+        CopySource: `${encodeURIComponent(bucketName)}/${encodeObjectPath(oldKey)}`,
         Key: newKey,
       })
       const data = await client.send(command)

@@ -7,6 +7,8 @@ import { type Config, NodeSSH, type SSHExecCommandResponse } from 'node-ssh-no-c
 import type { ISftpPlistConfig } from 'piclist/dist/types'
 import type { FileEntry, Stats } from 'ssh2'
 
+import { scopedRemotePath } from './scopedPath'
+
 type SFTP = Awaited<ReturnType<NodeSSH['requestSFTP']>>
 type FileOptions = Pick<ISftpPlistConfig, 'fileMode' | 'dirMode' | 'fileUser'>
 
@@ -108,6 +110,19 @@ class SSHClient {
     return new Promise((resolve, reject) => {
       sftp.readdir(remote, (error, entries) => (error ? reject(error) : resolve(entries)))
     })
+  }
+
+  async scopedPath(base: string, key: string, allowBase = false): Promise<string> {
+    const target = scopedRemotePath(base, key, allowBase)
+    let current = path.posix.resolve('/', base)
+    const sftp = await this.getSftp()
+    for (const segment of path.posix.relative(current, target).split('/').filter(Boolean)) {
+      current = path.posix.join(current, segment)
+      const stats = await this.stat(sftp, current, false)
+      if (stats?.isSymbolicLink()) throw new Error('Unexpected link in SFTP path')
+      if (!stats) break
+    }
+    return target
   }
 
   /** Listing metadata must describe the link itself, never its target. */

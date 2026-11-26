@@ -13,12 +13,11 @@ interface BucketDeletionOptions extends BucketLocation, BucketViewLifecycle {
   currentPageFilesInfo: BucketFile[]
   selectedItems: Ref<BucketFile[]>
   isLoadingData: Ref<boolean>
-  getTableKeyOfDb: () => string
+  getTableKeyOfDb: (prefix: string) => string
   onDeleted?: (result: DeleteResult) => void
 }
 export function useBucketDeletion({
   configMap,
-  currentPrefix,
   currentPicBedName,
   currentCustomDomain,
   getGeneration,
@@ -89,7 +88,7 @@ export function useBucketDeletion({
     deletingTargets.value = { scope, keys: new Set(targets.map(item => item.key)) }
     const accountId = configMap.value.alias
     const provider = currentPicBedName.value
-    const cachePrefix = getTableKeyOfDb().slice(0, -currentPrefix.value.length)
+    const cachePrefix = getTableKeyOfDb('')
     const param = {
       bucketName: configMap.value.bucketName,
       region: configMap.value.bucketConfig.Location,

@@ -22,6 +22,7 @@ import {
   isUploadFinalization,
   loadUploadFinalization,
   protectQueueFinalizations,
+  recoverFinalizationReceipt,
   saveUploadFinalization,
   type UploadFinalization,
 } from '~/services/uploads/uploadFinalizer'
@@ -52,6 +53,7 @@ export const UploadTaskPriority = {
 
 export interface IUploadTaskItem extends UploadTask {
   finalizationId?: string
+  recoveryReceipt?: string
   finalization?: UploadFinalization
   result?: IStringKeyMap
 }
@@ -334,6 +336,7 @@ class UploadTaskQueueManager {
     let speedSample = { bytes: 0, at: Date.now(), destination: 'primary' }
     const job = new UploadJob({
       origin: webContents,
+      cancelOnOriginDestroyed: false,
       onProgress: event => {
         if (event.status !== 'uploading' || !this.isTaskActive(task, generation)) return
         const progress = event.phase === 'finalizing' ? 99 : Math.max(0, Math.min(99, Math.floor(event.progress)))
@@ -380,6 +383,9 @@ class UploadTaskQueueManager {
         // The journal may be newer than taskQueue.json if the queue checkpoint failed.
         if (task.finalizationId) {
           try {
+            if (!task.finalization && task.recoveryReceipt) {
+              task.finalization = recoverFinalizationReceipt(task.finalizationId, task.recoveryReceipt)
+            }
             const saved = await loadUploadFinalization(task.finalizationId)
             if (saved && (!task.finalization || saved.revision > task.finalization.revision)) task.finalization = saved
           } catch {
@@ -408,13 +414,14 @@ class UploadTaskQueueManager {
             task.finalizationId,
           )
         }
-        task.remoteCompleted = true
         task.failureStage = 'finalization'
         task.interrupted = false
-        // If writing the journal fails, recovery must still never fall back to a second remote upload.
         try {
           await saveUploadFinalization(task.finalization)
+          task.remoteCompleted = true
+          task.recoveryReceipt = undefined
         } finally {
+          // If the journal is unavailable, checkpoint the encrypted result for a finalization-only retry.
           await this.flush()
         }
         assertActive()
@@ -517,7 +524,13 @@ class UploadTaskQueueManager {
 
   getAllTasks(): UploadTask[] {
     return this.taskQueue.map(
-      ({ finalization: _finalization, finalizationId: _finalizationId, result: _result, ...task }) => ({ ...task }),
+      ({
+        finalization: _finalization,
+        finalizationId: _finalizationId,
+        recoveryReceipt: _recoveryReceipt,
+        result: _result,
+        ...task
+      }) => ({ ...task }),
     )
   }
 

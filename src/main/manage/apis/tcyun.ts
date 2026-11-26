@@ -3,7 +3,6 @@ import { finished } from 'node:stream/promises'
 import COS from 'cos-nodejs-sdk-v5'
 
 import type { DeleteResult } from '#/deletion'
-import { handleUrlEncode } from '#/utils/url'
 import { downloadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
@@ -11,6 +10,7 @@ import { TransferError } from '~/manage/transferScheduler'
 import {
   ConcurrencyPromisePool,
   createDownloadTask,
+  encodeObjectPath,
   formatError,
   getFileMimeType,
   getPublicObjectUrl,
@@ -283,11 +283,12 @@ class TcyunApi {
    */
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, region, oldKey, newKey } = configMap
+    if (oldKey === newKey) return true
     const copyRes = await this.ctx.putObjectCopy({
       Bucket: bucketName,
       Region: region,
       Key: newKey,
-      CopySource: handleUrlEncode(`${bucketName}.cos.${region}.myqcloud.com/${oldKey}`),
+      CopySource: `${bucketName}.cos.${region}.myqcloud.com/${encodeObjectPath(oldKey)}`,
     })
 
     if (copyRes?.statusCode !== 200) return false

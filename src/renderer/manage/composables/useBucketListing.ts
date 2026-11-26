@@ -445,13 +445,13 @@ export function useBucketListing({
     })
   }
 
-  function getTableKeyOfDb() {
+  function getTableKeyOfDb(prefix = currentPrefix.value) {
     const { alias, bucketName, bucketConfig } = configMap.value
     if (currentPicBedName.value === 'github') {
       const scope = JSON.stringify([alias, bucketConfig.id, bucketName, currentCustomDomain.value])
-      return `${scope}@${currentPrefix.value}`
+      return `${scope}@${prefix}`
     }
-    return `${alias}@${bucketName}@${currentPrefix.value}`
+    return `${alias}@${bucketName}@${prefix}`
   }
 
   async function searchExistFileList() {

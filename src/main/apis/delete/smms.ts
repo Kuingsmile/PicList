@@ -30,7 +30,7 @@ export default class SmmsApi {
         },
         timeout: 30000,
       })
-      const ok = response.status === 200
+      const ok = response.status === 200 && response.data?.success === true
       deleteLog(hash, 'Smms', ok)
       return ok
     } catch (error: any) {
