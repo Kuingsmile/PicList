@@ -10,7 +10,8 @@
         <div class="flex max-w-[calc(100%-300px)] flex-1 flex-wrap items-center gap-2 max-md:order-1">
           <button
             v-tooltip="t('pages.upload.uploadViewHint')"
-            class="provider-button group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg bg-bg-secondary px-4 py-2 font-[inherit] shadow-sm duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
+            data-guide="provider"
+            class="group/provider flex w-auto min-w-[150px] shrink-0 cursor-pointer items-center gap-3 rounded-lg bg-bg-secondary px-4 py-2 font-[inherit] shadow-sm duration-fast ease-standard hover:-translate-y-px hover:bg-accent hover:shadow-sm focus-visible:focus-ring max-xs:w-full max-xs:min-w-[100px]"
             @click="openPicBedSettings"
           >
             <div class="flex flex-1 flex-col items-start">
@@ -26,7 +27,7 @@
           <button
             v-tooltip="t('pages.upload.addToFavorites')"
             type="button"
-            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:bg-accent/30 hover:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+            class="flex h-[22px] w-[22px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface font-[inherit] text-secondary duration-fast ease-standard hover:-translate-y-px hover:border-transparent hover:bg-accent hover:text-white disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
             :aria-label="t('pages.upload.addToFavorites')"
             :disabled="favoritePicbeds.length >= MAX_FAVORITE_PICBEDS || isCurrentPicBedInFavorites"
             @click="addCurrentPicbedToFavorites"
@@ -47,23 +48,26 @@
             enter-from-class="opacity-0"
             leave-to-class="opacity-0"
           >
-            <button
+            <div
               v-for="picbedType in favoritePicbeds"
               :key="picbedType.id"
-              v-tooltip="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
-              class="group/badge relative flex w-[85px] shrink-0 cursor-pointer items-center gap-2 overflow-hidden rounded-md bg-bg-secondary pt-1.5 pr-2 pb-1.5 pl-3 text-xs font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-accent/30 hover:text-white [.is-active]:border-[0.1rem] [.is-active]:border-accent-hover/80 [.is-active]:font-semibold [.show-delete]:pr-2"
-              :class="{ 'is-active': isCurrentPicbed(picbedType), 'show-delete': longPressedBadge === picbedType.id }"
-              :aria-label="getPicbedName(picbedType)"
-              @click="handleBadgeClick(picbedType)"
-              @mousedown="startBadgeLongPress(picbedType)"
-              @mouseup="endBadgeLongPress"
-              @mouseleave="endBadgeLongPress"
-              @touchstart="startBadgeLongPress(picbedType, $event)"
-              @touchend="endBadgeLongPress"
-              @touchcancel="endBadgeLongPress"
+              class="group/badge relative flex w-[85px] shrink-0 items-center rounded-md bg-bg-secondary text-xs font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-accent hover:text-white [.is-active]:bg-accent/40"
+              :class="{ 'is-active': isCurrentPicbed(picbedType) }"
             >
-              <div class="min-w-0 flex-1 overflow-hidden">
-                <div
+              <button
+                v-tooltip="t('pages.upload.longPressToRemoveFromFavorites') + getPicbedName(picbedType)"
+                type="button"
+                class="min-w-0 flex-1 cursor-pointer overflow-hidden rounded-md py-1.5 pr-2 pl-3 text-left focus-visible:focus-ring"
+                :aria-label="getPicbedName(picbedType)"
+                @click="handleBadgeClick(picbedType)"
+                @mousedown="startBadgeLongPress(picbedType)"
+                @mouseup="endBadgeLongPress"
+                @mouseleave="endBadgeLongPress"
+                @touchstart="startBadgeLongPress(picbedType, $event)"
+                @touchend="endBadgeLongPress"
+                @touchcancel="endBadgeLongPress"
+              >
+                <span
                   class="flex overflow-hidden text-ellipsis whitespace-nowrap group-hover/badge:w-fit group-hover/badge:animate-[badge-scroll_5s_linear_infinite] group-hover/badge:text-clip"
                 >
                   <span class="leading-none whitespace-nowrap group-hover/badge:pr-[20px]">{{
@@ -72,23 +76,24 @@
                   <span class="hidden leading-none whitespace-nowrap group-hover/badge:block">{{
                     getPicbedName(picbedType)
                   }}</span>
-                </div>
-              </div>
+                </span>
+              </button>
               <button
-                v-if="longPressedBadge === picbedType.id"
                 v-tooltip="t('pages.upload.removeFromFavorites')"
-                class="flex shrink-0 animate-[fade-in_0.2s_ease-in] cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0.5 text-inherit duration-fast ease-standard hover:bg-danger/20 hover:text-danger"
+                type="button"
+                :class="{ 'sr-only focus:not-sr-only': longPressedBadge !== picbedType.id }"
+                class="mr-1 flex shrink-0 animate-[fade-in_0.2s_ease-in] cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0.5 text-inherit duration-fast ease-standard hover:bg-danger/12 hover:text-danger focus-visible:focus-ring"
                 :aria-label="t('pages.upload.removeFromFavorites')"
-                @click.stop="removePicbedFromFavorites(picbedType)"
+                @click="removePicbedFromFavorites(picbedType)"
               >
                 <XIcon :size="12" />
               </button>
-            </button>
+            </div>
           </transition-group>
         </div>
         <div class="flex flex-wrap items-center gap-3 max-md:order-2 max-md:justify-stretch">
           <button
-            class="flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent/30 hover:text-white"
+            class="flex cursor-pointer items-center gap-2 rounded-md border-r border-none border-r-border-secondary bg-bg-secondary px-4 py-2.5 font-[inherit] text-sm font-medium whitespace-nowrap text-secondary shadow-sm duration-fast ease-standard last:border-r-0 hover:bg-accent hover:text-white"
             @click="handleImageProcess"
           >
             <Settings :size="16" />
@@ -102,9 +107,10 @@
       <div
         class="flex min-h-[230px] w-full flex-1 flex-wrap items-center justify-center gap-4 rounded-2xl border border-border-secondary px-6 py-4 shadow-sm max-md:flex-col max-md:items-stretch max-md:p-5"
       >
-        <div
+        <button
           id="upload-area"
           ref="uploadArea"
+          type="button"
           class="group/upload relative flex h-full w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-bg-secondary px-1 py-12 duration-medium ease-standard focus-visible:focus-ring focus-visible:outline-offset-4 max-md:px-4 max-md:py-8 max-xs:px-2 max-xs:py-6 [:hover,.drag-active]:border-accent [:hover,.drag-active]:bg-[linear-gradient(135deg,var(--color-surface-elevated)_0%,color-mix(in_srgb,var(--color-accent),transparent_95%)_100%)] [:hover,.drag-active]:shadow-lg [:hover,.drag-active&]:translate-y-[-2px]"
           :class="{ 'drag-active': dragover }"
           @drop.prevent="onDrop"
@@ -112,28 +118,25 @@
           @dragleave.prevent="dragover = false"
           @click="openUploadWindow"
         >
-          <div class="flex flex-col items-center justify-center gap-6 text-center">
-            <div
+          <span class="flex flex-col items-center justify-center gap-6 text-center">
+            <span
               class="flex h-[80px] w-[80px] items-center justify-center rounded-full bg-accent text-white duration-medium ease-standard group-[:hover,.drag-active]/upload:animate-[float_1.5s_ease-in-out_infinite] max-md:h-[60px] max-md:w-[60px]"
             >
               <UploadCloudIcon :size="48" />
-            </div>
-            <div class="flex flex-col gap-2">
-              <h3 class="m-0 text-xl font-semibold tracking-tight text-main max-xs:text-lg">
+            </span>
+            <span class="flex flex-col gap-2">
+              <span class="m-0 text-xl font-semibold tracking-tight text-main max-xs:text-lg">
                 {{ dragover ? t('pages.upload.putToUpload') : t('pages.upload.dragFileToHere') }}
-              </h3>
-              <p class="m-0 text-sm text-secondary">
-                {{ ' ' }}
-              </p>
-              <div class="mt-2 flex flex-col gap-1">
+              </span>
+              <span class="mt-2 flex flex-col gap-1">
                 <span class="text-xs font-medium tracking-wide text-secondary uppercase">{{
                   t('pages.upload.uploadHint')
                 }}</span>
-              </div>
-            </div>
-          </div>
-          <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="handleFileSelection" />
-        </div>
+              </span>
+            </span>
+          </span>
+        </button>
+        <input id="file-uploader" ref="fileInput" type="file" multiple class="hidden" @change="handleFileSelection" />
       </div>
 
       <!-- Progress Bar -->
@@ -191,7 +194,7 @@
       >
         <div class="flex w-full flex-1 flex-row flex-wrap items-center justify-center gap-4 max-md:gap-3 max-md:px-5">
           <button
-            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadClipboardFiles"
           >
             <ClipboardIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
@@ -200,7 +203,7 @@
             }}</span>
           </button>
           <button
-            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent/30 hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
+            class="group relative flex flex-1 cursor-pointer items-center gap-2 rounded-lg border-2 border-border/20 bg-bg-secondary px-4 py-3.5 text-left font-[inherit] duration-medium ease-standard hover:translate-y-[-2px] hover:bg-accent hover:shadow-md focus-visible:focus-ring max-xs:px-3.5 max-xs:py-3"
             @click="uploadURLFiles"
           >
             <LinkIcon class="shrink-0 text-accent group-hover:text-white" :size="15" />
@@ -225,7 +228,7 @@
                 v-for="(format, key) in pasteFormatList"
                 :key
                 v-tooltip="format"
-                class="flex-1 cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-1 py-1 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard hover:bg-accent/30 hover:text-white focus-visible:focus-ring data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
+                class="flex-1 cursor-pointer rounded-md border border-border-secondary bg-bg-secondary px-1 py-1 font-['SF_Mono',Monaco,'Cascadia_Code','Roboto_Mono',Consolas,'Courier_New',monospace] text-[0.7rem] font-medium text-secondary duration-fast ease-standard focus-visible:focus-ring data-[active=false]:hover:bg-accent/40 data-[active=false]:hover:text-white data-[active=true]:border-accent data-[active=true]:bg-accent data-[active=true]:text-white"
                 :data-active="pasteStyle === key"
                 @click="updatePasteStyle(key)"
               >
@@ -239,14 +242,14 @@
             <label class="m-0 text-xs font-medium text-secondary">{{ t('pages.upload.urlType.title') }}</label>
             <div class="flex w-full overflow-hidden rounded-md border border-border-secondary bg-bg-secondary">
               <button
-                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard hover:bg-accent/30 hover:text-white focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
+                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard focus-visible:focus-ring data-[active=false]:hover:bg-accent/40 data-[active=false]:hover:text-white data-[active=true]:bg-accent data-[active=true]:text-white"
                 :data-active="!useShortUrl"
                 @click="updateUrlType(false)"
               >
                 <span>{{ t('pages.upload.urlType.normal') }}</span>
               </button>
               <button
-                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard hover:bg-accent/30 hover:text-white focus-visible:focus-ring data-[active=true]:bg-accent data-[active=true]:text-white"
+                class="flex-1 cursor-pointer border-0 bg-transparent py-1 font-[inherit] text-xs font-medium text-secondary duration-fast ease-standard focus-visible:focus-ring data-[active=false]:hover:bg-accent/40 data-[active=false]:hover:text-white data-[active=true]:bg-accent data-[active=true]:text-white"
                 :data-active="useShortUrl"
                 @click="updateUrlType(true)"
               >

@@ -16,17 +16,18 @@
       :aria-hidden="!isTopmost || undefined"
       :inert="!isTopmost || undefined"
       :data-dialog-id="dialogId"
-      class="fixed inset-0 z-1000 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
+      :style="{ zIndex }"
+      class="fixed inset-0 flex items-center justify-center overflow-hidden overscroll-none bg-black/30"
       :class="{ 'advanced-animation': enableAdvancedAnimation }"
       :aria-label="$attrs['aria-label'] || ($slots.header ? title || description || undefined : undefined)"
       :initial-focus="initialFocus ?? dialogElement"
       @close="handleClose"
     >
-      <DialogPanel class="flex h-full w-full items-center justify-center" @click.stop>
+      <DialogPanel as="template">
         <div
           ref="dialogElement"
           tabindex="-1"
-          class="m-auto flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-border-secondary bg-bg-tertiary shadow-xl"
+          class="m-auto flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border border-border-secondary bg-bg-tertiary shadow-xl focus-visible:focus-ring"
           :style="dialogStyle"
         >
           <div
@@ -46,7 +47,7 @@
               type="button"
               :disabled="closeDisabled"
               :aria-label="t('common.close')"
-              class="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple not-disabled:hover:scale-105 not-disabled:hover:border-danger not-disabled:hover:bg-danger not-disabled:hover:text-white focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+              class="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-elevated text-secondary transition-all duration-fast ease-apple not-disabled:hover:scale-105 not-disabled:hover:border-0 not-disabled:hover:bg-danger/30 not-disabled:hover:text-danger focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
               @click="handleClose"
             >
               <XIcon :size="20" aria-hidden="true" />
@@ -87,7 +88,7 @@ defineSlots<{
 defineOptions({ inheritAttrs: false })
 
 const visible = defineModel<boolean>('visible', { required: true })
-const { dialogId, isTopmost, restoreFocus } = useDialogFocus(visible)
+const { dialogId, isTopmost, zIndex, restoreFocus } = useDialogFocus(visible)
 const {
   title = '',
   description = '',

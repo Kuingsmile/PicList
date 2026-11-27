@@ -123,7 +123,10 @@ watch(activeTooltip, async (hint, previous, onCleanup) => {
 })
 
 function dismissOutsideTooltip(event: Event) {
-  if (event.target instanceof Node && tooltipRef.value?.contains(event.target)) return
+  if (event.target instanceof Node) {
+    if (tooltipRef.value?.contains(event.target)) return
+    if (event.type === 'pointerdown' && activeTooltip.value?.anchor.contains(event.target)) return
+  }
   dismissTooltip()
 }
 
@@ -132,7 +135,9 @@ useEventListener(window, 'resize', () => dismissTooltip())
 useEventListener(window, 'blur', () => dismissTooltip())
 useEventListener(document, 'pointerdown', dismissOutsideTooltip, { capture: true })
 useEventListener(document, 'keydown', event => {
-  if (event.key === 'Escape') dismissTooltip()
+  if (event.key !== 'Escape') return
+  if (activeTooltip.value?.pinned) event.preventDefault()
+  dismissTooltip()
 })
 useEventListener(document, 'visibilitychange', () => {
   if (document.hidden) dismissTooltip()

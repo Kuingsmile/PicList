@@ -73,7 +73,7 @@ const buttonClasses = computed(() => {
     case 'danger':
       return 'bg-danger/70 text-white not-disabled:hover:bg-danger'
     case 'tab':
-      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/30 data-[active=true]:text-white data-[active=true]:bg-accent not-disabled:hover:text-white!'
+      return 'flex-1 text-secondary not-disabled:data-[active=false]:hover:bg-accent/40 not-disabled:data-[active=false]:hover:text-white data-[active=true]:text-white data-[active=true]:bg-accent not-disabled:hover:text-white!'
     default:
       return ''
   }

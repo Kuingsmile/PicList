@@ -11,7 +11,7 @@ function setTheme(mode: string) {
   document.documentElement.classList.toggle('light', m === 'light')
 }
 
-async function injectCSS(css: string, config: { imageUrl?: string; opacity?: string; blur?: string }) {
+async function injectCSS(css: string, settings?: IObj) {
   const id = '__piclist_theme__'
   if (!document.documentElement) {
     await new Promise(resolve => {
@@ -24,32 +24,38 @@ async function injectCSS(css: string, config: { imageUrl?: string; opacity?: str
     el.id = id
     ;(document.head || document.documentElement).appendChild(el)
   }
-  const overrides = `
-:root, .dark, .light, [data-theme='dark'], [data-theme='light'] {
-  ${config.imageUrl ? `--background-image: url("${config.imageUrl}") !important;` : ''}
-  ${config.opacity ? `--background-image-opacity: ${config.opacity} !important;` : ''}
-  ${config.blur ? `--background-blur: ${config.blur} !important;` : ''}
-  --color-background-primary: transparent !important;
-  --color-background-secondary: transparent !important;
-}
-  `
-  el.textContent = css + '\n' + overrides
-}
+  el.textContent = css
 
-function getThemeConfig(allConfig?: IObj) {
-  const enableCustomBgImg = allConfig?.settings?.enableCustomBgImg || false
-  const customBgImgPath = allConfig?.settings?.customBgImgPath || ''
-  const customBgOpacity = allConfig?.settings?.customBgImgOpacity || '0.7'
-  const customBgBlur = allConfig?.settings?.customBgImgBlur || 5
-  return enableCustomBgImg ? { imageUrl: customBgImgPath, opacity: customBgOpacity, blur: `${customBgBlur}px` } : {}
+  const root = document.documentElement
+  const enabled = settings?.enableCustomBgImg === true
+  root.classList.toggle('custom-background', enabled)
+  if (enabled) {
+    // CSSOM keeps the image URL and numeric settings out of the theme stylesheet.
+    const imageUrl = settings.customBgImgPath
+    if (typeof imageUrl === 'string' && imageUrl) {
+      root.style.setProperty('--background-image', `url("${CSS.escape(imageUrl)}")`, 'important')
+    } else root.style.removeProperty('--background-image')
+    const opacity = Number(settings.customBgImgOpacity ?? 0.7)
+    const blur = Number(settings.customBgImgBlur ?? 5)
+    root.style.setProperty(
+      '--background-image-opacity',
+      String(Number.isFinite(opacity) ? Math.min(1, Math.max(0, opacity)) : 0.7),
+      'important',
+    )
+    root.style.setProperty('--background-blur', `${Number.isFinite(blur) ? Math.max(0, blur) : 5}px`, 'important')
+  } else {
+    root.style.removeProperty('--background-image')
+    root.style.removeProperty('--background-image-opacity')
+    root.style.removeProperty('--background-blur')
+  }
 }
 
 export async function bootstrapTheme() {
   try {
     const { mode, css } = (await triggerRPC<{ mode: string; css: string }>('THEME_GET_BOOTSTRAP'))!
-    const config = getThemeConfig(await triggerRPC<IObj>('PICLIST_GET_CONFIG'))
+    const config = await triggerRPC<IObj>('PICLIST_GET_CONFIG')
     if (document.documentElement) setTheme(mode)
-    if (css) await injectCSS(css, config)
+    await injectCSS(css, config?.settings)
   } catch (e) {
     console.error('[theme] bootstrap failed', e)
   }
@@ -57,8 +63,8 @@ export async function bootstrapTheme() {
 
 export function onThemeUpdate(callback: (css: string) => void) {
   const subscription = async (_: any, css: string) => {
-    const config = getThemeConfig(await triggerRPC<IObj>('PICLIST_GET_CONFIG'))
-    injectCSS(css, config)
+    const config = await triggerRPC<IObj>('PICLIST_GET_CONFIG')
+    await injectCSS(css, config?.settings)
     callback(css)
   }
   ipcRenderer.on(THEME_UPDATE, subscription)

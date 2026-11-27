@@ -10,6 +10,7 @@ type TooltipValue = string | TooltipOptions | null | undefined
 interface ActiveTooltip extends TooltipOptions {
   anchor: HTMLElement
   visible: boolean
+  pinned: boolean
 }
 
 export const tooltipId = 'piclist-custom-tooltip'
@@ -44,6 +45,7 @@ export function dismissTooltip(anchor?: HTMLElement) {
 }
 
 export function scheduleTooltipHide(anchor?: HTMLElement) {
+  if (activeTooltip.value?.pinned) return
   if (anchor && activeTooltip.value?.anchor !== anchor) return
   // A pending hint should never appear after its trigger has been left.
   clearTimeout(showTimer)
@@ -52,16 +54,16 @@ export function scheduleTooltipHide(anchor?: HTMLElement) {
   hideTimer = setTimeout(() => dismissTooltip(anchor), 140)
 }
 
-function showTooltip(anchor: HTMLElement, options: TooltipOptions, delay: number) {
+function showTooltip(anchor: HTMLElement, options: TooltipOptions, delay: number, pin = false) {
   if (!options.content.trim()) return dismissTooltip(anchor)
   if (activeTooltip.value?.anchor === anchor && activeTooltip.value.visible) {
     cancelTooltipHide()
     addDescription(anchor)
-    activeTooltip.value = { ...options, anchor, visible: true }
+    activeTooltip.value = { ...options, anchor, visible: true, pinned: pin || activeTooltip.value.pinned }
     return
   }
   dismissTooltip()
-  activeTooltip.value = { ...options, anchor, visible: false }
+  activeTooltip.value = { ...options, anchor, visible: false, pinned: pin }
   const reveal = () => {
     showTimer = undefined
     const hint = activeTooltip.value
@@ -120,21 +122,30 @@ export const vTooltip: ObjectDirective<HTMLElement, TooltipValue> = {
     const blur = (event: FocusEvent) => {
       if (event.relatedTarget instanceof Node && anchor.contains(event.relatedTarget)) return
       binding.focused = false
-      if (!binding.hovered) scheduleTooltipHide(anchor)
+      if (activeTooltip.value?.anchor === anchor && activeTooltip.value.pinned) {
+        if (event.relatedTarget instanceof Node && document.getElementById(tooltipId)?.contains(event.relatedTarget))
+          return
+        dismissTooltip(anchor)
+      } else if (!binding.hovered) scheduleTooltipHide(anchor)
     }
     const dismiss = () => dismissTooltip(anchor)
+    const click = () => {
+      if (modifiers.toggle && !(activeTooltip.value?.anchor === anchor && activeTooltip.value.pinned)) {
+        showTooltip(anchor, binding.options, 0, true)
+      } else dismiss()
+    }
     anchor.addEventListener('pointerenter', enter)
     anchor.addEventListener('pointerleave', leave)
     anchor.addEventListener('focusin', focus)
     anchor.addEventListener('focusout', blur)
-    anchor.addEventListener('click', dismiss, true)
+    anchor.addEventListener('click', click, true)
     binding.cleanup = () => {
       dismiss()
       anchor.removeEventListener('pointerenter', enter)
       anchor.removeEventListener('pointerleave', leave)
       anchor.removeEventListener('focusin', focus)
       anchor.removeEventListener('focusout', blur)
-      anchor.removeEventListener('click', dismiss, true)
+      anchor.removeEventListener('click', click, true)
     }
     bindings.set(anchor, binding)
   },
@@ -148,7 +159,7 @@ export const vTooltip: ObjectDirective<HTMLElement, TooltipValue> = {
     else {
       if (activeTooltip.value.visible) addDescription(anchor)
       // Keep the original delay during polling, locale switches and row updates.
-      activeTooltip.value = { ...binding.options, anchor, visible: activeTooltip.value.visible }
+      activeTooltip.value = { ...activeTooltip.value, ...binding.options }
     }
   },
   beforeUnmount(anchor) {

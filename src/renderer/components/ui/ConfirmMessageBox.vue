@@ -14,7 +14,8 @@
       :aria-hidden="!isTopmost || undefined"
       :inert="!isTopmost || undefined"
       :data-dialog-id="dialogId"
-      class="fixed inset-0 z-2000 flex items-center justify-center bg-black/40 p-4 [@media(width<=640px)]:items-end [@media(width<=640px)]:p-0"
+      :style="{ zIndex }"
+      class="fixed inset-0 flex items-center justify-center bg-black/40 p-4 [@media(width<=640px)]:items-end [@media(width<=640px)]:p-0"
       role="alertdialog"
       :initial-focus="cancelButton"
       @close="onCancel"
@@ -130,7 +131,7 @@ const {
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
 const { t } = useI18n()
 const cancelButton = useTemplateRef('cancelButton')
-const { dialogId, isTopmost, restoreFocus } = useDialogFocus(() => isOpen)
+const { dialogId, isTopmost, zIndex, restoreFocus } = useDialogFocus(() => isOpen)
 
 const iconComponent = computed(() => {
   switch (type) {

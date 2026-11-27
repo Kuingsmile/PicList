@@ -54,6 +54,7 @@
       <SettingCard>
         <SingleSelect
           v-model="settings.theme"
+          data-guide="theme-selection"
           :title="t('pages.settings.system.chooseTheme')"
           :icon="Palette"
           :fronticon="false"
@@ -128,7 +129,7 @@
         <CustomInput
           v-model="settings.customBgImgBlur"
           type="number"
-          min="1"
+          min="0"
           step="1"
           :title="t('pages.settings.system.customBgImgBlur')"
           placeholder="5"

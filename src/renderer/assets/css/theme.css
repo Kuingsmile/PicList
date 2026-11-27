@@ -1,6 +1,6 @@
 @theme {
   --background-image-custom: var(--background-image, none);
-  --blur-custom: var(--background-blur, none);
+  --blur-custom: var(--background-blur, 0px);
   --opacity-custom: var(--background-image-opacity);
   --color-main: var(--color-text-primary);
   --color-secondary: var(--color-text-secondary);
@@ -16,6 +16,9 @@
   --color-primary-hover: var(--color-primary-hover);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
+  --color-on-accent: contrast-color(var(--color-accent));
+  --color-on-accent-hover: contrast-color(var(--color-accent-hover));
+  --color-on-danger: contrast-color(var(--color-danger));
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);

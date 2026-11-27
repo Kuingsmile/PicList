@@ -16,8 +16,8 @@
         :aria-label="inputBoxOptions.title || t('pages.inputBox.title')"
         class="max-h-[20rem] min-h-[6rem] w-full resize-y rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
         rows="4"
-        @keyup.ctrl.enter="handleInputBoxConfirm"
-        @keyup.meta.enter="handleInputBoxConfirm"
+        @keydown.ctrl.enter="handleConfirmKey"
+        @keydown.meta.enter="handleConfirmKey"
       />
       <input
         v-else
@@ -27,7 +27,7 @@
         :aria-label="inputBoxOptions.title || t('pages.inputBox.title')"
         class="w-full rounded-sm border border-border bg-bg-tertiary p-4 font-[inherit] text-[0.9375rem] text-main transition-all duration-fast ease-apple outline-none placeholder:text-secondary hover:border-accent focus:border-accent focus:bg-surface"
         type="text"
-        @keyup.enter="handleInputBoxConfirm"
+        @keydown.enter="handleConfirmKey"
       />
     </div>
     <template #footer>
@@ -118,6 +118,12 @@ async function showNextInputBox() {
 
 function handleInputBoxCancel() {
   finishInputBox('')
+}
+
+function handleConfirmKey(event: KeyboardEvent) {
+  if (event.isComposing || event.repeat) return
+  event.preventDefault()
+  handleInputBoxConfirm()
 }
 
 function handleInputBoxConfirm() {

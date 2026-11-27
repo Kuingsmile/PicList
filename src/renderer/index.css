@@ -74,8 +74,8 @@
     --background-image: none;
     --background-image-opacity: 1;
     --color-text-primary: #1d1d1f;
-    --color-text-secondary: #6e6e73;
-    --color-text-tertiary: #86868b;
+    --color-text-secondary: #606066;
+    --color-text-tertiary: #6c6c71;
     --color-background-primary: #ffffff;
     --color-background-secondary: #f5f5f7;
     --color-background-tertiary: #fbfbfd;
@@ -83,13 +83,13 @@
     --color-surface-elevated: rgb(255 255 255 / 95%);
     --color-border: rgb(0 0 0 / 10%);
     --color-border-secondary: rgb(0 0 0 / 5%);
-    --color-primary: #6366f1;
+    --color-primary: #5355cb;
     --color-primary-hover: #4f46e5;
-    --color-accent: #007aff;
-    --color-accent-hover: #3b82f6;
-    --color-success: #34c759;
-    --color-warning: #f1930f;
-    --color-danger: #ff3b30;
+    --color-accent: #005bbf;
+    --color-accent-hover: #004fa8;
+    --color-success: #166433;
+    --color-warning: #805000;
+    --color-danger: #ae2924;
     --color-error: #cb2431;
     --shadow-sm: 0 1px 3px rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 6%);
     --shadow-md: 0 4px 6px rgb(0 0 0 / 5%), 0 2px 4px rgb(0 0 0 / 6%);
@@ -101,8 +101,8 @@
   .dark,
   [data-theme='dark'] {
     --color-text-primary: #f5f5f7;
-    --color-text-secondary: #a1a1a6;
-    --color-text-tertiary: #86868b;
+    --color-text-secondary: #b4b4b9;
+    --color-text-tertiary: #a0a0a5;
     --color-background-primary: #000000;
     --color-background-secondary: #1c1c1e;
     --color-background-tertiary: #2c2c2e;
@@ -110,18 +110,23 @@
     --color-surface-elevated: rgb(44 44 46 / 95%);
     --color-border: rgb(255 255 255 / 10%);
     --color-border-secondary: rgb(255 255 255 / 5%);
-    --color-primary: #6366f1;
+    --color-primary: #a4a5ff;
     --color-primary-hover: #818cf8;
-    --color-accent: #0a84ff;
+    --color-accent: #65acff;
     --color-accent-hover: #409cff;
     --color-success: #34c759;
     --color-warning: #f1930f;
-    --color-danger: #ff3b30;
-    --color-error: #cb2431;
+    --color-danger: #ff8982;
+    --color-error: #ff9198;
     --shadow-sm: 0 1px 3px rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 6%);
     --shadow-md: 0 4px 6px rgb(0 0 0 / 5%), 0 2px 4px rgb(0 0 0 / 6%);
     --shadow-lg: 0 10px 15px rgb(0 0 0 / 8%), 0 4px 6px rgb(0 0 0 / 5%);
     --shadow-xl: 0 20px 25px rgb(0 0 0 / 10%), 0 10px 10px rgb(0 0 0 / 4%);
+  }
+
+  :root.custom-background {
+    --color-background-primary: transparent !important;
+    --color-background-secondary: transparent !important;
   }
 
   /*

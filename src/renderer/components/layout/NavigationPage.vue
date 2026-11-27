@@ -60,7 +60,7 @@
       class="flex shrink-0 gap-1 border-t border-border-secondary p-2"
       :class="collapsed ? 'flex-col items-center' : 'items-center'"
     >
-      <div class="theme-switcher" :class="collapsed ? '' : 'min-w-0 flex-1'">
+      <div data-guide="theme-switcher" :class="collapsed ? '' : 'min-w-0 flex-1'">
         <ThemeSwitcher :collapsed="collapsed" />
       </div>
       <button

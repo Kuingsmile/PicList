@@ -23,7 +23,7 @@
           </div>
           <button
             v-tooltip="t('guide.close')"
-            class="flex cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] text-secondary transition-all duration-200 ease-apple hover:bg-accent-hover hover:text-main"
+            class="flex cursor-pointer items-center justify-center rounded-sm border-none bg-transparent p-[4px] text-secondary transition-all duration-200 ease-apple hover:bg-danger/30 hover:text-danger"
             :aria-label="t('guide.close')"
             @click="handleClose"
           >
@@ -149,7 +149,7 @@ const steps: GuideStep[] = [
     title: 'guide.steps.picbed.title',
     description: 'guide.steps.picbed.description',
     route: '/main-page/upload',
-    target: '.provider-button',
+    target: '[data-guide="provider"]',
     position: 'bottom',
     icon: ArrowLeftRightIcon,
   },
@@ -158,7 +158,7 @@ const steps: GuideStep[] = [
     title: 'guide.steps.theme.title',
     description: 'guide.steps.theme.description',
     route: '/main-page/upload',
-    target: '.theme-switcher',
+    target: '[data-guide="theme-switcher"]',
     position: 'right',
     icon: PaletteIcon,
   },
@@ -167,7 +167,7 @@ const steps: GuideStep[] = [
     title: 'guide.steps.themeSelection.title',
     description: 'guide.steps.themeSelection.description',
     route: '/main-page/settings',
-    target: '.theme-dropdown',
+    target: '[data-guide="theme-selection"]',
     position: 'bottom',
     icon: PaletteIcon,
     action: () => {

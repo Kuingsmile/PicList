@@ -322,12 +322,12 @@ function onDrop(e: DragEvent) {
   // send files first
   if (e.dataTransfer?.files?.length) {
     ipcSendFiles(e.dataTransfer.files)
-  } else if (e.dataTransfer?.items) {
+  } else if (e.dataTransfer?.items.length) {
     const items = e.dataTransfer.items
     if (items.length === 2 && items[0].type === 'text/uri-list') {
       handleURLDrag(items, e.dataTransfer)
     } else if (items[0].type === 'text/plain') {
-      const str = e.dataTransfer!.getData(items[0].type)
+      const str = e.dataTransfer.getData(items[0].type)
       if (isUrl(str)) {
         window.electron.sendRPC(IRPCActionType.UPLOAD_CHOOSED_FILES, [{ path: str }])
       }

@@ -333,9 +333,9 @@ async function handleNameClick() {
 async function handleCopyApi() {
   try {
     const serverKey = (await getConfig(configPaths.settings.serverKey)) || ''
-    const uploader = ((await getConfig(configPaths.uploader)) as IStringKeyMap) || {}
-    const picBedConfigList = uploader[$route.params.type as string].configList || []
-    const picBedConfig = picBedConfigList.find((item: IUploaderConfigListItem) => item._id === $route.params.configId)
+    const uploader = await getConfig<IUploaderConfig>(configPaths.uploader)
+    const picBedConfigList = uploader?.[type.value]?.configList ?? []
+    const picBedConfig = picBedConfigList.find(item => item._id === $route.params.configId)
 
     if (!picBedConfig) {
       message.error(t('pages.picBedConfigs.noConfigs'))

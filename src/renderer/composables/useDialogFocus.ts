@@ -16,6 +16,7 @@ export function useDialogFocus(open: MaybeRefOrGetter<boolean>) {
   let returnFocus: HTMLElement | null = null
   const dialogId = `dialog-${useId()}`
   const isTopmost = computed(() => openDialogs.value.at(-1) === dialogId)
+  const zIndex = computed(() => 1001 + openDialogs.value.indexOf(dialogId))
   const unregister = () => {
     openDialogs.value = openDialogs.value.filter(id => id !== dialogId)
   }
@@ -49,5 +50,5 @@ export function useDialogFocus(open: MaybeRefOrGetter<boolean>) {
 
   onBeforeUnmount(unregister)
   onUnmounted(() => void restoreFocus(true))
-  return { dialogId, isTopmost, restoreFocus: () => restoreFocus() }
+  return { dialogId, isTopmost, zIndex, restoreFocus: () => restoreFocus() }
 }
