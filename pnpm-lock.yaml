@@ -361,205 +361,205 @@ importers:
         specifier: ^6.43.15
         version: 6.43.15
       '@commitlint/cli':
-        specifier: ^21.2.4
+        specifier: 21.2.4
         version: 21.2.4(conventional-commits-filter@6.0.1)(conventional-commits-parser@7.1.4)(typescript@6.0.3)
       '@electron/notarize':
-        specifier: ^3.1.2
+        specifier: 3.1.2
         version: 3.1.2(supports-color@7.2.0)
       '@eslint/js':
-        specifier: ^10.0.1
+        specifier: 10.0.1
         version: 10.0.1(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))
       '@headlessui/vue':
-        specifier: ^1.7.23
+        specifier: 1.7.23
         version: 1.7.23(vue@3.5.46(typescript@6.0.3))
       '@intlify/unplugin-vue-i18n':
-        specifier: ^11.2.8
+        specifier: 11.2.8
         version: 11.2.8(supports-color@7.2.0)(typescript@6.0.3)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(vue-i18n@11.4.23(vue@3.5.46(typescript@6.0.3)))(vue@3.5.46(typescript@6.0.3))
       '@lucide/vue':
-        specifier: ^1.77.0
+        specifier: 1.77.0
         version: 1.77.0(vue@3.5.46(typescript@6.0.3))
       '@tailwindcss/vite':
-        specifier: ^4.3.5
+        specifier: 4.3.5
         version: 4.3.5(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       '@types/ali-oss':
-        specifier: ^6.23.4
+        specifier: 6.23.4
         version: 6.23.4
       '@types/fs-extra':
-        specifier: ^11.0.4
+        specifier: 11.0.4
         version: 11.0.4
       '@types/lodash-es':
-        specifier: ^4.17.12
+        specifier: 4.17.12
         version: 4.17.12
       '@types/multer':
-        specifier: ^2.3.0
+        specifier: 2.3.0
         version: 2.3.0
       '@types/node':
-        specifier: ^24.19.2
+        specifier: 24.19.2
         version: 24.19.2
       '@types/semver':
-        specifier: ^7.8.0
+        specifier: 7.8.0
         version: 7.8.0
       '@types/tunnel':
-        specifier: ^0.0.7
+        specifier: 0.0.7
         version: 0.0.7
       '@types/upyun':
-        specifier: ^3.4.3
+        specifier: 3.4.3
         version: 3.4.3
       '@types/write-file-atomic':
-        specifier: ^4.0.3
+        specifier: 4.0.3
         version: 4.0.3
       '@vitejs/plugin-vue':
-        specifier: ^6.0.11
+        specifier: 6.0.11
         version: 6.0.11(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(vue@3.5.46(typescript@6.0.3))
       '@vueuse/core':
-        specifier: ^15.0.0
+        specifier: 15.0.0
         version: 15.0.0(vue@3.5.46(typescript@6.0.3))
       baseline-browser-mapping:
         specifier: ^2.11.39
         version: 2.11.39
       codemirror:
-        specifier: ^6.0.2
+        specifier: 6.0.2
         version: 6.0.2
       compare-versions:
-        specifier: ^6.1.1
+        specifier: 6.1.1
         version: 6.1.1
       czg:
-        specifier: ^1.14.0
+        specifier: 1.14.0
         version: 1.14.0
       dexie:
-        specifier: ^4.4.7
+        specifier: 4.4.7
         version: 4.4.7
       dompurify:
-        specifier: ^3.4.18
+        specifier: 3.4.18
         version: 3.4.18
       dpdm:
-        specifier: ^4.3.0
+        specifier: 4.3.0
         version: 4.3.0
       electron:
-        specifier: ^45.4.1
+        specifier: 45.4.1
         version: 45.4.1(supports-color@7.2.0)
       electron-builder:
-        specifier: ^26.18.0
+        specifier: 26.18.0
         version: 26.18.0(supports-color@7.2.0)
       electron-vite:
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0(supports-color@7.2.0)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))
       eslint:
-        specifier: ^10.15.0
+        specifier: 10.15.0
         version: 10.15.0(jiti@2.7.0)(supports-color@7.2.0)
       eslint-config-prettier:
-        specifier: ^10.1.8
+        specifier: 10.1.8
         version: 10.1.8(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))
       eslint-plugin-jsonc:
-        specifier: ^3.4.2
+        specifier: 3.4.2
         version: 3.4.2(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))
       eslint-plugin-prettier:
-        specifier: ^5.5.7
+        specifier: 5.5.7
         version: 5.5.7(eslint-config-prettier@10.1.8(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0)))(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(prettier@3.10.1)
       eslint-plugin-simple-import-sort:
-        specifier: ^14.0.0
+        specifier: 14.0.0
         version: 14.0.0(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))
       eslint-plugin-unicorn:
-        specifier: ^80.0.0
+        specifier: 80.0.0
         version: 80.0.0(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(typescript@6.0.3)
       eslint-plugin-vue:
-        specifier: ^10.12.1
+        specifier: 10.12.1
         version: 10.12.1(@typescript-eslint/parser@8.73.0(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(vue-eslint-parser@10.4.2(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))
       globals:
-        specifier: ^17.14.0
+        specifier: 17.14.0
         version: 17.14.0
       husky:
-        specifier: ^9.1.7
+        specifier: 9.1.7
         version: 9.1.7
       js-yaml:
-        specifier: ^5.5.0
+        specifier: 5.5.0
         version: 5.5.0
       mitt:
-        specifier: ^3.0.1
+        specifier: 3.0.1
         version: 3.0.1
       node-bump-version:
-        specifier: ^3.1.0
+        specifier: 3.1.0
         version: 3.1.0(@commitlint/cli@21.2.4(conventional-commits-filter@6.0.1)(conventional-commits-parser@7.1.4)(typescript@6.0.3))(@types/node@24.19.2)(czg@1.14.0)(husky@9.1.7)
       npm:
         specifier: 12.2.3
         version: 12.2.3
       pinia:
-        specifier: ^4.1.0
+        specifier: 4.1.0
         version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3))
       pinia-plugin-persistedstate:
-        specifier: ^4.7.1
+        specifier: 4.7.1
         version: 4.7.1(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))
       postcss:
-        specifier: ^8.5.33
+        specifier: 8.5.33
         version: 8.5.33
       postcss-html:
-        specifier: ^2.0.1
+        specifier: 2.0.1
         version: 2.0.1(postcss@8.5.33)
       prettier:
-        specifier: ^3.10.1
+        specifier: 3.10.1
         version: 3.10.1
       prettier-plugin-tailwindcss:
-        specifier: ^0.8.1
+        specifier: 0.8.1
         version: 0.8.1(prettier@3.10.1)
       qrcode.vue:
-        specifier: ^3.11.1
+        specifier: 3.11.1
         version: 3.11.1(vue@3.5.46(typescript@6.0.3))
       stylelint:
-        specifier: ^18.1.0
+        specifier: 18.1.0
         version: 18.1.0
       stylelint-config-html:
-        specifier: ^2.0.0
+        specifier: 2.0.0
         version: 2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint@18.1.0)
       stylelint-config-recommended:
-        specifier: ^19.1.0
+        specifier: 19.1.0
         version: 19.1.0(stylelint@18.1.0)
       stylelint-config-recommended-vue:
-        specifier: ^2.0.0
+        specifier: 2.0.0
         version: 2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint-config-html@2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint@18.1.0))(stylelint-config-recommended@19.1.0(stylelint@18.1.0))(stylelint@18.1.0)
       stylelint-config-standard:
-        specifier: ^41.1.0
+        specifier: 41.1.0
         version: 41.1.0(stylelint@18.1.0)
       stylelint-config-standard-vue:
-        specifier: ^2.0.0
+        specifier: 2.0.0
         version: 2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint-config-html@2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint@18.1.0))(stylelint-config-recommended-vue@2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint-config-html@2.0.0(postcss-html@2.0.1(postcss@8.5.33))(stylelint@18.1.0))(stylelint-config-recommended@19.1.0(stylelint@18.1.0))(stylelint@18.1.0))(stylelint-config-standard@41.1.0(stylelint@18.1.0))(stylelint@18.1.0)
       stylelint-order:
-        specifier: ^8.1.3
+        specifier: 8.1.3
         version: 8.1.3(stylelint@18.1.0)
       tailwindcss:
-        specifier: ^4.3.5
+        specifier: 4.3.5
         version: 4.3.5
       tar:
-        specifier: ^7.5.23
+        specifier: 7.5.23
         version: 7.5.23
       typescript:
         specifier: 6.0.3
         version: 6.0.3
       typescript-eslint:
-        specifier: ^8.73.0
+        specifier: 8.73.0
         version: 8.73.0(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3)
       ulid:
-        specifier: ^3.0.2
+        specifier: 3.0.2
         version: 3.0.2
       video.js:
-        specifier: ^8.24.2
+        specifier: 8.24.2
         version: 8.24.2
       vite:
-        specifier: ^8.3.8
+        specifier: 8.3.8
         version: 8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1)
       vue-eslint-parser:
-        specifier: ^10.4.2
+        specifier: 10.4.2
         version: 10.4.2(eslint@10.15.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
       vue-i18n:
-        specifier: ^11.4.23
+        specifier: 11.4.23
         version: 11.4.23(vue@3.5.46(typescript@6.0.3))
       vue-router:
-        specifier: ^5.5.1
+        specifier: 5.5.1
         version: 5.5.1(@vue/compiler-sfc@3.5.46)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))(rolldown@1.2.19)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(yaml@2.9.1))(vue@3.5.46(typescript@6.0.3))
       vue-tsc:
-        specifier: ^3.3.14
+        specifier: 3.3.14
         version: 3.3.14(typescript@6.0.3)
       vue3-lazyload:
-        specifier: ^0.4.2
+        specifier: 0.4.2
         version: 0.4.2(vue@3.5.46(typescript@6.0.3))
 
 packages:
