@@ -130,6 +130,20 @@ export default [
     type: IRPCType.INVOKE,
   },
   {
+    action: IRPCActionType.SET_SCRIPT_ENABLED,
+    handler: defineRpcHandler(
+      IRPCActionType.SET_SCRIPT_ENABLED,
+      async (_: IIPCEvent, [fileName, enabled]: [string[], boolean]) => {
+        const path = fileName.join('/')
+        const disabled = new Set(picgo.getConfig<string[]>('scripts.disabledList') ?? [])
+        if (enabled) disabled.delete(path)
+        else disabled.add(path)
+        return commitConfig(picgo, { 'scripts.disabledList': [...disabled] })
+      },
+    ),
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.WRITE_SCRIPT_FILE,
     handler: defineRpcHandler(
       IRPCActionType.WRITE_SCRIPT_FILE,

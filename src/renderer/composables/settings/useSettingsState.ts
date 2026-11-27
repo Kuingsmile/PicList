@@ -14,8 +14,7 @@ import { useSettingsPersistence } from './useSettingsPersistence'
 
 export function useSettingsState() {
   const state = createSettingsState()
-  const { settings, visiblePicBeds, uploadProxy, isPortable, serverDraft, advancedRename, syncDraft, picBedG, ready } =
-    state
+  const { settings, visiblePicBeds, uploadProxy, isPortable, server, advancedRename, syncDraft, picBedG, ready } = state
   const { locale } = useI18n()
   const { startPersistence, ...actions } = useSettingsPersistence(state)
   // Async hydration must finish before autosave watchers are registered.
@@ -73,7 +72,7 @@ export function useSettingsState() {
     settings.value.shortUrlServer = stored.shortUrlServer || 'c1n'
     settings.value.customLink = stored.customLink || '![$fileName]($url)'
     uploadProxy.value = config.picBed?.proxy || ''
-    serverDraft.value = createServerDraft(stored.server)
+    server.value = createServerDraft(stored.server)
     advancedRename.value = config.buildIn?.rename || { enable: false, format: '{filename}' }
     advancedRename.value.enable = enforceBoolean(advancedRename.value.enable)
     if (advancedRename.value.enable) {

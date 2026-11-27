@@ -42,28 +42,7 @@ export const convertibleExtensions = [
 ]
 
 /** Output formats sharp can write, common web formats first. */
-export const outputFormats = [
-  'webp',
-  'jpg',
-  'png',
-  'avif',
-  'gif',
-  'jpeg',
-  'tiff',
-  'tif',
-  'heif',
-  'input',
-  'dz',
-  'fits',
-  'jp2',
-  'jxl',
-  'magick',
-  'openslide',
-  'pdf',
-  'ppm',
-  'raw',
-  'v',
-]
+export const outputFormats = ['webp', 'jpg', 'png', 'avif', 'gif', 'jpeg', 'tiff', 'tif', 'heif']
 
 export function normalizeWatermarkPosition(value: ProcessingOptionValue) {
   return value === 'center' ? 'centre' : String(value)
@@ -165,7 +144,7 @@ function normalizeGroup<T extends Record<string, ProcessingOptionValue>>(default
     const option = group[key]
     if (typeof fallback === 'boolean') option.value = !!option.value
     if (typeof fallback === 'number') normalizeNumber(option)
-    if (typeof fallback === 'string') option.value = String(option.value || fallback)
+    if (typeof fallback === 'string') option.value = String(option.value)
   }
 }
 

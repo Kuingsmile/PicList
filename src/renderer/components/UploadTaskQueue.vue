@@ -77,7 +77,7 @@
             <CustomButton
               v-else
               :icon="PlayIcon"
-              :disabled="actionsDisabled || !taskQueueStatus.stats.pending || savingSettings"
+              :disabled="actionsDisabled || !taskQueueStatus.stats.pending"
               :text="t('pages.upload.taskQueue.start')"
               @click="startTaskQueue"
             />
@@ -131,12 +131,7 @@
           </div>
         </div>
 
-        <fieldset
-          v-if="showTaskSettings"
-          id="upload-queue-settings"
-          class="queue-settings"
-          :disabled="savingSettings || actionsDisabled"
-        >
+        <fieldset v-if="showTaskSettings" id="upload-queue-settings" class="queue-settings" :disabled="actionsDisabled">
           <legend class="sr-only">{{ t('pages.upload.taskQueue.settings') }}</legend>
           <SettingCard>
             <CustomInput
@@ -149,8 +144,8 @@
               :title="t('pages.upload.taskQueue.interval')"
               :tips="t('pages.upload.taskQueue.intervalHint')"
               placeholder="1"
-              :disabled="savingSettings || actionsDisabled"
-              class="pr-8"
+              :disabled="actionsDisabled"
+              input-class="pr-8"
               @change="updateSettings('intervalS')"
             >
               <template #input-extra>
@@ -169,7 +164,7 @@
               :title="t('pages.upload.taskQueue.maxRetry')"
               :tips="t('pages.upload.taskQueue.maxRetryHint')"
               placeholder="3"
-              :disabled="savingSettings || actionsDisabled"
+              :disabled="actionsDisabled"
               @change="updateSettings('maxRetryCount')"
             />
           </SettingCard>
@@ -178,7 +173,7 @@
               :model-value="settings.autoStart"
               small
               no-border
-              :disabled="savingSettings || actionsDisabled"
+              :disabled="actionsDisabled"
               :title="t('pages.upload.taskQueue.autoStart')"
               :tips="t('pages.upload.taskQueue.autoStartHint')"
               @update:model-value="setSwitch('autoStart', $event)"
@@ -189,7 +184,7 @@
               :model-value="settings.pauseOnError"
               small
               no-border
-              :disabled="savingSettings || actionsDisabled"
+              :disabled="actionsDisabled"
               :title="t('pages.upload.taskQueue.pauseOnError')"
               :tips="t('pages.upload.taskQueue.pauseOnErrorHint')"
               @update:model-value="setSwitch('pauseOnError', $event)"
@@ -510,7 +505,6 @@ const {
   pendingAction,
   isLoading,
   statusError,
-  savingSettings,
   queueState,
   queueStateLabel,
   pendingPositions,

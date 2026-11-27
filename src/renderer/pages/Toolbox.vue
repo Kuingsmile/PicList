@@ -442,12 +442,10 @@ function copyReport() {
   copy(lines.join('\n'))
 }
 
-window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, applyResult)
+const unsubscribe = window.electron.ipcRendererOn(IRPCActionType.TOOLBOX_CHECK_RES, applyResult)
 
 // Every check is read-only, so run them straight away when the window opens.
 onMounted(() => runChecks())
 
-onUnmounted(() => {
-  window.electron.ipcRendererRemoveAllListeners(IRPCActionType.TOOLBOX_CHECK_RES)
-})
+onUnmounted(unsubscribe)
 </script>

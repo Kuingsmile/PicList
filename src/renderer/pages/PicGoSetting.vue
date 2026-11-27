@@ -36,6 +36,8 @@
 
       <!-- Settings Content -->
       <div
+        :inert="!ready"
+        :aria-busy="!ready"
         class="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden rounded-2xl border border-border-secondary p-1 shadow-md"
       >
         <SystemSettings :active="currentTab === 'system'" />
@@ -73,7 +75,9 @@ defineOptions({
 
 const { t } = useI18n()
 
-provideSettings(useSettingsState())
+const state = useSettingsState()
+const { ready } = state
+provideSettings(state)
 
 const tabDefinitions = [
   {

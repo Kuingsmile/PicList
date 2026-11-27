@@ -22,7 +22,7 @@
       <CustomInput
         :id="controlId('rename-format')"
         v-model="form.rename.format"
-        class="font-mono"
+        input-class="font-mono"
         :title="t('pages.imageProcess.studio.pattern')"
         placeholder="{Y}-{m}-{d}-{filename}"
       />

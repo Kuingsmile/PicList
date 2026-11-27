@@ -98,8 +98,7 @@ export function createSettingsState() {
     visiblePicBeds: ref<string[]>([]),
     uploadProxy: ref(''),
     advancedRename: ref({ enable: false, format: '{filename}' }),
-    // Dialog drafts are saved only on confirmation, never by autosave.
-    serverDraft: ref<IServerConfig>(createServerDraft()),
+    server: ref<IServerConfig>(createServerDraft()),
     syncDraft: ref<ISyncConfig>(createSyncDraft()),
     // UI and runtime state is not persisted as settings.
     ready: ref(false),

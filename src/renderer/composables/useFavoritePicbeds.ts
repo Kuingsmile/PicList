@@ -12,6 +12,10 @@ export const MAX_FAVORITE_PICBEDS = 6
 const LONG_PRESS_DURATION = 500
 const LONG_PRESS_RESET_DELAY = 10000
 
+export function favoriteKey(favorite: IFavoritePicbedItem) {
+  return JSON.stringify([favorite.type, favorite.id])
+}
+
 export function useFavoritePicbeds() {
   const { t } = useI18n()
   const message = useMessage()
@@ -25,14 +29,11 @@ export function useFavoritePicbeds() {
 
   async function validateFavoritePicbeds() {
     if (!favoritePicbeds.value.length) return
-    const uploaders = (await getConfig<IUploaderConfig>(configPaths.uploader)) || {}
-    const availableFavorites = favoritePicbeds.value.filter(favorite => {
-      return (
-        Object.keys(uploaders).includes(favorite.type) &&
-        uploaders[favorite.type]?.configList.some(
-          config => config._id === favorite.id && config._configName === favorite.configName,
-        )
-      )
+    const uploaders = await getConfig<IUploaderConfig>(configPaths.uploader)
+    if (!uploaders) return
+    const availableFavorites = favoritePicbeds.value.flatMap(favorite => {
+      const config = uploaders[favorite.type]?.configList.find(item => item._id === favorite.id)
+      return config ? [{ ...favorite, configName: config._configName }] : []
     })
     if (JSON.stringify(availableFavorites) !== JSON.stringify(favoritePicbeds.value)) {
       favoritePicbeds.value = availableFavorites
@@ -40,6 +41,7 @@ export function useFavoritePicbeds() {
   }
 
   function addCurrentPicbedToFavorites() {
+    if (isCurrentPicBedInFavorites.value) return
     favoritePicbeds.value.push({
       id: defaultIdG.value,
       type: defaultPicBedG.value,
@@ -49,20 +51,16 @@ export function useFavoritePicbeds() {
   }
 
   function removePicbedFromFavorites(favorite: IFavoritePicbedItem) {
-    const index = favoritePicbeds.value.findIndex(
-      item => item.type === favorite.type && item.id === favorite.id && item.configName === favorite.configName,
-    )
+    const index = favoritePicbeds.value.findIndex(item => item.type === favorite.type && item.id === favorite.id)
     if (index === -1) return
     favoritePicbeds.value.splice(index, 1)
   }
 
   async function switchToPicbed(favorite: IFavoritePicbedItem) {
-    if (!favorite.id || !favorite.type || !favorite.configName) return
+    if (!favorite.id || !favorite.type) return
 
     const uploader = await getConfig<IUploaderConfigItem>(`uploader.${favorite.type}`)
-    const targetConfig = uploader?.configList.find(
-      config => config._id === favorite.id && config._configName === favorite.configName,
-    )
+    const targetConfig = uploader?.configList.find(config => config._id === favorite.id)
     if (!targetConfig) return
 
     const saved = await saveConfig({
@@ -86,11 +84,11 @@ export function useFavoritePicbeds() {
   }
 
   function isCurrentPicbed(favorite: IFavoritePicbedItem): boolean {
-    return defaultIdG.value === favorite.id
+    return defaultPicBedG.value === favorite.type && defaultIdG.value === favorite.id
   }
 
   function handleBadgeClick(favorite: IFavoritePicbedItem) {
-    if (longPressedBadge.value === favorite.id || isCurrentPicbed(favorite)) return
+    if (longPressedBadge.value === favoriteKey(favorite) || isCurrentPicbed(favorite)) return
     switchToPicbed(favorite)
   }
 
@@ -105,7 +103,7 @@ export function useFavoritePicbeds() {
     clearLongPressTimers()
     longPressTimer = setTimeout(() => {
       longPressTimer = undefined
-      longPressedBadge.value = favorite.id
+      longPressedBadge.value = favoriteKey(favorite)
       event?.preventDefault()
     }, LONG_PRESS_DURATION)
   }

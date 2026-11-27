@@ -88,6 +88,7 @@ export default [
               await fs.copy(sourcePath, targetPath, { overwrite: true })
             }),
         )
+        return true
       } catch (err: any) {
         logger.error(err)
         throw new Error('Migrate failed', { cause: err })

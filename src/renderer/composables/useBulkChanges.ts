@@ -14,9 +14,11 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
   const uncertain = ref(false)
   const error = ref('')
   const policy = ref<BulkPolicy | ''>('')
-  const busy = computed(() => submitting.value || uncertain.value || !!snapshot.value?.running)
+  const discarding = ref(false)
+  const busy = computed(() => discarding.value || submitting.value || uncertain.value || !!snapshot.value?.running)
   let timer: ReturnType<typeof setTimeout> | undefined
   let disposed = false
+  let statusRequest = 0
   let refreshed = ''
 
   async function release(id: string) {
@@ -39,23 +41,28 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
         try {
           await afterRun(result)
         } catch {
-          error.value = t('common.bulk.refreshFailed')
+          if (snapshot.value?.plan.id === result.plan.id && refreshed === revision) {
+            refreshed = ''
+            error.value = t('common.bulk.refreshFailed')
+          }
         }
       }
     }
   }
 
   async function refresh() {
-    if (!snapshot.value || disposed) return
+    if (!snapshot.value || disposed || discarding.value) return
+    const request = ++statusRequest
     try {
       const result = await window.electron.triggerRPC<BulkSnapshot>(
         IRPCActionType.BULK_CHANGES_STATUS,
         snapshot.value.plan.id,
       )
+      if (request !== statusRequest || disposed) return
       if (result?.committed) error.value = ''
       await accept(result)
     } catch {
-      error.value = t('common.bulk.connectionFailed')
+      if (request === statusRequest && !disposed) error.value = t('common.bulk.connectionFailed')
     }
   }
 
@@ -93,19 +100,20 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
 
   async function execute(retryFailed = false) {
     if (!snapshot.value || !policy.value || busy.value) return
+    statusRequest++
     submitting.value = true
     uncertain.value = true
     error.value = ''
     poll()
     try {
-      await accept(
-        await window.electron.triggerRPC<BulkSnapshot>(
-          IRPCActionType.BULK_CHANGES_COMMIT,
-          snapshot.value.plan.id,
-          policy.value,
-          retryFailed,
-        ),
+      const result = await window.electron.triggerRPC<BulkSnapshot>(
+        IRPCActionType.BULK_CHANGES_COMMIT,
+        snapshot.value.plan.id,
+        policy.value,
+        retryFailed,
       )
+      statusRequest++
+      await accept(result)
     } catch {
       error.value = t('common.bulk.connectionFailed')
       await refresh()
@@ -117,6 +125,8 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
 
   async function discard() {
     if (!snapshot.value || busy.value) return
+    discarding.value = true
+    statusRequest++
     try {
       if (!(await window.electron.triggerRPC<boolean>(IRPCActionType.BULK_CHANGES_DISCARD, snapshot.value.plan.id)))
         return
@@ -125,6 +135,8 @@ export function useBulkChanges(afterRun: (snapshot: BulkSnapshot) => Promise<voi
       error.value = ''
     } catch {
       error.value = t('common.bulk.connectionFailed')
+    } finally {
+      discarding.value = false
     }
   }
 

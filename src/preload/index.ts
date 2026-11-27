@@ -2,7 +2,7 @@ import { contextBridge, webFrame, webUtils } from 'electron'
 
 import { IRPCActionType } from '#/constants/rpcActions'
 
-import { ipcRendererCountListeners, ipcRendererOn, ipcRendererRemoveAllListeners } from './events'
+import { ipcRendererCountListeners, ipcRendererOn } from './events'
 import { nodeBridge } from './nodeBridge'
 import { invokeRPC, sendRPC, sendToMain, triggerRPC } from './rpc'
 import { bootstrapTheme, onThemeUpdate } from './theme'
@@ -24,7 +24,6 @@ try {
     sendRPC,
     ipcRendererOn,
     ipcRendererCountListeners,
-    ipcRendererRemoveAllListeners,
     showFilePath(file: File) {
       return webUtils.getPathForFile(file)
     },

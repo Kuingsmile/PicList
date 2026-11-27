@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col" :class="$attrs.class" :style="$attrs.style as StyleValue">
     <div class="mb-1 flex items-center gap-2">
       <label :for="inputId" class="text-sm font-semibold text-secondary"
         >{{ title }}
@@ -10,14 +10,14 @@
     </div>
     <div class="relative w-full">
       <input
-        v-bind="$attrs"
+        v-bind="omit($attrs, ['class', 'style'])"
         :id="inputId"
         v-model="modelValue"
         :type
         :disabled
         :aria-required="required || undefined"
-        class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50"
-        :class="{ 'pr-10': isPassword }"
+        class="box-border w-full rounded-md border border-border bg-bg-tertiary p-3 text-sm text-main transition-all duration-200 ease-apple focus:border-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error!"
+        :class="[inputClass, { 'pr-10': isPassword }]"
         :placeholder
       />
       <button
@@ -40,7 +40,8 @@
 
 <script setup lang="ts">
 import { EyeClosedIcon, EyeIcon } from '@lucide/vue'
-import { computed, ref, useId, watch } from 'vue'
+import { omit } from 'lodash-es'
+import { computed, ref, type StyleValue, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import HelpTooltip from '@/components/common/HelpTooltip.vue'
@@ -75,6 +76,7 @@ const {
   isPassword = false,
   title,
   inputType = 'text',
+  inputClass = '',
   placeholder,
   tips = '',
   required = false,
@@ -84,6 +86,7 @@ const {
 } = defineProps<{
   isPassword?: boolean
   title: string
+  inputClass?: string
   inputType?: string
   placeholder: string
   required?: boolean

@@ -19,7 +19,7 @@
           v-model.number="form.compress.reSizeWidth"
           type="number"
           min="0"
-          class="pr-10"
+          input-class="pr-10"
           :title="t('pages.imageProcess.studio.width')"
           :placeholder="t('pages.imageProcess.studio.autoPlaceholder')"
         >
@@ -31,7 +31,7 @@
           v-model.number="form.compress.reSizeHeight"
           type="number"
           min="0"
-          class="pr-10"
+          input-class="pr-10"
           :title="t('pages.imageProcess.studio.height')"
           :placeholder="t('pages.imageProcess.studio.autoPlaceholder')"
         >

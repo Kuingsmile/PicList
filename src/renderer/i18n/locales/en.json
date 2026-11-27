@@ -1403,6 +1403,7 @@
         "enableServer": "Enable Upload API Service",
         "guiLogFile": "Open GUI Log File",
         "invalidJson": "Invalid JSON format",
+        "invalidServerPort": "Enter a whole number from 1 to 65535.",
         "logFile": "Open General Log File",
         "logFileSize": "Log File Size",
         "logging": "Logging",

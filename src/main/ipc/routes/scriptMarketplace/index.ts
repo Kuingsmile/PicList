@@ -57,6 +57,7 @@ const authState: IGitHubAuthState = {
   username: null,
 }
 
+let flowVersion = 0
 const deviceFlowState: IDeviceFlowState = {
   deviceCode: null,
   userCode: null,
@@ -144,12 +145,9 @@ async function initiateGitHubDeviceFlow(): Promise<{
   verificationUri: string
   expiresIn: number
 } | null> {
+  cancelDeviceFlow()
+  const version = flowVersion
   try {
-    if (deviceFlowState.pollingTimer) {
-      clearInterval(deviceFlowState.pollingTimer)
-      deviceFlowState.pollingTimer = null
-    }
-
     const response = await fetch('https://github.com/login/device/code', {
       method: 'POST',
       headers: {
@@ -168,6 +166,7 @@ async function initiateGitHubDeviceFlow(): Promise<{
 
     const data = (await response.json()) as IDeviceCodeResponse
 
+    if (version !== flowVersion) return null
     deviceFlowState.deviceCode = data.device_code
     deviceFlowState.userCode = data.user_code
     deviceFlowState.verificationUri = data.verification_uri
@@ -195,6 +194,7 @@ async function pollDeviceFlowAuthorization(): Promise<{
   error?: string
   nextInterval?: number
 }> {
+  const version = flowVersion
   if (!deviceFlowState.deviceCode) {
     return { success: false, error: 'No device code available. Please initiate login first.' }
   }
@@ -240,24 +240,23 @@ async function pollDeviceFlowAuthorization(): Promise<{
     }
 
     if (data.access_token) {
-      authState.accessToken = data.access_token
       const userResponse = await fetch(`${GITHUB_API_BASE}/user`, {
         headers: {
-          Authorization: `Bearer ${authState.accessToken}`,
+          Authorization: `Bearer ${data.access_token}`,
         },
       })
 
+      let username: string | null = null
       if (userResponse.ok) {
         const userData = (await userResponse.json()) as { login: string }
-        authState.username = userData.login
+        username = userData.login
       }
 
+      if (version !== flowVersion) return { success: false, error: 'Login cancelled' }
+      authState.accessToken = data.access_token
+      authState.username = username
       saveAuthState()
-
-      deviceFlowState.deviceCode = null
-      deviceFlowState.userCode = null
-      deviceFlowState.verificationUri = null
-      deviceFlowState.expiresAt = null
+      cancelDeviceFlow()
 
       logger.info(`GitHub Device Flow completed. User: ${authState.username}`)
 
@@ -272,6 +271,7 @@ async function pollDeviceFlowAuthorization(): Promise<{
 }
 
 function cancelDeviceFlow() {
+  flowVersion++
   if (deviceFlowState.pollingTimer) {
     clearInterval(deviceFlowState.pollingTimer)
     deviceFlowState.pollingTimer = null

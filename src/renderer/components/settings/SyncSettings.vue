@@ -38,7 +38,7 @@
         :title="t('pages.settings.sync.migrateFromPicGo')"
         :icon="Import"
         :description="t('pages.settings.sync.migrateDesc')"
-        @click="handleMigrateFromPicGo"
+        @click="migrate('picgo')"
       />
 
       <CustomNavCard
@@ -46,7 +46,7 @@
         :title="t('pages.settings.sync.migrateFromPicListInstallation')"
         :icon="Import"
         :description="t('pages.settings.sync.migrateDescPicList')"
-        @click="handleMigrateFromPicListInstallation"
+        @click="migrate('piclist')"
       />
     </SettingSection>
 
@@ -403,48 +403,29 @@ function openDirectory(directory?: string, inStorePath = true) {
   window.electron.sendRPC(IRPCActionType.PICLIST_OPEN_DIRECTORY, directory, inStorePath)
 }
 
-function handleMigrateFromPicGo() {
-  confirm({
+async function migrate(source: 'picgo' | 'piclist') {
+  const fromPicGo = source === 'picgo'
+  const confirmed = await confirm({
     title: t('pages.settings.sync.mirgrateTitle'),
-    message: t('pages.settings.sync.mirgrateContent'),
+    message: t(
+      fromPicGo ? 'pages.settings.sync.mirgrateContent' : 'pages.settings.sync.migrateFromPicListInstallationContent',
+    ),
     type: 'warning',
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     center: true,
-  }).then(result => {
-    if (result) {
-      window.electron
-        .triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO)
-        .then(() => {
-          message.success(t('pages.settings.sync.mirgrateSuccess'))
-        })
-        .catch(() => {
-          message.error(t('pages.settings.sync.mirgrateFailed'))
-        })
-    }
   })
-}
-
-function handleMigrateFromPicListInstallation() {
-  confirm({
-    title: t('pages.settings.sync.mirgrateTitle'),
-    message: t('pages.settings.sync.migrateFromPicListInstallationContent'),
-    type: 'warning',
-    confirmButtonText: t('common.confirm'),
-    cancelButtonText: t('common.cancel'),
-    center: true,
-  }).then(result => {
-    if (result) {
-      window.electron
-        .triggerRPC<boolean>(IRPCActionType.CONFIGURE_MIGRATE_FROM_PICLIST_INSTALLATION)
-        .then(() => {
-          message.success(t('pages.settings.sync.mirgrateSuccess'))
-        })
-        .catch(() => {
-          message.error(t('pages.settings.sync.mirgrateFailed'))
-        })
-    }
-  })
+  if (!confirmed) return
+  try {
+    const action = fromPicGo
+      ? IRPCActionType.CONFIGURE_MIGRATE_FROM_PICGO
+      : IRPCActionType.CONFIGURE_MIGRATE_FROM_PICLIST_INSTALLATION
+    const migrated = await window.electron.triggerRPC<boolean>(action)
+    if (migrated) message.success(t('pages.settings.sync.mirgrateSuccess'))
+    else message.error(t('pages.settings.sync.mirgrateFailed'))
+  } catch {
+    message.error(t('pages.settings.sync.mirgrateFailed'))
+  }
 }
 
 async function runSyncTask(scope: (typeof syncScopes)[number], direction: 'upload' | 'download') {

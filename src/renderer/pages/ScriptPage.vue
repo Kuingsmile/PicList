@@ -199,6 +199,7 @@
                   v-for="item in stage.scripts"
                   :key="item.filePath.join('/')"
                   :item="item"
+                  :toggling="pendingToggles.has(item.filePath.join('/'))"
                   :running="runningPath === item.filePath.join('/')"
                   @edit="openEditor(item.filePath)"
                   @delete="deleteScript(item.filePath)"
@@ -316,7 +317,7 @@ import {
 } from '@/composables/scripts/useScriptCategories'
 import useConfirm from '@/composables/useConfirm'
 import useMessage from '@/composables/useMessage'
-import { getConfig, saveConfig } from '@/services/configService'
+import { getConfig } from '@/services/configService'
 import { invokeRPC, showRpcError } from '@/services/rpcService'
 import { configPaths } from '@/utils/configPaths'
 import { normalizeScriptFileName } from '@/utils/scriptFileName'
@@ -343,6 +344,7 @@ const groupIcons: Record<ScriptGroup, Component> = {
   uploader: UploadCloudIcon,
 }
 
+const pendingToggles = ref(new Set<string>())
 const scriptsList = ref<IStringKeyMap[]>([])
 const loadingList = ref(true)
 const searchText = ref('')
@@ -544,14 +546,17 @@ async function runScript(scriptPath: string[]) {
 
 async function toggleScript(item: IStringKeyMap) {
   const fullPath = item.filePath.join('/')
-  const disabledList = ((await getConfig(configPaths.scripts.disabledList)) as string[] | undefined) || []
-  const nextList = disabledList.includes(fullPath)
-    ? disabledList.filter(path => path !== fullPath)
-    : [...disabledList, fullPath]
-  // Flip the switch straight away; roll back if the config write fails.
-  item.enabled = !item.enabled
-  if (!(await saveConfig(configPaths.scripts.disabledList, nextList))) {
-    item.enabled = !item.enabled
+  if (pendingToggles.value.has(fullPath)) return
+  pendingToggles.value.add(fullPath)
+  const enabled = !item.enabled
+  try {
+    await invokeRPC(IRPCActionType.SET_SCRIPT_ENABLED, item.filePath, enabled)
+    const current = scriptsList.value.find(script => script.filePath.join('/') === fullPath)
+    if (current) current.enabled = enabled
+  } catch (error) {
+    showRpcError(error)
+  } finally {
+    pendingToggles.value.delete(fullPath)
   }
 }
 

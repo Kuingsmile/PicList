@@ -138,7 +138,7 @@
           :title="t('pages.imageProcess.studio.color')"
           :tips="t('pages.imageProcess.studio.colorHint')"
           placeholder="#CCCCCC73"
-          class="pl-12 font-mono"
+          input-class="pl-12 font-mono"
         >
           <template #input-extra>
             <input

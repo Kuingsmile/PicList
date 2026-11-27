@@ -76,7 +76,11 @@
       class="relative flex min-h-0 w-full flex-1 flex-col overflow-hidden"
       :class="{ 'rounded-2xl border border-border-secondary p-1 shadow-md': !embedded }"
     >
-      <div class="no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-6 overflow-auto p-4">
+      <div
+        :inert="!ready"
+        :aria-busy="!ready"
+        class="no-scrollbar flex min-h-0 w-full flex-1 flex-col gap-6 overflow-auto p-4"
+      >
         <!-- Links -->
         <template v-if="currentTab === 'links'">
           <SettingSection
@@ -372,7 +376,7 @@ import {
   UploadIcon,
 } from '@lucide/vue'
 import { useStorage } from '@vueuse/core'
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -387,6 +391,7 @@ import useConfirm from '@/composables/useConfirm'
 import useMessage from '@/composables/useMessage'
 import { fileCacheDbInstance } from '@/manage/services/bucketDatabase'
 import { getConfig, saveConfig } from '@/manage/services/configService'
+import { useManageStore } from '@/manage/stores/manageStore'
 import { formatFileSize } from '@/manage/utils/filePresentation'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { enforceBoolean } from '#/utils/values'
@@ -400,6 +405,8 @@ const { t } = useI18n()
 const router = useRouter()
 const message = useMessage()
 const { confirm } = useConfirm()
+const manageStore = useManageStore()
+const ready = ref(false)
 const form = ref<IStringKeyMap>({
   timestampRename: false,
   randomStringRename: false,
@@ -482,11 +489,18 @@ function switchTips(key: string) {
   return switchesWithoutTips.has(key) ? undefined : t(`pages.manage.setting.${key}Tips` as any)
 }
 
+let pendingSave = Promise.resolve()
 settingsKeys.forEach(key => {
   watch(
     () => form.value[key],
-    async newValue => {
-      await saveConfig({ [`settings.${key}`]: newValue })
+    newValue => {
+      if (!ready.value) return
+      pendingSave = pendingSave.then(async () => {
+        if (await saveConfig({ [`settings.${key}`]: newValue })) {
+          manageStore.config.settings ??= {}
+          manageStore.config.settings[key] = newValue
+        }
+      })
     },
     { flush: 'post' },
   )
@@ -528,11 +542,17 @@ const advancedRenameTitleList = computed(() => ({
 }))
 
 async function initData() {
-  const config = (await getConfig()) as IStringKeyMap
+  const config = await getConfig<IStringKeyMap>()
+  if (!config) {
+    message.error(t('pages.configForm.loadFailed'))
+    return
+  }
   settingsKeys.forEach(key => {
-    const value = config.settings[key] ?? form.value[key]
+    const value = config.settings?.[key] ?? form.value[key]
     form.value[key] = typeof form.value[key] === 'boolean' ? enforceBoolean(value) : value
   })
+  await nextTick()
+  ready.value = true
 }
 
 function openFile(file: string) {

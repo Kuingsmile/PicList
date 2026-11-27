@@ -22,7 +22,6 @@ declare global {
       sendRPC: (action: string, ...args: any[]) => void
       ipcRendererOn: (channel: string, listener: (...args: any[]) => void) => () => void
       ipcRendererCountListeners: (channel: string) => number
-      ipcRendererRemoveAllListeners: (channel: string) => void
       clipboard: {
         writeText: typeof clipboard.writeText
       }

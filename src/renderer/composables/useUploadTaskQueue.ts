@@ -49,6 +49,10 @@ export function useUploadTaskQueue() {
   })
   const settings = reactive({ intervalS: 1, autoStart: false, pauseOnError: false, maxRetryCount: 3 })
   type Setting = keyof typeof settings
+  const pendingSettings = new Map<Setting, symbol>()
+  let settingsWrites = Promise.resolve()
+  let statusRequest = 0
+  let statusUpdates = 0
   let removeTaskQueueListener: () => void = () => {}
 
   const filteredTasks = computed(() => {
@@ -70,7 +74,9 @@ export function useUploadTaskQueue() {
   )
   const activeCount = computed(() => taskQueueStatus.stats.pending + taskQueueStatus.stats.uploading)
   const retryableCount = computed(() => taskQueueStatus.tasks.filter(canRetryTask).length)
-  const actionsDisabled = computed(() => isLoading.value || statusError.value || !!pendingAction.value)
+  const actionsDisabled = computed(
+    () => isLoading.value || statusError.value || savingSettings.value || !!pendingAction.value,
+  )
   const queueState = computed(() => {
     if (taskQueueStatus.config.isPaused) return taskQueueStatus.stats.uploading ? 'pausing' : 'paused'
     if (taskQueueStatus.config.isRunning) return 'running'
@@ -111,21 +117,26 @@ export function useUploadTaskQueue() {
     if (status.revision < taskQueueStatus.revision) return
     // Live progress must not replace a setting while the user is editing it.
     for (const key of Object.keys(settings) as Setting[]) {
-      if (settings[key] === taskQueueStatus.config[key]) Object.assign(settings, { [key]: status.config[key] })
+      if (!pendingSettings.has(key) && settings[key] === taskQueueStatus.config[key])
+        Object.assign(settings, { [key]: status.config[key] })
     }
+    statusUpdates++
+    isLoading.value = false
     Object.assign(taskQueueStatus, status)
     statusError.value = false
   }
 
   async function refreshTaskStatus() {
+    const request = ++statusRequest
+    const updates = statusUpdates
     try {
       const status = await window.electron.triggerRPC<UploadTaskQueueStatus>(IRPCActionType.UPLOAD_TASK_GET_STATUS)
       if (!status) throw new Error('Queue unavailable')
       applyTaskStatus(status)
     } catch {
-      statusError.value = true
+      if (request === statusRequest && updates === statusUpdates) statusError.value = true
     } finally {
-      isLoading.value = false
+      if (request === statusRequest) isLoading.value = false
     }
   }
 
@@ -179,7 +190,6 @@ export function useUploadTaskQueue() {
   }
 
   async function updateSettings(key: Setting) {
-    if (savingSettings.value) return
     const value = settings[key]
     if (key === 'intervalS' || key === 'maxRetryCount') {
       if (typeof value !== 'number' || !Number.isFinite(value)) settings[key] = taskQueueStatus.config[key]
@@ -187,21 +197,32 @@ export function useUploadTaskQueue() {
         settings[key] =
           key === 'intervalS' ? Math.max(0.1, Math.min(99999, value)) : Math.max(0, Math.min(10, Math.floor(value)))
     }
+    const submitted = settings[key]
+    const request = Symbol()
+    pendingSettings.set(key, request)
     savingSettings.value = true
-    try {
-      const saved = await window.electron.triggerRPC<UploadTaskQueueConfig>(
-        IRPCActionType.UPLOAD_TASK_UPDATE_SETTINGS,
-        { [key]: settings[key] },
-      )
-      if (!saved) throw new Error('Missing settings acknowledgement')
-      Object.assign(settings, { [key]: saved[key] })
-      await refreshTaskStatus()
-    } catch {
-      Object.assign(settings, { [key]: taskQueueStatus.config[key] })
-      message.error(t('pages.upload.taskQueue.actionFailed'))
-    } finally {
-      savingSettings.value = false
-    }
+    settingsWrites = settingsWrites.then(async () => {
+      try {
+        const saved = await window.electron.triggerRPC<UploadTaskQueueConfig>(
+          IRPCActionType.UPLOAD_TASK_UPDATE_SETTINGS,
+          { [key]: submitted },
+        )
+        if (!saved) throw new Error('Missing settings acknowledgement')
+        await refreshTaskStatus()
+        if (pendingSettings.get(key) === request && settings[key] === submitted) {
+          Object.assign(settings, { [key]: statusError.value ? saved[key] : taskQueueStatus.config[key] })
+        }
+      } catch {
+        if (pendingSettings.get(key) === request && settings[key] === submitted) {
+          Object.assign(settings, { [key]: taskQueueStatus.config[key] })
+        }
+        message.error(t('pages.upload.taskQueue.actionFailed'))
+      } finally {
+        if (pendingSettings.get(key) === request) pendingSettings.delete(key)
+        savingSettings.value = pendingSettings.size > 0
+      }
+    })
+    await settingsWrites
   }
 
   function getTaskStatusText(task: UploadTask): string {

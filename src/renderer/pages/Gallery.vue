@@ -1594,8 +1594,9 @@ onDeactivated(() => {
   }
 })
 
-onBeforeMount(async () => {
-  window.electron.ipcRendererOn(UPDATE_GALLERY, updateGalleryHandler)
+let unsubscribe: (() => void) | undefined
+onBeforeMount(() => {
+  unsubscribe = window.electron.ipcRendererOn(UPDATE_GALLERY, updateGalleryHandler)
   updateGallery()
   document.addEventListener('keydown', handleDetectShiftKey)
   document.addEventListener('keyup', handleDetectShiftKey)
@@ -1608,7 +1609,7 @@ onBeforeUnmount(() => {
   galleryRefreshVersion++
   galleryActive.value = false
   invalidateJxlPreviewCache()
-  window.electron.ipcRendererRemoveAllListeners(UPDATE_GALLERY)
+  unsubscribe?.()
   document.removeEventListener('click', handleOutsideClick)
   document.removeEventListener('keydown', handleDetectShiftKey)
   document.removeEventListener('keyup', handleDetectShiftKey)

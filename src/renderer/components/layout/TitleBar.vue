@@ -106,11 +106,12 @@ function uploadProcessHandler(data: { progress: number }) {
   progress.value = data.progress
 }
 
+let unsubscribe: (() => void) | undefined
 onBeforeMount(() => {
-  window.electron.ipcRendererOn(TITLE_BAR_UPDATE_PROGRESS, uploadProcessHandler)
+  unsubscribe = window.electron.ipcRendererOn(TITLE_BAR_UPDATE_PROGRESS, uploadProcessHandler)
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners(TITLE_BAR_UPDATE_PROGRESS)
+  unsubscribe?.()
 })
 </script>

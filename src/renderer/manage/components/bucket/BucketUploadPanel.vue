@@ -256,7 +256,7 @@ const activeUpLoadTab = ref('uploading')
 const taskActionClass =
   'flex h-[30px] w-[30px] shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary transition-colors duration-fast hover:bg-accent/10 hover:text-accent focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50'
 
-const hasStaged = computed(() => tableData.length > 0 || isLoadingUploadPanelFiles.value)
+const hasStaged = computed(() => tableData.value.length > 0 || isLoadingUploadPanelFiles.value)
 
 const stagedSize = computed(() =>
   uploadPanelFilesList.value.reduce((total: number, item: any) => total + (Number(item.size) || 0), 0),
@@ -288,7 +288,9 @@ function taskReason(item: IUploadTask) {
 }
 
 const sortedFiles = computed(() =>
-  [...tableData].sort((a, b) => b.isFolder - a.isFolder || b.filesList.length - a.filesList.length),
+  [...tableData.value].sort(
+    (a, b) => Number(b.isFolder) - Number(a.isFolder) || b.filesList.length - a.filesList.length,
+  ),
 )
 function uploadFiles() {
   emit('upload', uploadPanelFilesList.value)

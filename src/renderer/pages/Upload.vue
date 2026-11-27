@@ -50,7 +50,7 @@
           >
             <div
               v-for="picbedType in favoritePicbeds"
-              :key="picbedType.id"
+              :key="favoriteKey(picbedType)"
               class="group/badge relative flex w-[85px] shrink-0 items-center rounded-md bg-bg-secondary text-xs font-medium whitespace-nowrap text-secondary shadow-sm transition-all duration-fast ease-standard select-none hover:-translate-y-px hover:border-accent-hover hover:bg-accent hover:text-white [.is-active]:bg-accent/40"
               :class="{ 'is-active': isCurrentPicbed(picbedType) }"
             >
@@ -81,7 +81,7 @@
               <button
                 v-tooltip="t('pages.upload.removeFromFavorites')"
                 type="button"
-                :class="{ 'sr-only focus:not-sr-only': longPressedBadge !== picbedType.id }"
+                :class="{ 'sr-only focus:not-sr-only': longPressedBadge !== favoriteKey(picbedType) }"
                 class="mr-1 flex shrink-0 animate-[fade-in_0.2s_ease-in] cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0.5 text-inherit duration-fast ease-standard hover:bg-danger/12 hover:text-danger focus-visible:focus-ring"
                 :aria-label="t('pages.upload.removeFromFavorites')"
                 @click="removePicbedFromFavorites(picbedType)"
@@ -278,7 +278,7 @@ import { useRouter } from 'vue-router'
 import PicBedSwitcher from '@/components/PicBedSwitcher.vue'
 import UploadTaskQueue from '@/components/UploadTaskQueue.vue'
 import { useDragEventListeners } from '@/composables/useDragEventListeners'
-import { MAX_FAVORITE_PICBEDS, useFavoritePicbeds } from '@/composables/useFavoritePicbeds'
+import { favoriteKey, MAX_FAVORITE_PICBEDS, useFavoritePicbeds } from '@/composables/useFavoritePicbeds'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import { useUploadProgress } from '@/composables/useUploadProgress'

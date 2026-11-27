@@ -1,5 +1,5 @@
 <template>
-  <CustomInput v-model="model" :title :placeholder :tips class="pr-26">
+  <CustomInput v-model="model" :title :placeholder :tips input-class="pr-26">
     <template #input-extra>
       <button
         type="button"

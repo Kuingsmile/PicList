@@ -273,13 +273,15 @@ useEventListener('keydown', event => {
   if (event.key === 'Escape') closeWindow()
 })
 
+let subscriptions: (() => void)[] = []
 onMounted(() => {
-  window.electron.ipcRendererOn(SHOW_UPDATE_INFO, handleUpdateInfo)
-  window.electron.ipcRendererOn(UPDATE_PROGRESS, handleUpdateProgress)
+  subscriptions = [
+    window.electron.ipcRendererOn(SHOW_UPDATE_INFO, handleUpdateInfo),
+    window.electron.ipcRendererOn(UPDATE_PROGRESS, handleUpdateProgress),
+  ]
 })
 
 onBeforeUnmount(() => {
-  window.electron.ipcRendererRemoveAllListeners(SHOW_UPDATE_INFO)
-  window.electron.ipcRendererRemoveAllListeners(UPDATE_PROGRESS)
+  subscriptions.forEach(unsubscribe => unsubscribe())
 })
 </script>

@@ -57,6 +57,7 @@
         v-else-if="toggleable"
         v-tooltip="item.enabled ? t('pages.scripts.disableScript') : t('pages.scripts.enableScript')"
         :model-value="item.enabled"
+        :disabled="toggling"
         small
         no-border
         no-hover
@@ -79,7 +80,11 @@ import CustomButton from '@/components/common/CustomButton.vue'
 import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import { isToggleableCategory } from '@/composables/scripts/useScriptCategories'
 
-const { item, running = false } = defineProps<{ item: IStringKeyMap; running?: boolean }>()
+const {
+  item,
+  running = false,
+  toggling = false,
+} = defineProps<{ item: IStringKeyMap; running?: boolean; toggling?: boolean }>()
 const emit = defineEmits<{
   edit: [item: IStringKeyMap]
   share: [item: IStringKeyMap]

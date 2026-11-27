@@ -181,6 +181,7 @@ export const rpcContracts = {
     ),
   ),
   THEME_WRITE_THEME: write(tuple<[file: string, content: string]>(v => isSegment(v) && v.endsWith('.css'), isString)),
+  SET_SCRIPT_ENABLED: write(tuple<[path: string[], enabled: boolean]>(isScriptPath, v => typeof v === 'boolean')),
   WRITE_SCRIPT_FILE: write(tuple<[path: string[], content: string]>(isScriptPath, isString)),
   DELETE_SCRIPTS_FILE: write(tuple<[path: string[]]>(isScriptPath)),
   UPLOADER_SELECT: write(tuple<[type: string, id: string]>(isUploader, isNonemptyString)),

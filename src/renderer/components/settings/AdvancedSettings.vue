@@ -61,17 +61,17 @@
     <!-- Server Settings Section -->
     <SettingSection :icon="Server" :title="t('pages.settings.advanced.serverSettings')">
       <CustomNavCard :title="t('pages.localFileServer.title')" :icon="Globe" @click="fileServerVisible = true" />
-      <CustomNavCard :title="t('pages.settings.advanced.uploadServer')" :icon="Server" @click="serverVisible = true">
+      <CustomNavCard :title="t('pages.settings.advanced.uploadServer')" :icon="Server" @click="openServerSettings">
         <template #description>
           <span class="mt-1 flex min-w-0 items-center gap-1.5 text-xs font-medium text-secondary">
             <span
               class="h-2 w-2 shrink-0 rounded-full"
-              :class="serverDraft.enable ? 'bg-success' : 'bg-gray-400'"
+              :class="server.enable ? 'bg-success' : 'bg-gray-400'"
               aria-hidden="true"
             />
             <span class="truncate">{{
-              serverDraft.enable
-                ? t('pages.settings.advanced.serverListening', { address: `${serverDraft.host}:${serverDraft.port}` })
+              server.enable
+                ? t('pages.settings.advanced.serverListening', { address: `${server.host}:${server.port}` })
                 : t('pages.settings.advanced.serverOff')
             }}</span>
           </span>
@@ -97,7 +97,7 @@
     :title="t('pages.settings.advanced.uploadServer')"
     :close-disabled="savingServer"
   >
-    <div class="flex w-full flex-col gap-4 p-4">
+    <fieldset class="m-0 flex w-full min-w-0 flex-col gap-4 border-0 p-4" :disabled="savingServer">
       <div
         role="note"
         class="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-relaxed text-secondary"
@@ -125,12 +125,17 @@
             :max="65535"
             :step="1"
             :title="t('pages.settings.advanced.serverPort')"
+            :aria-invalid="!validPort"
+            :aria-describedby="validPort ? undefined : portErrorId"
             placeholder="36677"
           />
+          <p v-if="!validPort" :id="portErrorId" class="mt-1 text-xs text-error">
+            {{ t('pages.settings.advanced.invalidServerPort') }}
+          </p>
         </SettingCard>
         <SettingCard class="col-span-full">
           <CustomInput
-            v-model="settings.serverKey"
+            v-model="serverDraft.serverKey"
             :is-password="true"
             :title="t('pages.settings.advanced.serverKey')"
             :placeholder="t('pages.settings.advanced.serverKeyPlaceholder')"
@@ -138,7 +143,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="settings.serverMaxConcurrency"
+            v-model.number="serverDraft.serverMaxConcurrency"
             type="number"
             :min="0"
             :step="1"
@@ -148,7 +153,7 @@
         </SettingCard>
         <SettingCard>
           <CustomInput
-            v-model="settings.serverUploadInterval"
+            v-model.number="serverDraft.serverUploadInterval"
             type="number"
             :min="0"
             :step="100"
@@ -157,7 +162,7 @@
           />
         </SettingCard>
       </SettingSection>
-    </div>
+    </fieldset>
     <template #footer>
       <CustomButton
         type="secondary"
@@ -165,14 +170,19 @@
         :disabled="savingServer"
         @click="serverVisible = false"
       />
-      <CustomButton :text="t('common.confirm')" :loading="savingServer" @click="confirmServerSetting" />
+      <CustomButton
+        :text="t('common.confirm')"
+        :loading="savingServer"
+        :disabled="serverDraft.enable && !validPort"
+        @click="confirmServerSetting"
+      />
     </template>
   </CustomModal>
 </template>
 
 <script setup lang="ts">
 import { FileText, Globe, Info, ListFilter, Server } from '@lucide/vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import CustomButton from '@/components/common/CustomButton.vue'
@@ -184,18 +194,37 @@ import MultiSelect from '@/components/common/MultiSelect.vue'
 import SettingCard from '@/components/common/SettingCard.vue'
 import SettingSection from '@/components/common/SettingSection.vue'
 import LocalFileServerDialog from '@/components/settings/LocalFileServerDialog.vue'
-import { createServerDraft } from '@/composables/settings/settingsState'
 import { useSettingsContext } from '@/composables/settings/useSettingsContext'
-import { getConfig, saveConfig } from '@/services/configService'
+import { saveConfig } from '@/services/configService'
 import { configPaths } from '@/utils/configPaths'
 import { IRPCActionType } from '#/constants/rpcActions'
 
 defineProps<{ active: boolean }>()
 const { t } = useI18n()
-const { settings, uploadProxy, serverDraft } = useSettingsContext()
+const { settings, uploadProxy, server } = useSettingsContext()
 
 const serverVisible = ref(false)
 const fileServerVisible = ref(false)
+
+function currentServerSettings() {
+  return {
+    ...server.value,
+    serverKey: settings.value.serverKey,
+    serverMaxConcurrency: settings.value.serverMaxConcurrency,
+    serverUploadInterval: settings.value.serverUploadInterval,
+  }
+}
+const serverDraft = ref(currentServerSettings())
+const portErrorId = useId()
+const validPort = computed(() => {
+  const port = Number(serverDraft.value.port)
+  return Number.isInteger(port) && port >= 1 && port <= 65535
+})
+
+function openServerSettings() {
+  serverDraft.value = currentServerSettings()
+  serverVisible.value = true
+}
 
 const savingServer = ref(false)
 
@@ -219,21 +248,30 @@ async function openFile(file: string) {
 }
 
 async function confirmServerSetting() {
-  if (savingServer.value) return
+  if (savingServer.value || (serverDraft.value.enable && !validPort.value)) return
   savingServer.value = true
   try {
-    serverDraft.value.port = parseInt(String(serverDraft.value.port), 10)
-    const draft = JSON.stringify(serverDraft.value)
-    if (!(await saveConfig({ [configPaths.settings.server]: serverDraft.value }))) return
-    if (JSON.stringify(serverDraft.value) === draft) serverVisible.value = false
+    const { serverKey, serverMaxConcurrency, serverUploadInterval, ...connection } = serverDraft.value
+    connection.port = validPort.value ? Number(connection.port) : server.value.port
+    if (
+      !(await saveConfig({
+        [configPaths.settings.server]: connection,
+        [configPaths.settings.serverKey]: serverKey,
+        [configPaths.settings.serverMaxConcurrency]: Number(serverMaxConcurrency),
+        [configPaths.settings.serverUploadInterval]: Number(serverUploadInterval),
+      }))
+    )
+      return
+    server.value = connection
+    Object.assign(settings.value, {
+      serverKey,
+      serverMaxConcurrency: Number(serverMaxConcurrency),
+      serverUploadInterval: Number(serverUploadInterval),
+    })
+    serverVisible.value = false
     window.electron.sendRPC(IRPCActionType.ADVANCED_UPDATE_SERVER)
   } finally {
     savingServer.value = false
   }
 }
-
-// Closing the modal any way other than a successful save discards the unsaved draft.
-watch(serverVisible, async visible => {
-  if (!visible) serverDraft.value = createServerDraft(await getConfig<IServerConfig>(configPaths.settings.server))
-})
 </script>

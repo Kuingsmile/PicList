@@ -334,16 +334,16 @@ const picBedName = computed(() => {
 })
 
 function isConfigFavorited(configId: string): boolean {
-  const ids = favoritePicbeds.value.map(item => item.id)
-  return ids.includes(configId)
+  return favoriteIndex(configId) !== -1
+}
+
+function favoriteIndex(configId: string, provider = type.value) {
+  return favoritePicbeds.value.findIndex(item => item.type === provider && item.id === configId)
 }
 
 function toggleConfigFavorite(configId: string, configName: string) {
-  if (isConfigFavorited(configId)) {
-    const index = favoritePicbeds.value.findIndex(
-      item => item.type === type.value && item.id === configId && item.configName === configName,
-    )
-    if (index === -1) return
+  const index = favoriteIndex(configId)
+  if (index !== -1) {
     favoritePicbeds.value.splice(index, 1)
   } else {
     favoritePicbeds.value.push({ id: configId, configName, type: type.value })
@@ -421,6 +421,7 @@ async function confirmDuplicateConfig() {
 }
 
 async function deleteConfig(id: string) {
+  const provider = type.value
   const result = await confirm({
     title: t('pages.uploaderConfig.deleteTitle'),
     message: t('pages.uploaderConfig.deleteConfirm'),
@@ -432,17 +433,14 @@ async function deleteConfig(id: string) {
   if (!result) return
   let res
   try {
-    res = await invokeRPC(IRPCActionType.PICBED_DELETE_CONFIG, type.value, id)
+    res = await invokeRPC(IRPCActionType.PICBED_DELETE_CONFIG, provider, id)
   } catch (error) {
     showRpcError(error)
     return
   }
-  if (isConfigFavorited(id)) {
-    const index = favoritePicbeds.value.findIndex(item => item.type === type.value && item.id === id)
-    if (index !== -1) {
-      favoritePicbeds.value.splice(index, 1)
-    }
-  }
+  const index = favoriteIndex(id, provider)
+  if (index !== -1) favoritePicbeds.value.splice(index, 1)
+  if (type.value !== provider) return
   curConfigList.value = res.configList
   defaultConfigId.value = res.defaultId
   message.success(t('pages.uploaderConfig.deleteSuccess'))

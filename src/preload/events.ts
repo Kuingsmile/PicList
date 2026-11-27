@@ -61,7 +61,3 @@ export const ipcRendererOn = (channel: string, listener: (...args: any[]) => voi
 export const ipcRendererCountListeners = (channel: string): number => {
   return ipcRenderer.listenerCount(channel)
 }
-
-export const ipcRendererRemoveAllListeners = (channel: string) => {
-  ipcRenderer.removeAllListeners(channel)
-}

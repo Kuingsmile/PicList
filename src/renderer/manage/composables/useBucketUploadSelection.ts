@@ -1,171 +1,125 @@
-import { reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { IRPCActionType } from '#/constants/rpcActions'
+
+interface SelectedFile {
+  path: string
+  name: string
+  size: number
+  relativePath?: string
+}
+
+interface SelectionRow {
+  fullPath: string
+  name: string
+  isFolder: boolean
+  fileSize: number
+  filesList: SelectedFile[]
+}
+
 export function useBucketUploadSelection() {
   const isDragover = ref(false)
+  const uploadPanelFilesList = ref<SelectedFile[]>([])
+  const pendingDrops = ref(0)
+  const isLoadingUploadPanelFiles = computed(() => pendingDrops.value > 0)
+  let generation = 0
 
-  const tableData = reactive([] as any[])
-
-  const uploadPanelFilesList = ref([] as any[])
-
-  const isLoadingUploadPanelFiles = ref(false)
-
-  function openFileSelectDialog() {
-    window.electron.triggerRPC(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG).then((res: any) => {
-      if (res) {
-        res.forEach((item: any) => {
-          tableData.push({
-            fileSize: window.node.fs.statSync(item).size,
-            isFolder: false,
-            name: window.node.path.basename(item),
-            filesList: [],
-            fullPath: item,
-          })
-          const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item)
-          if (index === -1) {
-            uploadPanelFilesList.value.push({
-              name: window.node.path.basename(item),
-              path: item,
-              size: window.node.fs.statSync(item).size,
-            })
-          }
-        })
+  const tableData = computed(() => {
+    const rows = new Map<string, SelectionRow>()
+    for (const file of uploadPanelFilesList.value) {
+      const parts = (file.relativePath || file.name).split('/')
+      let fullPath = file.path
+      for (let i = 1; i < parts.length; i++) fullPath = window.node.path.dirname(fullPath)
+      const row: SelectionRow = rows.get(fullPath) ?? {
+        fullPath,
+        name: parts[0],
+        isFolder: parts.length > 1,
+        fileSize: 0,
+        filesList: [],
       }
-    })
-  }
+      row.filesList.push(file)
+      row.fileSize += file.size
+      rows.set(fullPath, row)
+    }
+    return [...rows.values()]
+  })
 
-  function onDrop(e: DragEvent) {
-    isDragover.value = false
-    const items = e.dataTransfer?.items
-    if (items) {
-      webkitReadDataTransfer(e.dataTransfer as DataTransfer)
+  function addFiles(files: SelectedFile[]) {
+    const seen = new Set(uploadPanelFilesList.value.map(file => file.path))
+    for (const file of files) {
+      if (!file.path || seen.has(file.path)) continue
+      seen.add(file.path)
+      uploadPanelFilesList.value.push(file)
     }
   }
 
-  function webkitReadDataTransfer(dataTransfer: DataTransfer) {
-    isLoadingUploadPanelFiles.value = true
-    let fileNum = dataTransfer.items.length
-    const decrement = () => {
-      fileNum--
-      if (fileNum === 0) {
-        files.forEach((item: any) => {
-          const index = uploadPanelFilesList.value.findIndex((file: any) => file.path === item.path)
-          if (index === -1) {
-            uploadPanelFilesList.value.push({
-              name: item.name,
-              path: window.electron.showFilePath(item),
-              size: item.size,
-              relativePath: item.relativePath,
-            })
-          }
-        })
-        handleUploadFiles(files)
-        isLoadingUploadPanelFiles.value = false
-      }
-    }
-    const files = [] as any[]
-    const items = dataTransfer.items
-    for (const item of items) {
-      const entry = item.webkitGetAsEntry() as any
-      if (!entry) {
-        decrement()
-        continue
-      }
+  async function openFileSelectDialog() {
+    const current = generation
+    const paths = await window.electron.triggerRPC<string[]>(IRPCActionType.MANAGE_OPEN_FILE_SELECT_DIALOG)
+    if (!paths || current !== generation) return
+    addFiles(
+      paths.map(path => ({
+        path,
+        name: window.node.path.basename(path),
+        size: window.node.fs.statSync(path).size,
+      })),
+    )
+  }
+
+  async function readEntry(entry: FileSystemEntry, droppedFile?: File | null): Promise<SelectedFile[]> {
+    try {
       if (entry.isFile) {
-        readFiles(item.getAsFile(), entry.fullPath)
-      } else if (entry.isDirectory) {
-        readDirectory(entry.createReader())
+        const file =
+          droppedFile ??
+          (await new Promise<File>((resolve, reject) => (entry as FileSystemFileEntry).file(resolve, reject)))
+        return [
+          {
+            path: window.electron.showFilePath(file),
+            name: file.name,
+            size: file.size,
+            relativePath: entry.fullPath.slice(1),
+          },
+        ]
       }
-    }
-
-    function readDirectory(reader: any) {
-      reader.readEntries(
-        (entries: any) => {
-          if (entries.length) {
-            fileNum += entries.length
-            entries.forEach((entry: any) => {
-              if (entry.isFile) {
-                entry.file(
-                  (file: any) => {
-                    readFiles(file, entry.fullPath)
-                  },
-                  (err: any) => {
-                    console.error(err)
-                    decrement()
-                  },
-                )
-              } else if (entry.isDirectory) {
-                readDirectory(entry.createReader())
-              }
-            })
-            readDirectory(reader)
-          } else {
-            decrement()
-          }
-        },
-        (err: any) => {
-          console.error(err)
-          decrement()
-        },
-      )
-    }
-
-    function readFiles(file: any, fullPath: string) {
-      file.relativePath = fullPath.substring(1)
-      files.push(file)
-      decrement()
+      const reader = (entry as FileSystemDirectoryEntry).createReader()
+      const files: SelectedFile[] = []
+      while (true) {
+        const batch = await new Promise<FileSystemEntry[]>((resolve, reject) => reader.readEntries(resolve, reject))
+        if (!batch.length) return files
+        for (const children of await Promise.all(batch.map(child => readEntry(child)))) {
+          for (const file of children) files.push(file)
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      return []
     }
   }
 
-  function handleUploadFiles(files: any[]) {
-    const dirObj = {} as any
-    files.forEach(item => {
-      if (item.relativePath === item.name) {
-        const index = tableData.findIndex((file: any) => file.fullPath === item.path)
-        if (index === -1) {
-          tableData.push({
-            name: item.name,
-            filesList: [item.file],
-            isFolder: false,
-            fileSize: item.size,
-            fullPath: window.electron.showFilePath(item),
-          })
-        }
-      } else {
-        const folderName = item.relativePath.split('/')[0]
-        if (dirObj[folderName]) {
-          const dirList = dirObj[folderName].filesList || []
-          dirList.push(item)
-          dirObj[folderName].filesList = dirList
-          const dirSize = dirObj[folderName].fileSize
-          dirObj[folderName].fileSize = dirSize ? dirSize + item.size : item.size
-        } else {
-          dirObj[folderName] = {
-            filesList: [item],
-            fileSize: item.size,
-            path: window.electron.showFilePath(item),
-          }
-        }
-      }
-    })
-    Object.keys(dirObj).forEach(key => {
-      const index = tableData.findIndex((item: any) => item.fullPath === dirObj[key].path)
-      if (index === -1) {
-        tableData.push({
-          name: key,
-          filesList: dirObj[key].filesList,
-          isFolder: true,
-          fileSize: dirObj[key].fileSize,
-          fullPath: dirObj[key].path,
-        })
-      }
-    })
+  async function onDrop(event: DragEvent) {
+    isDragover.value = false
+    if (!event.dataTransfer) return
+    const current = generation
+    pendingDrops.value++
+    try {
+      const groups = await Promise.all(
+        Array.from(event.dataTransfer.items, item => {
+          const entry = item.webkitGetAsEntry()
+          return entry ? readEntry(entry, item.getAsFile()) : []
+        }),
+      )
+      if (current === generation) addFiles(groups.flat())
+    } finally {
+      if (current === generation) pendingDrops.value--
+    }
   }
 
   function clearTableData() {
-    tableData.length = 0
+    generation++
+    pendingDrops.value = 0
     uploadPanelFilesList.value = []
   }
+
   return {
     isDragover,
     tableData,

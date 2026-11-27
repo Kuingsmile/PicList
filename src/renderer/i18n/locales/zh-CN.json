@@ -1403,6 +1403,7 @@
         "enableServer": "是否开启上传API服务",
         "guiLogFile": "打开 GUI 日志文件",
         "invalidJson": "无效的JSON格式",
+        "invalidServerPort": "请输入 1 至 65535 之间的整数。",
         "logFile": "打开常规日志文件",
         "logFileSize": "日志文件大小",
         "logging": "日志",

@@ -91,7 +91,6 @@
                 :tips="fieldOf(option).tooltip || ''"
                 :aria-invalid="!!formErrors[option]"
                 :aria-describedby="formErrors[option] ? errorId(option) : undefined"
-                :class="{ 'border-error!': formErrors[option] }"
                 @blur="validateField(option)"
                 @input="clearFieldError(option)"
               />
@@ -107,7 +106,6 @@
                 :tips="fieldOf(option).tooltip || ''"
                 :aria-invalid="!!formErrors[option]"
                 :aria-describedby="formErrors[option] ? errorId(option) : undefined"
-                :class="{ 'border-error!': formErrors[option] }"
                 @blur="validateField(option)"
                 @input="clearFieldError(option)"
               />
@@ -167,7 +165,6 @@
                 :disabled="option === 'itemsPerPage' && configResult.paging === false"
                 :aria-invalid="!!formErrors[option]"
                 :aria-describedby="formErrors[option] ? errorId(option) : undefined"
-                :class="{ 'border-error!': formErrors[option] }"
                 @blur="validateField(option)"
                 @input="clearFieldError(option)"
               />

@@ -10,6 +10,7 @@
   <div ref="dropdownRef" class="custom-multiselect relative">
     <button
       ref="triggerRef"
+      v-bind="$attrs"
       type="button"
       :disabled="disabled || allList.length === 0"
       :aria-label="title || zeroPlaceholder"
@@ -43,7 +44,6 @@
         class="flex min-h-[unset] cursor-pointer items-center justify-between px-2 py-1 text-sm leading-[1.4] transition-all duration-fast ease-apple hover:bg-accent/50"
       >
         <input
-          v-bind="$attrs"
           v-model="choosed"
           type="checkbox"
           :disabled
@@ -51,6 +51,7 @@
           data-dropdown-item
           tabindex="-1"
           class="m-0 mr-2 shrink-0 accent-accent"
+          @change="emit('change', $event)"
         />
         <span class="min-w-0 flex-1 wrap-break-word">{{ item.name }}</span>
       </label>
@@ -71,6 +72,7 @@ defineSlots<{
   icon?: () => unknown
 }>()
 
+const emit = defineEmits<{ change: [event: Event] }>()
 const choosed = defineModel<string[] | undefined>('choosed', { default: undefined })
 const { t } = useI18n()
 defineOptions({ inheritAttrs: false })

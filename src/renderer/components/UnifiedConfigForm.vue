@@ -54,7 +54,6 @@
               :disabled="isLoading"
               :aria-invalid="!!validationErrors._configName"
               :aria-describedby="validationErrors._configName ? errorId('_configName') : undefined"
-              :class="{ 'border-error!': validationErrors._configName }"
               @blur="touchField('_configName')"
               @input="clearFieldError('_configName')"
             />
@@ -68,8 +67,8 @@
 
           <!-- Dynamic Config Fields -->
           <SettingCard
-            v-for="(item, index) in configList"
-            :key="item.name + index"
+            v-for="item in configList"
+            :key="JSON.stringify([type, id, $route.params.configId, item.name])"
             :p1="item.type === 'confirm'"
             :class="{
               'flex flex-col justify-center': item.type === 'confirm',
@@ -87,7 +86,6 @@
               :autocomplete="item.type === 'password' ? 'off' : undefined"
               spellcheck="false"
               :placeholder="item.message || item.name"
-              :class="{ 'border-error!': validationErrors[item.name] }"
               :title="item.alias || item.name"
               :required="item.required || false"
               :tips="item.tips"
