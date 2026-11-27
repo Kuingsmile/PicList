@@ -3,9 +3,8 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import { CopyObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3'
-import qiniu from 'qiniu'
 
-import SSHClient from '~/utils/sshClient'
+import type SSHClient from '~/utils/sshClient'
 
 import type { BulkCandidate, BulkContext } from '../../shared/bulkChanges'
 import type { BulkAdapter, BulkObject } from './session'
@@ -77,7 +76,11 @@ const version = (...parts: unknown[]) => JSON.stringify(parts)
 const encodeKey = (key: string) => key.split('/').map(encodeURIComponent).join('/')
 
 /** The client is constructed once from the account configuration at preview time. */
-export async function createRemoteAdapter(context: BulkContext, client: any): Promise<BulkAdapter> {
+export async function createRemoteAdapter(
+  context: BulkContext,
+  client: any,
+  signal?: AbortSignal,
+): Promise<BulkAdapter> {
   const { provider, bucketName, region } = context
   let read: (key: string) => Promise<BulkObject | undefined>
   let write: BulkAdapter['write']
@@ -158,7 +161,7 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
       checked(await client.ctx.deleteObject({ ...base, Key: item.source }))
     }
   } else if (provider === 'qiniu') {
-    const sdk = new qiniu.rs.BucketManager(client.mac, new qiniu.conf.Config())
+    const sdk = client.bucketManager
     const request = (operation: (callback: (error: any, body: any, info: any) => void) => void) =>
       new Promise<any>((resolve, reject) => {
         operation((error, body, info) => {
@@ -227,15 +230,7 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
       await fs.unlink(await client.scopedPath(item.source))
     }
   } else if (provider === 'sftp') {
-    const withConnection = async <T>(action: (ssh: SSHClient) => Promise<T>): Promise<T> => {
-      const ssh = new SSHClient()
-      try {
-        await ssh.connect(client.config)
-        return await action(ssh)
-      } finally {
-        ssh.close()
-      }
-    }
+    const withConnection = <T>(action: (ssh: SSHClient) => Promise<T>): Promise<T> => client.withMetadataClient(action)
     read = key =>
       existing(
         () =>
@@ -261,9 +256,23 @@ export async function createRemoteAdapter(context: BulkContext, client: any): Pr
     kind: 'remote-rename',
     identity: (item, key) => JSON.stringify([item.context, remoteKey(provider, key)]),
     validate: validRemoteTarget,
-    source: item => read(item.source),
-    target: item => read(item.target),
-    write,
-    removeSource,
+    source: item => {
+      signal?.throwIfAborted()
+      return read(item.source)
+    },
+    target: item => {
+      signal?.throwIfAborted()
+      return read(item.target)
+    },
+    write: (item, overwrite) => {
+      signal?.throwIfAborted()
+      return write(item, overwrite)
+    },
+    removeSource:
+      removeSource &&
+      (item => {
+        signal?.throwIfAborted()
+        return removeSource(item)
+      }),
   }
 }

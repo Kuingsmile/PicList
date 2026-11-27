@@ -156,12 +156,16 @@ async function publishNewFile(source: string, destination: string): Promise<void
 export async function downloadToFile(
   destination: DownloadDestination,
   transfer: DownloadTransfer,
+  beginCommit?: () => void,
 ): Promise<{ filePath: string; skipped: boolean }> {
   // Validate again at the write boundary, even for callers not using the factory.
   createDownloadDestination(destination.root, destination.relativePath, destination.policy)
   const { filePath, checkDirectories } = prepareDirectory(destination)
   const existing = checkFile(filePath)
-  if (existing && destination.policy === 'skip') return { filePath, skipped: true }
+  if (existing && destination.policy === 'skip') {
+    beginCommit?.()
+    return { filePath, skipped: true }
+  }
 
   const partPath = path.join(path.dirname(filePath), `.piclist-${randomUUID()}.part`)
   const fd = fs.openSync(partPath, 'wx', 0o600)
@@ -194,6 +198,7 @@ export async function downloadToFile(
     if (!completed || !sameFile(completed, partStat) || completed.nlink !== 1) {
       throw new DownloadPathError('The temporary download file changed during the transfer')
     }
+    beginCommit?.()
     if (destination.policy === 'overwrite') {
       checkFile(filePath)
       // Never unlink the old destination first, even if replacement is denied.

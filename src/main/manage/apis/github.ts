@@ -3,35 +3,33 @@ import { setTimeout as delay } from 'node:timers/promises'
 import fs from 'fs-extra'
 import got from 'got'
 
+import { ResourceCache } from '#/utils/resourceCache'
 import { trimPath } from '#/utils/url'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
 import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
   encodeObjectPath,
-  failDownloadTask,
-  formatError,
-  getAgent,
   getOptions,
+  getProxyAgents,
   getPublicObjectUrl,
   gotUpload,
   isUploadResponseObject,
   isUploadResponseString,
-  NewDownloader,
 } from '~/manage/utils/common'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
-import { formatHttpProxy } from '~/utils/network'
 
 class GithubApi {
   token: string
   username: string
   logger: ManageLogger
-  proxy: any
-  proxyStr: string | undefined
+  private contentRevision = 0
+  private readonly downloadUrls = new ResourceCache<string>(512, () => 1)
+  private readonly lifetime = new AbortController()
+  private readonly agents: ReturnType<typeof getProxyAgents>
   baseUrl = 'https://api.github.com'
   commonHeaders: IStringKeyMap
 
@@ -39,8 +37,7 @@ class GithubApi {
     this.logger = logger
     this.token = token.startsWith('Bearer ') ? token : `Bearer ${token}`.trim()
     this.username = username
-    this.proxy = proxy
-    this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
+    this.agents = getProxyAgents(proxy)
     this.commonHeaders = {
       Authorization: this.token,
       Accept: 'application/vnd.github+json',
@@ -83,6 +80,13 @@ class GithubApi {
     }
   }
 
+  destroy() {
+    this.lifetime.abort()
+    this.downloadUrls.clear()
+    this.agents.http?.destroy()
+    this.agents.https?.destroy()
+  }
+
   formatFile(item: any, slicedPrefix: string, branch: string, repo: string, cdnUrl: string | undefined) {
     const key = slicedPrefix === '' ? item.path : `${slicedPrefix}/${item.path}`
     return {
@@ -118,7 +122,7 @@ class GithubApi {
           'json',
           undefined,
           undefined,
-          this.proxy,
+          this.agents,
         ),
       )) as any
       if (res.statusCode === 200) {
@@ -156,7 +160,7 @@ class GithubApi {
           'json',
           undefined,
           undefined,
-          this.proxy,
+          this.agents,
         ),
       )) as any
       if (res.statusCode === 200) {
@@ -187,7 +191,7 @@ class GithubApi {
       const currentPrefix = treeQueue.shift()!
       const res = (await listing.wait(() =>
         got(`${repoUrl}/git/trees/${branch}:${encodeObjectPath(currentPrefix)}`, {
-          ...getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.proxy),
+          ...getOptions('GET', this.commonHeaders, {}, 'json', undefined, undefined, this.agents),
           signal: listing.signal,
         }),
       )) as any
@@ -226,7 +230,7 @@ class GithubApi {
     }
     const res = (await listing.wait(() =>
       got(`${repoUrl}/git/trees/${branch}:${encodeObjectPath(slicedPrefix)}`, {
-        ...getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
+        ...getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.agents),
         signal: listing.signal,
       }),
     )) as any
@@ -268,8 +272,9 @@ class GithubApi {
     }
     const res = await got(
       this.contentsUrl(repo, key),
-      getOptions('DELETE', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
+      getOptions('DELETE', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.agents),
     )
+    if (res.statusCode === 200) this.contentRevision++
     return res.statusCode === 200
   }
 
@@ -283,14 +288,14 @@ class GithubApi {
     // get sha of the branch
     const refRes = (await got(
       `${repoUrl}/git/refs/heads/${branch}`,
-      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
+      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.agents),
     )) as any
     if (refRes.statusCode !== 200) return false
     const refSha = refRes.body.object.sha
     // get sha of the root tree
     const rootRes = (await got(
       `${repoUrl}/branches/${branch}`,
-      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.proxy),
+      getOptions('GET', this.commonHeaders, undefined, 'json', undefined, undefined, this.agents),
     )) as any
     if (rootRes.statusCode !== 200) return false
     const rootSha = rootRes.body.commit.commit.tree.sha
@@ -308,7 +313,7 @@ class GithubApi {
         'json',
         undefined,
         undefined,
-        this.proxy,
+        this.agents,
       ),
     )) as any
     if (treeRes.statusCode !== 200) return false
@@ -334,7 +339,7 @@ class GithubApi {
           tree: newTree,
         }),
         undefined,
-        this.proxy,
+        this.agents,
       ),
     )) as any
     if (newTreeShaRes.statusCode !== 201) return false
@@ -353,7 +358,7 @@ class GithubApi {
           parents: [refSha],
         }),
         undefined,
-        this.proxy,
+        this.agents,
       ),
     )) as any
     if (commitRes.statusCode !== 201) return false
@@ -370,9 +375,10 @@ class GithubApi {
           sha: commitSha,
         }),
         undefined,
-        this.proxy,
+        this.agents,
       ),
     )) as any
+    if (updateRefRes.statusCode === 200) this.contentRevision++
     return updateRefRes.statusCode === 200
   }
 
@@ -387,24 +393,26 @@ class GithubApi {
    * customUrl: string
    * }
    */
-  async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
+  private downloadKey(item: IStringKeyMap) {
+    return JSON.stringify([this.contentRevision, item.bucketName, item.customUrl, item.key])
+  }
+
+  async getPreSignedUrl(configMap: IStringKeyMap, signal = this.lifetime.signal): Promise<string> {
     const { bucketName: repo, customUrl: branch, key, rawUrl, githubPrivate: isPrivate } = configMap
     if (!isPrivate) return rawUrl
-    const res = (await got(
-      this.contentsUrl(repo, key),
-      getOptions(
-        'GET',
-        this.commonHeaders,
-        {
-          ref: branch,
-        },
-        'json',
-        undefined,
-        undefined,
-        this.proxy,
-      ),
-    )) as any
-    return res.statusCode === 200 ? res.body.download_url : ''
+    return this.downloadUrls.get(this.downloadKey(configMap), signal, 60000, async requestSignal => {
+      const res = await got<{ download_url?: string }>(this.contentsUrl(repo, key), {
+        headers: this.commonHeaders,
+        searchParams: { ref: branch },
+        responseType: 'json',
+        agent: this.agents,
+        signal: requestSignal,
+        timeout: { request: 30000 },
+        retry: { limit: 0 },
+      })
+      if (!res.body.download_url) throw new Error('GitHub did not return a download URL')
+      return res.body.download_url
+    })
   }
 
   /**
@@ -421,7 +429,7 @@ class GithubApi {
     }
     const res = await got(
       this.contentsUrl(repo, `${key}/.gitkeep`),
-      getOptions('PUT', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.proxy),
+      getOptions('PUT', this.commonHeaders, undefined, 'json', JSON.stringify(body), undefined, this.agents),
     )
     return res.statusCode === 201
   }
@@ -457,7 +465,7 @@ class GithubApi {
               content: fs.readFileSync(filePath, { encoding: 'base64' }),
             }),
             headers: this.commonHeaders,
-            agent: getAgent(this.proxy),
+            agent: this.agents,
           }),
           validateResponse: (body, statusCode) =>
             (statusCode === 200 || statusCode === 201) &&
@@ -471,6 +479,7 @@ class GithubApi {
           managed: true,
         })
         if (!result.success) throw new TransferError('provider')
+        this.contentRevision++
       },
     )
   }
@@ -480,36 +489,11 @@ class GithubApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const jobs: (() => Promise<boolean>)[] = []
-    for (const item of fileArray) {
-      const { bucketName: repo, customUrl: branch, key, fileName, githubUrl } = item
-      const sourceId = JSON.stringify([item.region, repo, branch, key, fileName])
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      jobs.push(async () => {
-        try {
-          const url = await this.getPreSignedUrl({ ...item, rawUrl: githubUrl })
-          if (!url) throw new Error('GitHub did not return a download URL')
-          return await NewDownloader(instance, url, id, destination, this.logger, this.proxyStr)
-        } catch (error) {
-          failDownloadTask(instance, id, error, this.logger)
-          return false
-        }
-      })
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(jobs).catch(error => {
-      this.logger.error(
-        formatError(error, {
-          class: 'GithubApi',
-          method: 'downloadBucketFile',
-        }),
-      )
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, async (item, signal) => ({
+      url: await this.getPreSignedUrl({ ...item, rawUrl: item.githubUrl }, signal),
+      agent: this.agents,
+      onError: () => this.downloadUrls.delete(this.downloadKey(item)),
+    }))
   }
 }
 

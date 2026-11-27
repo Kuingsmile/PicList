@@ -518,6 +518,7 @@
       @clear-finished="handleDeleteDownloadedTask"
       @clear-all="handleDeleteAllDownloadedTask"
       @open-folder="handleOpenDownloadedFolder"
+      @cancel-task="cancelDownloadTask"
     />
 
     <!-- Create Folder Dialog -->
@@ -992,6 +993,7 @@ const {
   uploadTasks,
   downloadTasks,
   cancelUploadTask,
+  cancelDownloadTask,
   handleCopyUploadingTaskInfo,
   handleDeleteUploadedTask,
   handleDeleteAllUploadedTask,
@@ -1117,7 +1119,11 @@ async function handleClickFile(item: any) {
   ) {
     const alias = configMap.value.alias
     const params = handleGetS3Config(item)
-    source.sign = () => window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, alias, params)
+    source.sign = () =>
+      window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, alias, {
+        ...params,
+        reuseSignedUrl: true,
+      })
   }
 
   try {

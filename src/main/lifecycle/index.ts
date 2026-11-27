@@ -19,6 +19,7 @@ import rpcServer from '~/ipc'
 import { setupAutoUpdater } from '~/lifecycle/autoUpdater'
 import fixPath from '~/lifecycle/fixPath'
 import { handleStartUpFiles, initializeStartup } from '~/lifecycle/startup'
+import { destroyManageClients } from '~/manage'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { transferScheduler } from '~/manage/transferScheduler'
 import { clearTempFolder } from '~/manage/utils/common'
@@ -184,12 +185,12 @@ class LifeCycle {
       [
         'management checkpoints',
         async () => {
-          if (!this.#queuesReady) return
+          if (!this.#queuesReady) return destroyManageClients()
           try {
             await waitForShutdown(transferScheduler.shutdown())
           } finally {
             // Uncooperative providers may exceed the grace period; still checkpoint interrupted work.
-            await UpDownTaskQueue.getInstance().flush()
+            await Promise.all([destroyManageClients(), UpDownTaskQueue.getInstance().flush()])
           }
         },
       ],

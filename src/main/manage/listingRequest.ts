@@ -30,7 +30,7 @@ export async function runListingRequest(
   operation: (context: ListingContext) => Promise<ListingData | void>,
   send?: (result: ListingUpdate) => void,
   onError?: (error: unknown) => void,
-  options: { sender?: WebContents; ackTimeoutMs?: number } = {},
+  options: { sender?: WebContents; ackTimeoutMs?: number; signal?: AbortSignal } = {},
 ): Promise<ListingResult> {
   const controller = new AbortController()
   const { signal } = controller
@@ -38,6 +38,7 @@ export async function runListingRequest(
   const seen = new Set<string>()
   let pending: any[] = []
   let pendingBytes = 2
+  let inFlight: Promise<void> | undefined
   let sequence = 0
   let total = 0
   let lastProgress = 0
@@ -106,6 +107,8 @@ export async function runListingRequest(
   }
   const flush = async () => {
     if (!pending.length) return
+    await inFlight
+    signal.throwIfAborted()
     const items = pending
     pending = []
     pendingBytes = 2
@@ -120,27 +123,44 @@ export async function runListingRequest(
       success: false,
     }
     let timeout: ReturnType<typeof setTimeout> | undefined
-    try {
-      await wait(
-        () =>
-          new Promise<void>((resolve, reject) => {
-            acknowledgement = { sequence: page.sequence, resolve }
-            timeout = setTimeout(
-              () => reject(new Error('Listing acknowledgement timed out')),
-              options.ackTimeoutMs ?? LISTING_ACK_TIMEOUT_MS,
-            )
-            send!(page)
-          }),
-      )
-      lastProgress = performance.now()
-    } catch (error) {
-      controller.abort(error)
-      throw error
-    } finally {
+    inFlight = wait(
+      () =>
+        new Promise<void>((resolve, reject) => {
+          acknowledgement = { sequence: page.sequence, resolve }
+          timeout = setTimeout(
+            () => reject(new Error('Listing acknowledgement timed out')),
+            options.ackTimeoutMs ?? LISTING_ACK_TIMEOUT_MS,
+          )
+          send!(page)
+        }),
+    ).finally(() => {
       clearTimeout(timeout)
       acknowledgement = undefined
-    }
+    })
+    // Surface timeout/send failures even while the next provider request is pending.
+    void inFlight.catch(error => controller.abort(error))
+    lastProgress = performance.now()
   }
+
+  // Size a group once on the normal path. Split only when the exact UTF-8 JSON budget requires it.
+  const append = async (items: any[]): Promise<void> => {
+    if (!items.length) return
+    const bytes = Buffer.byteLength(JSON.stringify(items))
+    if (bytes > LISTING_PAGE_BYTES) {
+      if (items.length === 1) throw new Error('Listing item exceeds page budget')
+      const middle = Math.ceil(items.length / 2)
+      await append(items.slice(0, middle))
+      await append(items.slice(middle))
+      return
+    }
+    const combined = pendingBytes + bytes - 1
+    if (pending.length && (combined > LISTING_PAGE_BYTES || pending.length + items.length > LISTING_PAGE_ITEMS))
+      await flush()
+    pendingBytes = pending.length ? pendingBytes + bytes - 1 : bytes
+    pending.push(...items)
+    if (pending.length === LISTING_PAGE_ITEMS) await flush()
+  }
+
   const context: ListingContext = {
     signal,
     wait,
@@ -151,27 +171,30 @@ export async function runListingRequest(
         if (data.finished) finish(data.success ? 'complete' : 'error', latest)
         return
       }
-      for (let index = 0; index < data.fullList.length; index++) {
+      // The provider may fetch its next page while the renderer processes the previous one.
+      await inFlight
+      for (let start = 0; start < data.fullList.length; start += LISTING_PAGE_ITEMS) {
         signal.throwIfAborted()
-        const item = data.fullList[index]
-        const key = listingItemKey(item)
-        if (!seen.has(key)) {
-          const bytes = Buffer.byteLength(JSON.stringify(item), 'utf8') + 1
-          if (bytes + 2 > LISTING_PAGE_BYTES) throw new Error('Listing item exceeds page budget')
-          if (pending.length && pendingBytes + bytes > LISTING_PAGE_BYTES) await flush()
+        const items = data.fullList.slice(start, start + LISTING_PAGE_ITEMS).filter(item => {
+          const key = listingItemKey(item)
+          if (seen.has(key)) return false
           seen.add(key)
-          pending.push(item)
-          pendingBytes += bytes
-          if (pending.length === LISTING_PAGE_ITEMS) await flush()
-        }
-        // Even pages containing only duplicates must let cancellation and timers run.
-        if ((index + 1) % LISTING_PAGE_ITEMS === 0) await wait(() => yieldToEventLoop())
+          return true
+        })
+        await append(items)
+        if (start + LISTING_PAGE_ITEMS <= data.fullList.length) await wait(() => yieldToEventLoop())
       }
       // Coalesce small, fast provider pages. Counts travel with data, not separate notifications.
       if (!sequence || performance.now() - lastProgress >= LISTING_PROGRESS_INTERVAL_MS || data.finished) await flush()
-      if (data.finished) finish(data.success ? 'complete' : 'error')
+      if (data.finished) {
+        await inFlight
+        signal.throwIfAborted()
+        finish(data.success ? 'complete' : 'error')
+      }
     },
   }
+  if (options.signal?.aborted) stop()
+  else options.signal?.addEventListener('abort', stop, { once: true })
   ipcMain.on(channels.cancel, cancel)
   if (send) ipcMain.on(channels.ack, acknowledge)
   options.sender?.once('destroyed', stop)
@@ -185,7 +208,10 @@ export async function runListingRequest(
     // Preserve buffered partial results on provider failure. A dead/slow consumer or cancellation
     // must never wait for another acknowledgement merely to terminate.
     try {
-      if (!signal.aborted) await flush()
+      if (!signal.aborted) {
+        await flush()
+        await inFlight
+      }
     } catch {}
     try {
       finish(cancelled ? 'cancelled' : 'error')
@@ -193,6 +219,7 @@ export async function runListingRequest(
   } finally {
     pending = []
     seen.clear()
+    options.signal?.removeEventListener('abort', stop)
     ipcMain.removeListener(channels.cancel, cancel)
     ipcMain.removeListener(channels.ack, acknowledge)
     options.sender?.removeListener('destroyed', stop)

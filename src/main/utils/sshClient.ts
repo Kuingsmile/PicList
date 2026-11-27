@@ -147,7 +147,12 @@ class SSHClient {
     let input: ReturnType<SFTP['createReadStream']> | undefined
     let completed: Promise<void> | undefined
     try {
-      input = sftp.createReadStream(remote)
+      // Open read-only without creation attributes. The bundled ssh2 otherwise serializes a
+      // default file mode using util.isDate, which is unavailable in Node 24.
+      const handle = await new Promise<Buffer>((resolve, reject) => {
+        sftp.open(remote, 'r', (error, handle) => (error ? reject(error) : resolve(handle)))
+      })
+      input = sftp.createReadStream(remote, { handle })
       completed = pipeline(input, output)
       await this.transfer(sftp, () => completed!)
     } finally {
@@ -364,7 +369,7 @@ class SSHClient {
     return this.connected && !!this.client?.isConnected()
   }
 
-  private clearDirectories(): void {
+  clearDirectories(): void {
     this.preparedDirectories.clear()
     this.pendingDirectoryModes.clear()
   }

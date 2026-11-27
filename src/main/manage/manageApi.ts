@@ -7,6 +7,7 @@ import windowManager from 'apis/app/window/windowManager'
 import fs from 'fs-extra'
 import { get, set, unset } from 'lodash-es'
 
+import { ResourceCache } from '#/utils/resourceCache'
 import { IWindowList } from '~/constants'
 import API from '~/manage/apis/api'
 import ManageDB from '~/manage/datastore/db'
@@ -25,6 +26,7 @@ import {
   mergeDeleteResults,
 } from '../../shared/deletion'
 import { isListingRequest, listingChannels, type ListingData, type ListingRequest } from '../../shared/listing'
+import { ClientRegistry } from './clientRegistry'
 import { runListingRequest } from './listingRequest'
 import { transferScheduler } from './transferScheduler'
 
@@ -67,14 +69,72 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     'sftp',
   ]
 
-  constructor(currentPicBed: string = '') {
+  private readonly signedUrls = new ResourceCache<string>(512, () => 1)
+  private readonly accounts = new ClientRegistry<ManageApi>()
+  private readonly lifetime = new AbortController()
+  private provider?: Promise<any>
+  private fileVersion?: string
+  private refreshing?: Promise<void>
+
+  constructor(
+    currentPicBed: string = '',
+    private readonly owner?: ManageApi,
+  ) {
     super()
     this.currentPicBed = currentPicBed || 'placeholder'
+    if (owner) {
+      this.configPath = owner.configPath
+      this.baseDir = owner.baseDir
+      this.db = owner.db
+      this.logger = owner.logger
+      this.currentPicBedConfig = structuredClone(owner.getPicBedConfig(currentPicBed))
+      return
+    }
     this.configPath = manageConfigPath()
     this.initConfigPath()
     this.logger = new ManageLogger(this)
     this.initconfig()
     this.currentPicBedConfig = this.getPicBedConfig(this.currentPicBed)
+  }
+
+  forAccount(id: string) {
+    this.lifetime.signal.throwIfAborted()
+    return this.accounts.get(id, this.getPicBedConfig(id), () => new ManageApi(id, this))
+  }
+
+  // Imports, sync and external editors can replace manage.json without going through saveConfig.
+  refreshIfChanged(): Promise<void> {
+    this.refreshing ??= fs.promises
+      .stat(this.configPath, { bigint: true })
+      .then(stat => {
+        const version = `${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`
+        if (version !== this.fileVersion) {
+          this.applyConfigUpdate(() => {
+            this._config = this.db.read(true) as IManageConfigType
+          })
+          this.fileVersion = version
+        }
+      })
+      .finally(() => {
+        this.refreshing = undefined
+      })
+    return this.refreshing
+  }
+
+  get signal() {
+    return this.lifetime.signal
+  }
+
+  async destroy() {
+    this.lifetime.abort()
+    this.signedUrls.clear()
+    await Promise.all([
+      this.accounts.destroy(),
+      this.provider?.then(
+        client => client.destroy?.(),
+        () => {},
+      ),
+    ])
   }
 
   getMsgParam(method: string) {
@@ -167,7 +227,15 @@ export class ManageApi extends EventEmitter implements IManageApiType {
 
   async createClient() {
     const factory = this.clientFactories[this.currentPicBedConfig.picBedName as keyof typeof this.clientFactories]
-    return factory ? factory() : ({} as any)
+    this.lifetime.signal.throwIfAborted()
+    if (!factory) throw new Error('Unsupported management provider')
+    this.provider ??= factory().catch(error => {
+      this.provider = undefined
+      throw error
+    })
+    const client = await this.provider
+    this.lifetime.signal.throwIfAborted()
+    return client
   }
 
   private async executeWithClient<T>(
@@ -214,7 +282,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
       },
       stream ? result => window?.webContents.send(listingChannels(kind).result, result) : undefined,
       error => this.errorMsg(error, this.getMsgParam(method)),
-      { sender: window?.webContents },
+      { sender: window?.webContents, signal: this.signal },
     )
   }
 
@@ -243,6 +311,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   getConfig<T>(name?: string): T {
+    if (this.owner) return this.owner.getConfig<T>(name)
     if (!name) {
       return this._config as unknown as T
     }
@@ -250,6 +319,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   saveConfig(config: IStringKeyMap): void {
+    if (this.owner) return this.owner.saveConfig(config)
     if (!isInputConfigValid(config)) {
       this.logger.warn('the format of config is invalid, please provide object')
       return
@@ -260,6 +330,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   removeConfig(key: string, propName: string): void {
+    if (this.owner) return this.owner.removeConfig(key, propName)
     if (!key || !propName) {
       return
     }
@@ -268,11 +339,12 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   setConfig(config: IStringKeyMap): void {
+    if (this.owner) return this.owner.setConfig(config)
     if (!isInputConfigValid(config)) {
       this.logger.warn('the format of config is invalid, please provide object')
       return
     }
-    this.updateDogecloudConfig(() => {
+    this.applyConfigUpdate(() => {
       Object.keys(config).forEach((name: string) => {
         set(this._config, name, config[name])
       })
@@ -280,15 +352,17 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   unsetConfig(key: string, propName: string): void {
+    if (this.owner) return this.owner.unsetConfig(key, propName)
     if (!key || !propName) return
-    this.updateDogecloudConfig(() => unset(this.getConfig(key), propName))
+    this.applyConfigUpdate(() => unset(this.getConfig(key), propName))
   }
 
-  private updateDogecloudConfig(update: () => void): void {
+  private applyConfigUpdate(update: () => void): void {
     const previous = Object.entries(this._config.picBed || {})
       .filter(([, config]) => config?.picBedName === 's3plist' && config.dogeCloudSupport)
       .map(([name, config]) => ({ name, accessKey: config.accessKeyId, secretKey: config.secretAccessKey }))
     update()
+    this.accounts.reconcile(id => this.getPicBedConfig(id))
     for (const { name, accessKey, secretKey } of previous) {
       const current = this.getPicBedConfig(name)
       if (
@@ -480,10 +554,17 @@ export class ManageApi extends EventEmitter implements IManageApiType {
   }
 
   async downloadBucketFile(param?: IStringKeyMap): Promise<boolean> {
+    this.configureTransfers()
     return this.executeWithClient(
       this.ALL_CLIENTS,
       'downloadBucketFile',
-      client => client.downloadBucketFile(param!),
+      client =>
+        client.downloadBucketFile({
+          ...param,
+          accountId: this.currentPicBed,
+          provider: this.currentPicBedConfig.picBedName,
+          signal: this.lifetime.signal,
+        }),
       false,
     )
   }
@@ -506,7 +587,7 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return this.executeWithClient(
       this.ALL_CLIENTS,
       'uploadBucketFile',
-      client => client.uploadBucketFile({ ...param, accountId: this.currentPicBed }),
+      client => client.uploadBucketFile({ ...param, accountId: this.currentPicBed, signal: this.lifetime.signal }),
       false,
     )
   }
@@ -533,7 +614,23 @@ export class ManageApi extends EventEmitter implements IManageApiType {
     return this.executeWithClient(
       supportedClients,
       'getPreSignedUrl',
-      client => client.getPreSignedUrl(param!),
+      async client => {
+        const provider = this.currentPicBedConfig.picBedName
+        if (
+          !param?.reuseSignedUrl ||
+          provider === 'github' ||
+          provider === 'webdavplist' ||
+          this.currentPicBedConfig.dogeCloudSupport
+        )
+          return client.getPreSignedUrl(param!)
+        const key = JSON.stringify([param.bucketName, param.region, param.key, param.customUrl, param.expires])
+        const ttl = Math.min(300000, (Number(param.expires || 3600) - 30) * 1000)
+        return this.signedUrls.get(key, this.lifetime.signal, ttl, async () => {
+          const url = await client.getPreSignedUrl(param)
+          if (!url || url === 'error') throw new Error('Unable to sign object URL')
+          return url
+        })
+      },
       'error',
     )
   }

@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto'
 import { open } from 'node:fs/promises'
 import path from 'node:path'
-import { finished, pipeline } from 'node:stream/promises'
+import { pipeline } from 'node:stream/promises'
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 
 import fs from 'fs-extra'
 
 import { LISTING_PAGE_ITEMS } from '#/listing'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { createDownloadTask, formatError, runDownloadTask } from '~/manage/utils/common'
+import { formatError } from '~/manage/utils/common'
+import { scheduleDownloadBatch } from '~/manage/utils/downloadBatch'
 import ManageLogger from '~/manage/utils/logger'
 import { scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
@@ -285,34 +285,16 @@ class LocalApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, keepDirStructure = false, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { alias, bucketName, key } = item
-      // Local keys identify absolute source paths; only relative names belong in the destination.
-      const fileName = keepDirStructure ? path.relative(this.baseDir, this.transBack(key)) : item.fileName
-      const sourceId = `${alias}-${bucketName}-local-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      await runDownloadTask(
-        instance,
-        id,
-        destination,
-        async (_partPath, createWriteStream) => {
-          const source = await this.scopedPath(key)
-          const output = createWriteStream()
-          try {
-            await pipeline(fs.createReadStream(source), output)
-          } finally {
-            output.destroy()
-            await finished(output).catch(() => {})
-          }
-        },
-        this.logger,
-      )
-    }
-    return true
+    return scheduleDownloadBatch(
+      configMap,
+      this.logger,
+      async ({ key }, { createWriteStream, signal }) => {
+        const source = await this.scopedPath(key)
+        signal.throwIfAborted()
+        await pipeline(fs.createReadStream(source), createWriteStream(), { signal })
+      },
+      item => (configMap.keepDirStructure ? path.relative(this.baseDir, this.transBack(item.key)) : item.fileName),
+    )
   }
 }
 

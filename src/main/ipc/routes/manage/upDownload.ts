@@ -30,6 +30,11 @@ export default [
       transferList(kind, token).unsubscribe(event.sender, token),
   },
   {
+    action: IRPCActionType.MANAGE_CANCEL_DOWNLOAD_TASK,
+    handler: async (_: IIPCEvent, args: [id: string]) => transferScheduler.cancel(args[0]),
+    type: IRPCType.INVOKE,
+  },
+  {
     action: IRPCActionType.MANAGE_CANCEL_UPLOAD_TASK,
     handler: async (_: IIPCEvent, args: [id: string]) => transferScheduler.cancel(args[0]),
     type: IRPCType.INVOKE,

@@ -8,40 +8,39 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
 import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  formatError,
-  getAgent,
   getFileMimeType,
   getOptions,
+  getProxyAgents,
   gotUpload,
   isUploadResponseObject,
   isUploadResponseString,
-  NewDownloader,
 } from '~/manage/utils/common'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import ManageLogger from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
-import { formatHttpProxy } from '~/utils/network'
 
 class ImgurApi {
   userName: string
   accessToken: string
-  proxy: any
+  private readonly agents: ReturnType<typeof getProxyAgents>
   logger: ManageLogger
-  proxyStr: string | undefined
   tokenHeaders: any
   baseUrl = 'https://api.imgur.com/3'
 
   constructor(userName: string, accessToken: string, proxy: any, logger: ManageLogger) {
     this.userName = userName
     this.accessToken = accessToken.startsWith('Bearer ') ? accessToken : `Bearer ${accessToken}`
-    this.proxy = proxy
-    this.proxyStr = formatHttpProxy(proxy, 'string') as string | undefined
+    this.agents = getProxyAgents(proxy)
     this.logger = logger
     this.tokenHeaders = {
       Authorization: this.accessToken,
     }
+  }
+
+  destroy() {
+    this.agents.http?.destroy()
+    this.agents.https?.destroy()
   }
 
   formatFile(item: any) {
@@ -73,7 +72,7 @@ class ImgurApi {
     do {
       res = (await got(
         `${this.baseUrl}/account/${this.userName}/albums/${initPage}`,
-        getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+        getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.agents),
       )) as any
       if (!(res.statusCode === 200 && res.body.success)) {
         return []
@@ -108,7 +107,7 @@ class ImgurApi {
     if (albumHash !== 'unclassified') {
       res = (await listing.wait(() =>
         got(`${this.baseUrl}/account/${this.userName}/album/${albumHash}`, {
-          ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+          ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.agents),
           signal: listing.signal,
         }),
       )) as any
@@ -127,7 +126,7 @@ class ImgurApi {
       do {
         res = (await listing.wait(() =>
           got(`${this.baseUrl}/account/${this.userName}/images/${initPage}`, {
-            ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+            ...getOptions('GET', this.tokenHeaders, undefined, 'json', undefined, undefined, this.agents),
             signal: listing.signal,
           }),
         )) as any
@@ -156,7 +155,7 @@ class ImgurApi {
     const { DeleteHash: deleteHash } = configMap
     const res = (await got(
       `${this.baseUrl}/account/${this.userName}/image/${deleteHash}`,
-      getOptions('DELETE', this.tokenHeaders, undefined, 'json', undefined, undefined, this.proxy),
+      getOptions('DELETE', this.tokenHeaders, undefined, 'json', undefined, undefined, this.agents),
     )) as any
     return res.statusCode === 200 && res.body.success
   }
@@ -185,7 +184,7 @@ class ImgurApi {
             form.append('name', path.basename(key, path.extname(key)))
             albumHash !== 'unclassified' && form.append('album', albumHash)
             const headers = { ...form.getHeaders(), Authorization: this.accessToken }
-            const agent = getAgent(this.proxy)
+            const agent = this.agents
             const fileOptions = { filename: path.basename(key), contentType: getFileMimeType(fileName) }
             const source = fs.createReadStream(filePath)
             form.append(fileSize > 1024 * 1024 * 10 ? 'video' : 'image', source, fileOptions)
@@ -213,33 +212,7 @@ class ImgurApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName, githubUrl: url } = item
-      const sourceId = `${bucketName}-${region}-${key}-${fileName}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, url, id, destination, this.logger, this.proxyStr).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
-      this.logger.error(formatError(error, { class: 'ImgurApi', method: 'downloadBucketFile' }))
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, item => ({ url: item.githubUrl, agent: this.agents }))
   }
 }
 

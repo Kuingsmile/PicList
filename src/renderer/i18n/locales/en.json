@@ -1140,7 +1140,7 @@
           "naming": "Naming Settings",
           "namingDesc": "When several rename options are on, the one with the highest priority wins.",
           "performance": "Upload performance",
-          "performanceDesc": "Limit parallel requests and memory use for large uploads.",
+          "performanceDesc": "Limit parallel requests and memory use for uploads and downloads.",
           "preSigned": "Pre-signed URLs",
           "preSignedDesc": "Temporary signed links for private buckets.",
           "thumbnail": "Image previews",
@@ -1161,9 +1161,9 @@
         "timestampRenameTips": "When enabled, uploaded files will be renamed to a timestamp",
         "timestampRenameTitle": "Timestamp rename on upload (highest priority)",
         "title": "Manage General Settings",
-        "uploadAccountConcurrency": "Concurrent upload requests per account",
-        "uploadConcurrency": "Concurrent upload requests (all accounts)",
-        "uploadMemoryMB": "Upload memory budget (MiB)",
+        "uploadAccountConcurrency": "Concurrent transfer requests per account",
+        "uploadConcurrency": "Concurrent transfer requests (all accounts)",
+        "uploadMemoryMB": "Transfer memory budget (MiB)",
         "uploadMultipartConcurrency": "Maximum multipart workers per file",
         "useDefaultFolder": "Use the default folder"
       }

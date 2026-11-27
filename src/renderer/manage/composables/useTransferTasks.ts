@@ -25,6 +25,13 @@ export function useTransferTasks(options: TransferTaskOptions) {
     }
   }
 
+  async function cancelDownloadTask(id: string) {
+    if (await window.electron.triggerRPC<boolean>(IRPCActionType.MANAGE_CANCEL_DOWNLOAD_TASK, id)) {
+      const task = downloadTaskList.value.find(item => item.id === id)
+      if (task) task.cancelRequested = true
+    }
+  }
+
   const uploadTasks = useTransferTaskList(
     'upload',
     uploadTaskList,
@@ -75,6 +82,7 @@ export function useTransferTasks(options: TransferTaskOptions) {
     uploadTasks,
     downloadTasks,
     cancelUploadTask,
+    cancelDownloadTask,
     handleCopyUploadingTaskInfo,
     handleDeleteUploadedTask,
     handleDeleteAllUploadedTask,

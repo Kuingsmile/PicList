@@ -1,20 +1,14 @@
+import http from 'node:http'
+import https from 'node:https'
+
 import OSS from 'ali-oss'
 import axios from 'axios'
 import * as fastxml from 'fast-xml-parser'
 
 import type { DeleteResult } from '#/deletion'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  formatError,
-  getFileMimeType,
-  getPublicObjectUrl,
-  hmacSha1Base64,
-  NewDownloader,
-} from '~/manage/utils/common'
+import { getFileMimeType, getPublicObjectUrl, hmacSha1Base64 } from '~/manage/utils/common'
 import {
   deleteInBatches,
   deleteListedFolder,
@@ -23,12 +17,18 @@ import {
   keyedDeleteResult,
   nextDeleteMarker,
 } from '~/manage/utils/deleteObjects'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
 
 // 坑爹阿里云 返回数据类型标注和实际各种不一致
 class AliyunApi {
+  private readonly agents = {
+    agent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true }),
+  }
+  private readonly buckets = new Map<string, OSS>()
   ctx: OSS
   accessKeyId: string
   accessKeySecret: string
@@ -40,6 +40,7 @@ class AliyunApi {
       accessKeyId,
       accessKeySecret,
       secure: true,
+      ...this.agents,
     })
     this.accessKeyId = accessKeyId
     this.accessKeySecret = accessKeySecret
@@ -104,12 +105,29 @@ class AliyunApi {
   }
 
   getNewCtx(region: string, bucket: string) {
+    const key = JSON.stringify([region, bucket])
+    let client = this.buckets.get(key)
+    if (!client) {
+      client = this.createBucketClient(region, bucket)
+      this.buckets.set(key, client)
+    }
+    return client
+  }
+
+  destroy() {
+    this.buckets.clear()
+    this.agents.agent.destroy()
+    this.agents.httpsAgent.destroy()
+  }
+
+  private createBucketClient(region: string, bucket: string) {
     return new OSS({
       accessKeyId: this.accessKeyId,
       accessKeySecret: this.accessKeySecret,
       region,
       bucket,
       secure: true,
+      ...this.agents,
     })
   }
 
@@ -199,6 +217,7 @@ class AliyunApi {
       accessKeySecret: this.accessKeySecret,
       region: configMap.region,
       secure: true,
+      ...this.agents,
     })
     const aclTransMap: IStringKeyMap = {
       private: 'private',
@@ -499,7 +518,7 @@ class AliyunApi {
         multipart: { minPartSize: MIB, maxParts: 10000, maxConcurrency: 1 },
       },
       async ({ bucketName, region, key, filePath, fileName }, { signal, slots, partSize, progress }) => {
-        const client = this.getNewCtx(region, bucketName)
+        const client = this.createBucketClient(region, bucketName)
         const detach = onUploadAbort(signal, () => client.cancel())
         try {
           const result = await client.multipartUpload(key, filePath, {
@@ -532,42 +551,9 @@ class AliyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName } = item
-      const client = this.getNewCtx(region, bucketName)
-      const sourceId = `${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      const preSignedUrl = client.signatureUrl(key, {
-        expires: 60 * 60 * 48,
-      })
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch((error: any) => {
-      this.logger.error(
-        formatError(error, {
-          class: 'AliyunApi',
-          method: 'downloadBucketFile',
-        }),
-      )
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, ({ bucketName, region, key }) => ({
+      url: this.getNewCtx(region, bucketName).signatureUrl(key, { expires: 48 * 3600 }),
+    }))
   }
 }
 

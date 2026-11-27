@@ -1140,7 +1140,7 @@
           "naming": "命名设置",
           "namingDesc": "同时开启多个重命名选项时，以优先级最高的为准。",
           "performance": "上传性能",
-          "performanceDesc": "限制并发请求数和大文件上传时的内存占用。",
+          "performanceDesc": "限制并发请求数和大文件传输时的内存占用。",
           "preSigned": "预签名链接",
           "preSignedDesc": "用于私有存储桶的临时签名链接。",
           "thumbnail": "图片预览",
@@ -1161,9 +1161,9 @@
         "timestampRenameTips": "开启后，上传的文件将自动重命名为时间戳",
         "timestampRenameTitle": "上传文件时间戳重命名(最高优先级)",
         "title": "管理通用设置",
-        "uploadAccountConcurrency": "每个账户的上传并发请求数",
-        "uploadConcurrency": "上传并发请求数（所有账户）",
-        "uploadMemoryMB": "上传内存预算（MiB）",
+        "uploadAccountConcurrency": "每个账户的传输并发请求数",
+        "uploadConcurrency": "传输并发请求数（所有账户）",
+        "uploadMemoryMB": "传输内存预算（MiB）",
         "uploadMultipartConcurrency": "单个文件的最大分片并发数",
         "useDefaultFolder": "恢复默认文件夹"
       }

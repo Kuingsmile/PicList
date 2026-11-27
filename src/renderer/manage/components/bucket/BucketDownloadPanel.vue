@@ -60,6 +60,19 @@
             <Trash2Icon :size="16" aria-hidden="true" />
           </button>
         </template>
+        <template #item-action="{ item, active }">
+          <button
+            v-if="active"
+            v-tooltip="t('common.cancel')"
+            type="button"
+            :class="[taskActionClass, 'hover:bg-danger/10! hover:text-danger!']"
+            :disabled="item.cancelRequested"
+            :aria-label="t('common.cancel')"
+            @click="emit('cancel-task', item.id)"
+          >
+            <XIcon :size="16" aria-hidden="true" />
+          </button>
+        </template>
       </TransferTaskList>
     </div>
     <template #footer>
@@ -74,7 +87,15 @@
 </template>
 
 <script setup lang="ts">
-import { CopyIcon, FolderOpenIcon, ListChecksIcon, RotateCcwIcon, Trash2Icon, TriangleAlertIcon } from '@lucide/vue'
+import {
+  CopyIcon,
+  FolderOpenIcon,
+  ListChecksIcon,
+  RotateCcwIcon,
+  Trash2Icon,
+  TriangleAlertIcon,
+  XIcon,
+} from '@lucide/vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -84,7 +105,14 @@ import TransferTaskList from '@/manage/components/bucket/TransferTaskList.vue'
 
 const isShowDownloadPanel = defineModel<boolean>('visible', { required: true })
 const { tasks: downloadTaskList } = defineProps<{ tasks: IDownloadTask[]; failed: boolean }>()
-const emit = defineEmits<{ refresh: []; copy: []; 'clear-finished': []; 'clear-all': []; 'open-folder': [] }>()
+const emit = defineEmits<{
+  refresh: []
+  copy: []
+  'clear-finished': []
+  'clear-all': []
+  'open-folder': []
+  'cancel-task': [id: string]
+}>()
 const { t } = useI18n()
 const activeDownLoadTab = ref('downloading')
 

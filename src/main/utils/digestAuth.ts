@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import type { Agent } from 'node:http'
 
 import axios from 'axios'
 
@@ -15,12 +16,21 @@ export async function getAuthHeader(
   username: string,
   password: string,
   body: string | Buffer = '',
+  signal?: AbortSignal,
+  agent?: Agent,
 ) {
   const target = new URL(url)
   try {
-    await axios.get(target.href)
+    const response = await axios.get(target.href, {
+      signal,
+      responseType: 'stream',
+      ...(target.protocol === 'https:' ? { httpsAgent: agent } : { httpAgent: agent }),
+      timeout: 30000,
+    })
+    response.data.destroy()
   } catch (error: any) {
-    if (error.response.status === 401 && error.response.headers['www-authenticate']) {
+    error.response?.data?.destroy?.()
+    if (error.response?.status === 401 && error.response.headers['www-authenticate']) {
       return digestAuthHeader(
         method,
         target.pathname + target.search,
@@ -29,6 +39,6 @@ export async function getAuthHeader(
         password,
         body,
       )
-    }
+    } else throw error
   }
 }

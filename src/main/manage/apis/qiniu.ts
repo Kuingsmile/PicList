@@ -2,19 +2,9 @@ import axios from 'axios'
 import qiniu from 'qiniu'
 
 import type { DeleteResult } from '#/deletion'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  encodeObjectPath,
-  formatError,
-  getFileMimeType,
-  getPublicObjectUrl,
-  hmacSha1Base64,
-  NewDownloader,
-} from '~/manage/utils/common'
+import { encodeObjectPath, getFileMimeType, getPublicObjectUrl, hmacSha1Base64 } from '~/manage/utils/common'
 import {
   deleteInBatches,
   deleteListedFolder,
@@ -22,12 +12,14 @@ import {
   failedKeys,
   qiniuDeleteResult,
 } from '~/manage/utils/deleteObjects'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
 
 class QiniuApi {
   mac: qiniu.auth.digest.Mac
+  readonly bucketManager: qiniu.rs.BucketManager
   accessKey: string
   secretKey: string
   commonType = 'application/x-www-form-urlencoded'
@@ -42,6 +34,7 @@ class QiniuApi {
 
   constructor(accessKey: string, secretKey: string, logger: ManageLogger) {
     this.mac = new qiniu.auth.digest.Mac(accessKey, secretKey)
+    this.bucketManager = new qiniu.rs.BucketManager(this.mac, new qiniu.conf.Config())
     this.accessKey = accessKey
     this.secretKey = secretKey
     this.logger = logger
@@ -252,13 +245,11 @@ class QiniuApi {
       success: false,
       finished: false,
     }
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     do {
       res = await listing.wait(
         () =>
           new Promise((resolve, reject) => {
-            bucketManager.listPrefix(
+            this.bucketManager.listPrefix(
               bucket,
               {
                 prefix: slicedPrefix === '' ? undefined : slicedPrefix,
@@ -310,13 +301,11 @@ class QiniuApi {
       success: false,
       finished: false,
     }
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     do {
       res = await listing.wait(
         () =>
           new Promise((resolve, reject) => {
-            bucketManager.listPrefix(
+            this.bucketManager.listPrefix(
               bucket,
               {
                 prefix: slicedPrefix === '' ? undefined : slicedPrefix,
@@ -382,8 +371,6 @@ class QiniuApi {
   async getBucketFileList(configMap: IStringKeyMap, listing: ListingContext): Promise<any> {
     const { bucketName: bucket, prefix, marker, itemsPerPage, customUrl: urlPrefix } = configMap
     const slicedPrefix = prefix.slice(1)
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const result = {
       fullList: [] as any,
       isTruncated: false,
@@ -393,7 +380,7 @@ class QiniuApi {
     const res = (await listing.wait(
       () =>
         new Promise((resolve, reject) => {
-          bucketManager.listPrefix(
+          this.bucketManager.listPrefix(
             bucket,
             {
               limit: itemsPerPage,
@@ -443,10 +430,8 @@ class QiniuApi {
    */
   async deleteBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, key } = configMap
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const res = (await new Promise((resolve, reject) => {
-      bucketManager.delete(bucketName, key, (err, respBody, respInfo) => {
+      this.bucketManager.delete(bucketName, key, (err, respBody, respInfo) => {
         if (err) {
           reject(err)
         } else {
@@ -467,9 +452,8 @@ class QiniuApi {
   async deleteBucketFiles(configMap: IStringKeyMap): Promise<DeleteResult> {
     const { bucketName, keys } = configMap
     return deleteInBatches(keys, async batch => {
-      const manager = new qiniu.rs.BucketManager(this.mac, new qiniu.conf.Config())
       return new Promise<DeleteResult>((resolve, reject) => {
-        manager.batch(
+        this.bucketManager.batch(
           batch.map(key => qiniu.rs.deleteOp(bucketName, key)),
           (err, body, info) => {
             if (err) return reject(err)
@@ -490,8 +474,7 @@ class QiniuApi {
       key,
       (prefix, marker) =>
         new Promise((resolve, reject) => {
-          const manager = new qiniu.rs.BucketManager(this.mac, new qiniu.conf.Config())
-          manager.listPrefix(bucketName, { prefix, marker, limit: 1000 }, (err, body, info) => {
+          this.bucketManager.listPrefix(bucketName, { prefix, marker, limit: 1000 }, (err, body, info) => {
             if (err) return reject(err)
             if (info?.statusCode !== 200 || !body) return reject(info)
             if (
@@ -522,10 +505,8 @@ class QiniuApi {
    */
   async renameBucketFile(configMap: IStringKeyMap): Promise<boolean> {
     const { bucketName, oldKey, newKey } = configMap
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const res = (await new Promise((resolve, reject) => {
-      bucketManager.move(
+      this.bucketManager.move(
         bucketName,
         oldKey,
         bucketName,
@@ -561,12 +542,10 @@ class QiniuApi {
    */
   async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
     const { key, expires, customUrl } = configMap
-    const config = new qiniu.conf.Config()
-    const bucketManager = new qiniu.rs.BucketManager(this.mac, config)
     const urlPrefix = customUrl
     const ttl = Number(expires)
     const expiration = Math.floor(Date.now() / 1000) + (Number.isFinite(ttl) && ttl > 0 ? Math.ceil(ttl) : 3600)
-    const res = bucketManager.privateDownloadUrl(urlPrefix, encodeObjectPath(key), expiration)
+    const res = this.bucketManager.privateDownloadUrl(urlPrefix, encodeObjectPath(key), expiration)
     return res
   }
 
@@ -636,38 +615,9 @@ class QiniuApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName, customUrl } = item
-      const sourceId = `${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      const preSignedUrl = await this.getPreSignedUrl({
-        key,
-        expires: 36000,
-        customUrl,
-      })
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
-      this.logger.error(formatError(error, { class: 'QiniuApi', method: 'downloadBucketFile' }))
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, async item => ({
+      url: await this.getPreSignedUrl({ ...item, expires: 36000 }),
+    }))
   }
 }
 

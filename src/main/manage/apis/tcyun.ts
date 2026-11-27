@@ -1,21 +1,12 @@
-import { finished } from 'node:stream/promises'
+import http from 'node:http'
+import https from 'node:https'
 
 import COS from 'cos-nodejs-sdk-v5'
 
 import type { DeleteResult } from '#/deletion'
-import { downloadTaskSpecialStatus } from '~/constants'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  encodeObjectPath,
-  formatError,
-  getFileMimeType,
-  getPublicObjectUrl,
-  runDownloadTask,
-} from '~/manage/utils/common'
+import { encodeObjectPath, getFileMimeType, getPublicObjectUrl } from '~/manage/utils/common'
 import {
   deleteInBatches,
   deleteListedFolder,
@@ -24,6 +15,7 @@ import {
   keyedDeleteResult,
   nextDeleteMarker,
 } from '~/manage/utils/deleteObjects'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { createUploadAgents, MIB, scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
@@ -31,6 +23,7 @@ import { isImage } from '~/utils/filesystem'
 class TcyunApi {
   secretId: string
   secretKey: string
+  private readonly agents = { http: new http.Agent({ keepAlive: true }), https: new https.Agent({ keepAlive: true }) }
   ctx: COS
   logger: ManageLogger
 
@@ -41,7 +34,15 @@ class TcyunApi {
       SecretId: secretId,
       SecretKey: secretKey,
     })
+    this.ctx.on('before-send', (options: any) => {
+      options.agent = options.url.startsWith('https:') ? this.agents.https : this.agents.http
+    })
     this.logger = logger
+  }
+
+  destroy() {
+    this.agents.http.destroy()
+    this.agents.https.destroy()
   }
 
   formatFolder(item: { Prefix: string }, slicedPrefix: string, urlPrefix: string) {
@@ -375,17 +376,13 @@ class TcyunApi {
    */
   async getPreSignedUrl(configMap: IStringKeyMap): Promise<string> {
     const { bucketName, region, key, expires, customUrl } = configMap
-    const res = this.ctx.getObjectUrl(
-      {
-        Bucket: bucketName,
-        Region: region,
-        Key: key,
-        Expires: expires,
-        Sign: true,
-      },
-      () => {},
+    const url = await new Promise<string>((resolve, reject) =>
+      this.ctx.getObjectUrl(
+        { Bucket: bucketName, Region: region, Key: key, Expires: expires, Sign: true },
+        (error, result) => (error ? reject(error) : resolve(result.Url)),
+      ),
     )
-    return customUrl ? `${customUrl.replace(/\/+$/, '')}/${key}${res.slice(res.indexOf('?'))}` : res
+    return customUrl ? `${customUrl.replace(/\/+$/, '')}/${encodeObjectPath(key)}${new URL(url).search}` : url
   }
 
   /**
@@ -461,62 +458,9 @@ class TcyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount = 5, downloadConflictPolicy = 'rename' } = configMap
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    const downloads: (() => Promise<boolean>)[] = []
-    const instance = UpDownTaskQueue.getInstance()
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName } = item
-      const sourceId = `${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      downloads.push(() =>
-        runDownloadTask(
-          instance,
-          id,
-          destination,
-          async (_partPath, createWriteStream) => {
-            for (let attempt = 0; attempt < 3; attempt++) {
-              const output = createWriteStream()
-              const closed = finished(output)
-              try {
-                await Promise.all([
-                  this.ctx
-                    .getObject({
-                      Bucket: bucketName,
-                      Region: region,
-                      Key: key,
-                      Output: output,
-                      onProgress: (progress: any) => {
-                        instance.updateDownloadTask({
-                          id,
-                          progress: Math.min(99, Math.floor(progress.percent * 100)),
-                          status: downloadTaskSpecialStatus.downloading,
-                        })
-                      },
-                    })
-                    .then(res => {
-                      if (res?.statusCode !== 200) throw new Error('Download failed')
-                    }),
-                  closed,
-                ])
-                return
-              } catch (error) {
-                output.destroy()
-                await closed.catch(() => {})
-                if (attempt === 2) throw error
-              }
-            }
-          },
-          this.logger,
-        ),
-      )
-    }
-    void pool.all(downloads).catch(error => {
-      this.logger.error(formatError(error, { class: 'TcyunApi', method: 'downloadBucketFile' }))
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, async ({ bucketName, region, key }) => ({
+      url: await this.getPreSignedUrl({ bucketName, region, key, expires: 3600 }),
+    }))
   }
 }
 

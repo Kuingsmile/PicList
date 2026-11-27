@@ -1,3 +1,10 @@
+import { createHash } from 'node:crypto'
+
+export const transferAccountId = (provider: string, account: unknown) =>
+  `${provider}:${createHash('sha256')
+    .update(JSON.stringify([account]))
+    .digest('hex')}`
+
 export interface TransferLimits {
   globalConcurrency: number
   accountConcurrency: number
@@ -14,7 +21,8 @@ export const DEFAULT_TRANSFER_LIMITS: TransferLimits = {
 
 export type TransferFailure = 'file' | 'unsupported' | 'size' | 'memory' | 'provider' | 'aborted'
 export type TransferOutcome =
-  { success: true; status: 'uploaded' } | { success: false; status: 'failed' | 'canceled'; reason: TransferFailure }
+  | { success: true; status: 'uploaded' | 'downloaded' }
+  | { success: false; status: 'failed' | 'canceled'; reason: TransferFailure }
 
 // Only these known reasons may be exposed in the task list. SDK errors often contain secrets.
 export class TransferError extends Error {
@@ -31,9 +39,11 @@ export interface TransferResources {
 
 export interface TransferContext extends TransferResources {
   signal: AbortSignal
+  beginCommit: () => void
 }
 
 interface TransferJob {
+  kind: 'upload' | 'download'
   id: string
   accountId: string
   accountConcurrency?: number
@@ -50,6 +60,7 @@ interface PendingTransfer {
   controller: AbortController
   resolve: (outcome: TransferOutcome) => void
   detach: () => void
+  committing?: boolean
   resources?: TransferResources
 }
 
@@ -104,7 +115,7 @@ export class TransferScheduler {
 
   cancel(id: string): boolean {
     const transfer = this.jobs.get(id)
-    if (!transfer || transfer.controller.signal.aborted) return false
+    if (!transfer || transfer.committing || transfer.controller.signal.aborted) return false
     transfer.controller.abort()
     try {
       transfer.job.onCancel?.()
@@ -152,6 +163,10 @@ export class TransferScheduler {
       for (let index = 0; index < this.pending.length;) {
         const transfer = this.pending[index]
         const { job } = transfer
+        if (job.signal?.aborted) {
+          this.cancel(job.id)
+          continue
+        }
         const accountLimit = Math.min(
           this.limits.accountConcurrency,
           positiveInteger(job.accountConcurrency, this.limits.accountConcurrency, 64),
@@ -201,11 +216,18 @@ export class TransferScheduler {
 
   private async run(transfer: PendingTransfer): Promise<void> {
     const { job, controller, resources } = transfer
-    let outcome: TransferOutcome = { success: true, status: 'uploaded' }
+    let outcome: TransferOutcome = { success: true, status: job.kind === 'download' ? 'downloaded' : 'uploaded' }
     try {
       job.onStart?.()
       controller.signal.throwIfAborted()
-      await job.run({ ...resources!, signal: controller.signal })
+      await job.run({
+        ...resources!,
+        signal: controller.signal,
+        beginCommit: () => {
+          controller.signal.throwIfAborted()
+          transfer.committing = true
+        },
+      })
     } catch (error) {
       outcome = { success: false, status: 'failed', reason: error instanceof TransferError ? error.reason : 'provider' }
     }

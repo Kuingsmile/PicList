@@ -2,26 +2,16 @@ import crypto from 'node:crypto'
 import http from 'node:http'
 import https from 'node:https'
 import type { Readable } from 'node:stream'
-import { finished, pipeline } from 'node:stream/promises'
+import { finished } from 'node:stream/promises'
 
 import got, { OptionsOfTextResponseBody, RequestError } from 'got'
 import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent'
 import mime from 'mime'
 
-import { commonTaskStatus, downloadTaskSpecialStatus, uploadTaskSpecialStatus } from '~/constants'
+import { uploadTaskSpecialStatus } from '~/constants'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import { ManageLogger } from '~/manage/utils/logger'
 import { formatHttpProxy } from '~/utils/network'
-
-import {
-  createDownloadDestination,
-  type DownloadConflictPolicy,
-  type DownloadDestination,
-  DownloadPathError,
-  downloadToFile,
-  type DownloadTransfer,
-  resolveDownloadPath,
-} from './downloadFile'
 
 export { clearTempFolder, downloadFileFromUrl } from './urlImportFiles'
 
@@ -45,141 +35,6 @@ export const md5 = (str: string, code: 'hex' | 'base64'): string => crypto.creat
 
 export const hmacSha1Base64 = (secretKey: string, stringToSign: string): string =>
   crypto.createHmac('sha1', secretKey).update(Buffer.from(stringToSign, 'utf8')).digest('base64')
-
-// Download errors can contain signed URLs, credentials or response bodies. Keep
-// task responses and logs limited to a safe reason and an optional system code.
-const downloadError = (error: unknown) => ({
-  name: 'DownloadError',
-  method: 'downloadBucketFile',
-  message: error instanceof DownloadPathError ? error.message : 'Download failed',
-  ...((error as NodeJS.ErrnoException)?.code && /^[A-Z0-9_]+$/.test((error as NodeJS.ErrnoException).code!)
-    ? { code: (error as NodeJS.ErrnoException).code }
-    : {}),
-})
-
-export const failDownloadTask = (instance: UpDownTaskQueue, id: string, error: unknown, logger?: ManageLogger) => {
-  const response = downloadError(error)
-  logger?.error(response)
-  instance.updateDownloadTask({
-    id,
-    progress: 0,
-    status: commonTaskStatus.failed,
-    response,
-    finishTime: new Date().toLocaleString(),
-  })
-}
-
-export interface DownloadAttempt {
-  readonly id: string
-  readonly destination: DownloadDestination
-}
-
-export function createDownloadTask(
-  instance: UpDownTaskQueue,
-  sourceId: string,
-  root: string,
-  fileName: string,
-  policy: DownloadConflictPolicy = 'rename',
-  logger?: ManageLogger,
-): DownloadAttempt | undefined {
-  const id = crypto.randomUUID()
-  const task: IDownloadTask = { id, sourceId, progress: 0, status: commonTaskStatus.queuing, sourceFileName: fileName }
-  let destination: DownloadDestination
-  try {
-    destination = createDownloadDestination(root, fileName, policy)
-    task.targetFilePath = resolveDownloadPath(destination.root, destination.relativePath)
-  } catch (error) {
-    instance.addDownloadTask(task)
-    failDownloadTask(instance, id, error, logger)
-    return undefined
-  }
-  // History belongs to individual attempts; only an active transfer to the same destination is a duplicate.
-  const duplicate = instance
-    .getAllDownloadTask()
-    .some(
-      previous =>
-        (previous.sourceId ?? previous.id) === sourceId &&
-        previous.targetFilePath === task.targetFilePath &&
-        [commonTaskStatus.queuing, downloadTaskSpecialStatus.downloading, commonTaskStatus.paused].includes(
-          previous.status,
-        ),
-    )
-  if (duplicate) return undefined
-  instance.addDownloadTask(task)
-  return { id, destination }
-}
-
-export const runDownloadTask = async (
-  instance: UpDownTaskQueue,
-  id: string,
-  destination: DownloadDestination,
-  transfer: DownloadTransfer,
-  logger?: ManageLogger,
-): Promise<boolean> => {
-  try {
-    const result = await downloadToFile(destination, transfer)
-    instance.updateDownloadTask({
-      id,
-      progress: 100,
-      status: downloadTaskSpecialStatus.downloaded,
-      targetFilePath: result.filePath,
-      response: { skipped: result.skipped },
-      finishTime: new Date().toLocaleString(),
-    })
-    return true
-  } catch (error) {
-    failDownloadTask(instance, id, error, logger)
-    return false
-  }
-}
-
-export const NewDownloader = async (
-  instance: UpDownTaskQueue,
-  url: string,
-  id: string,
-  destination: DownloadDestination,
-  logger?: ManageLogger,
-  proxy?: string,
-  headers?: any,
-  onError?: (error: unknown) => void,
-): Promise<boolean> =>
-  runDownloadTask(
-    instance,
-    id,
-    destination,
-    async (_partPath, createWriteStream) => {
-      // Complete provider URLs are already escaped; encoding again corrupts paths and signatures.
-      for (let attempt = 0; attempt < 3; attempt++) {
-        const output = createWriteStream()
-        try {
-          const stream = got.stream(url, {
-            headers,
-            ...(proxy && { agent: getAgent(proxy, url.startsWith('https:')) }),
-            timeout: { socket: 6000 },
-            // Retry the entire pipeline so failed attempts cannot append data.
-            retry: { limit: 0 },
-          })
-          stream.on('downloadProgress', progress => {
-            instance.updateDownloadTask({
-              id,
-              progress: Math.min(99, Math.floor(progress.percent * 100)),
-              status: downloadTaskSpecialStatus.downloading,
-            })
-          })
-          await pipeline(stream, output)
-          return
-        } catch (error) {
-          output.destroy()
-          await finished(output).catch(() => {})
-          if (attempt === 2) {
-            onError?.(error)
-            throw error
-          }
-        }
-      }
-    },
-    logger,
-  )
 
 type UploadFailureReason = 'request' | 'timeout' | 'http' | 'response' | 'provider' | 'aborted'
 
@@ -360,6 +215,12 @@ export const getAgent = (
   }
 }
 
+export function getProxyAgents(proxy: string | undefined) {
+  const { https } = getAgent(proxy)
+  const { http } = getAgent(proxy, false)
+  return { http, https }
+}
+
 export const getInnerAgent = (proxy: any, sslEnabled: boolean = true) => {
   const agents = getAgent(proxy, sslEnabled)
   return {
@@ -380,7 +241,7 @@ export function getOptions(
   responseType?: string,
   body?: any,
   timeout?: number,
-  proxy?: any,
+  agent?: OptionsOfTextResponseBody['agent'],
 ): OptionsOfTextResponseBody {
   return {
     ...(method && { method: method.toUpperCase() }),
@@ -389,50 +250,7 @@ export function getOptions(
     ...(body && { body }),
     ...(responseType && { responseType }),
     ...(timeout !== undefined ? { timeout: { request: timeout } } : { timeout: { request: 30000 } }),
-    ...(proxy && {
-      agent: Object.fromEntries(Object.entries(getAgent(proxy)).filter(([, v]) => v !== undefined)),
-    }),
+    agent,
     throwHttpErrors: false,
-  }
-}
-
-export class ConcurrencyPromisePool {
-  readonly limit: number
-  queue: (() => void)[]
-  runningNum: number
-
-  constructor(limit: number) {
-    if (!Number.isInteger(limit) || limit <= 0) {
-      throw new RangeError('Concurrency limit must be a positive integer')
-    }
-    this.limit = limit
-    this.queue = []
-    this.runningNum = 0
-  }
-
-  // Reject on the first failure, while allowing all queued tasks to finish.
-  all<T>(tasks: (() => T | PromiseLike<T>)[] = []): Promise<T[]> {
-    return Promise.all(tasks.map(task => this._run(task)))
-  }
-
-  private _run<T>(task: () => T | PromiseLike<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      const run = () => {
-        this.runningNum += 1
-        Promise.resolve()
-          .then(task)
-          .then(resolve, reject)
-          .finally(() => {
-            --this.runningNum
-            this.queue.shift()?.()
-          })
-      }
-
-      if (this.runningNum >= this.limit) {
-        this.queue.push(run)
-      } else {
-        run()
-      }
-    })
   }
 }

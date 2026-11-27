@@ -8,16 +8,8 @@ import fs from 'fs-extra'
 import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  formatError,
-  getFileMimeType,
-  gotUpload,
-  isUploadResponseObject,
-  isUploadResponseString,
-  NewDownloader,
-} from '~/manage/utils/common'
+import { getFileMimeType, gotUpload, isUploadResponseObject, isUploadResponseString } from '~/manage/utils/common'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
@@ -237,33 +229,7 @@ class SmmsApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName, downloadUrl: preSignedUrl } = item
-      const sourceId = `${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
-      this.logger.error(formatError(error, { class: 'SmmsApi', method: 'downloadBucketFile' }))
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, item => ({ url: item.downloadUrl }))
   }
 }
 

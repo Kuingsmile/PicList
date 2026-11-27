@@ -3,6 +3,8 @@ import querystring from 'node:querystring'
 
 import axios from 'axios'
 
+import { waitWithSignal } from '#/utils/waitWithSignal'
+
 export interface DogecloudToken {
   accessKeyId: string
   secretAccessKey: string
@@ -20,6 +22,8 @@ interface TokenEntry {
   token?: DogecloudToken
   expires?: number
   pending?: Promise<TokenResult>
+  controller: AbortController
+  users: number
 }
 
 interface AccountCache {
@@ -61,6 +65,7 @@ export function invalidateDogecloudTokens(
   // A delayed failure from an older S3 client must not evict a replacement token.
   if (token && ![...account.tokens.values()].some(entry => entry.token?.sessionToken === token.sessionToken)) return
   accounts.delete(id)
+  for (const entry of account.tokens.values()) entry.controller.abort()
 }
 
 export function isDogecloudAuthenticationError(error: unknown): boolean {
@@ -97,6 +102,7 @@ export async function dogecloudApi(
   jsonMode: boolean = false,
   accessKey: string,
   secretKey: string,
+  signal?: AbortSignal,
 ) {
   const account = getAccount(accessKey, secretKey)
   const body = jsonMode ? JSON.stringify(data) : querystring.encode(data)
@@ -111,6 +117,8 @@ export async function dogecloudApi(
       method: 'POST',
       data: body,
       responseType: 'json',
+      timeout: 30000,
+      signal,
       headers: {
         'Content-Type': jsonMode ? 'application/json' : 'application/x-www-form-urlencoded',
         Authorization: authorization,
@@ -133,24 +141,42 @@ export async function dogecloudApi(
   }
 }
 
+async function waitForToken(entry: TokenEntry, signal?: AbortSignal) {
+  entry.users++
+  try {
+    return await waitWithSignal(entry.pending!, signal)
+  } finally {
+    if (--entry.users === 0 && entry.pending) entry.controller.abort()
+  }
+}
+
 export async function getTempToken(
   accessKey: string,
   secretKey: string,
   authorization: DogecloudAuthorization = { channel: 'OSS_FULL', scopes: ['*'] },
+  signal?: AbortSignal,
 ): Promise<TokenResult> {
+  signal?.throwIfAborted()
   if (!accessKey || !secretKey) return {}
   const account = getAccount(accessKey, secretKey)
   const request = { channel: authorization.channel, scopes: [...new Set(authorization.scopes)].sort() }
   const scopeKey = JSON.stringify(request)
   const cached = account.tokens.get(scopeKey)
   if (cached?.token && cached.expires! > Date.now() + EXPIRY_MARGIN_MS) return cached.token
-  if (cached?.pending) return cached.pending
+  if (cached?.pending && !cached.controller.signal.aborted) return waitForToken(cached, signal)
 
-  const entry: TokenEntry = {}
+  const entry: TokenEntry = { users: 0, controller: new AbortController() }
   account.tokens.set(scopeKey, entry)
   entry.pending = (async () => {
     try {
-      const data = await dogecloudApi('/auth/tmp_token.json', request, true, accessKey, secretKey)
+      const data = await dogecloudApi(
+        '/auth/tmp_token.json',
+        request,
+        true,
+        accessKey,
+        secretKey,
+        entry.controller.signal,
+      )
       // Credential changes and invalidation detach the account, including any refresh already in flight.
       if (accounts.get(accountId(accessKey)) !== account) return {}
       const credentials = data?.Credentials
@@ -176,8 +202,8 @@ export async function getTempToken(
       return {}
     } finally {
       entry.pending = undefined
-      if (!entry.token) account.tokens.delete(scopeKey)
+      if (!entry.token && account.tokens.get(scopeKey) === entry) account.tokens.delete(scopeKey)
     }
   })()
-  return entry.pending
+  return waitForToken(entry, signal)
 }

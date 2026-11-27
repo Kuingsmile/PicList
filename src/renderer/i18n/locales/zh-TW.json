@@ -1140,7 +1140,7 @@
           "naming": "命名設置",
           "namingDesc": "同時開啟多個重新命名選項時，以優先順序最高者為準。",
           "performance": "上傳效能",
-          "performanceDesc": "限制並行請求數與大型檔案上傳時的記憶體用量。",
+          "performanceDesc": "限制並行請求數與大型檔案傳輸時的記憶體用量。",
           "preSigned": "預簽章連結",
           "preSignedDesc": "用於私有儲存桶的臨時簽章連結。",
           "thumbnail": "圖片預覽",
@@ -1161,9 +1161,9 @@
         "timestampRenameTips": "啟用後，上傳的檔案將自動更名為時間戳",
         "timestampRenameTitle": "上傳檔案時間戳重新命名（最高優先級）",
         "title": "管理通用設置",
-        "uploadAccountConcurrency": "每個帳戶的上傳並行請求數",
-        "uploadConcurrency": "上傳並行請求數（所有帳戶）",
-        "uploadMemoryMB": "上傳記憶體預算（MiB）",
+        "uploadAccountConcurrency": "每個帳戶的傳輸並行請求數",
+        "uploadConcurrency": "傳輸並行請求數（所有帳戶）",
+        "uploadMemoryMB": "傳輸記憶體預算（MiB）",
         "uploadMultipartConcurrency": "單一檔案的最大分片並行數",
         "useDefaultFolder": "恢復預設資料夾"
       }

@@ -6,11 +6,11 @@ import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 import type { FileEntry } from 'ssh2'
 
 import { LISTING_PAGE_ITEMS } from '#/listing'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
-import { createDownloadTask, encodeObjectPath, formatError, runDownloadTask } from '~/manage/utils/common'
+import { encodeObjectPath, formatError } from '~/manage/utils/common'
+import { scheduleDownloadBatch } from '~/manage/utils/downloadBatch'
 import ManageLogger from '~/manage/utils/logger'
-import { onUploadAbort, scheduleUploadBatch } from '~/manage/utils/uploadFile'
+import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
 import SSHClient from '~/utils/sshClient'
 
@@ -128,27 +128,70 @@ class SftpApi {
     }
   }
 
-  private async withClient<T>(action: (client: SSHClient) => Promise<T>, signal?: AbortSignal): Promise<T> {
-    const client = new SSHClient()
-    let closed = false
-    const close = () => {
-      if (!closed) {
-        closed = true
-        client.close()
-      }
+  private shared?: { ssh: SSHClient; ready?: Promise<void> }
+  private readonly idle: SSHClient[] = []
+  private readonly connections = new Set<SSHClient>()
+  private closed = false
+
+  private openConnection() {
+    if (this.closed) throw new Error('SFTP account is closed')
+    const ssh = new SSHClient()
+    this.connections.add(ssh)
+    return ssh
+  }
+
+  private closeConnection(ssh: SSHClient) {
+    this.connections.delete(ssh)
+    ssh.close()
+  }
+
+  destroy() {
+    this.closed = true
+    for (const ssh of this.connections) this.closeConnection(ssh)
+    this.idle.length = 0
+    this.shared = undefined
+  }
+
+  // Metadata requests can multiplex on a single channel, including preview, commit and retry.
+  async withMetadataClient<T>(action: (ssh: SSHClient) => Promise<T>): Promise<T> {
+    if (this.shared && !this.shared.ready && !this.shared.ssh.isConnected) {
+      this.closeConnection(this.shared.ssh)
+      this.shared = undefined
     }
+    if (!this.shared) {
+      const ssh = this.openConnection()
+      this.shared = { ssh, ready: ssh.connect(this.config) }
+    }
+    const connection = this.shared
+    try {
+      await connection.ready
+      connection.ready = undefined
+      if (!connection.ssh.isConnected) throw new Error('SSH connection closed')
+      return await action(connection.ssh)
+    } catch (error) {
+      if (!connection.ssh.isConnected && this.shared === connection) {
+        this.shared = undefined
+        this.closeConnection(connection.ssh)
+      }
+      throw error
+    }
+  }
+
+  private async withClient<T>(action: (ssh: SSHClient) => Promise<T>, signal?: AbortSignal): Promise<T> {
+    signal?.throwIfAborted()
+    const ssh = this.idle.pop() ?? this.openConnection()
+    const close = () => this.closeConnection(ssh)
     signal?.addEventListener('abort', close, { once: true })
     try {
+      if (!ssh.isConnected) await ssh.connect(this.config)
       signal?.throwIfAborted()
-      await client.connect(this.config)
-      signal?.throwIfAborted()
-      if (!client.isConnected) {
-        throw new Error('SSH client is not connected')
-      }
-      return await action(client)
+      return await action(ssh)
     } finally {
       signal?.removeEventListener('abort', close)
-      close()
+      if (!this.closed && !signal?.aborted && ssh.isConnected && this.idle.length < 2) {
+        ssh.clearDirectories()
+        this.idle.push(ssh)
+      } else close()
     }
   }
 
@@ -323,20 +366,12 @@ class SftpApi {
       configMap,
       { provider: 'sftp', account: [this.host, this.port, this.username] },
       async ({ key, filePath }, { signal }) => {
-        // A connection belongs to one job so canceling it cannot interrupt another upload.
-        const client = new SSHClient()
-        const detach = onUploadAbort(signal, () => client.close())
-        try {
-          await client.connect(this.config)
-          signal.throwIfAborted()
+        await this.withClient(async client => {
           await client.putFile(filePath, await client.scopedPath(this.baseDir, key), {
             fileMode: this.fileMode,
             dirMode: this.dirMode,
           })
-        } finally {
-          detach()
-          client.close()
-        }
+        }, signal)
       },
     )
   }
@@ -374,31 +409,12 @@ class SftpApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const client = new SSHClient()
-    try {
-      for (const item of fileArray) {
-        const { alias, bucketName, region, key, fileName } = item
-        const sourceId = `${alias}-${bucketName}-${region}-${key}`
-        const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-        if (!task) continue
-        const { id, destination } = task
-        await runDownloadTask(
-          instance,
-          id,
-          destination,
-          async (_partPath, createWriteStream) => {
-            if (!client.isConnected) await client.connect(this.config)
-            await client.getFileToStream(await client.scopedPath(this.baseDir, key), createWriteStream)
-          },
-          this.logger,
-        )
-      }
-    } finally {
-      client.close()
-    }
-    return true
+    return scheduleDownloadBatch(configMap, this.logger, ({ key }, { createWriteStream, signal }) =>
+      this.withClient(
+        async ssh => ssh.getFileToStream(await ssh.scopedPath(this.baseDir, key), createWriteStream),
+        signal,
+      ),
+    )
   }
 }
 

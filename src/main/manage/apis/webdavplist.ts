@@ -6,17 +6,10 @@ import path from 'node:path'
 import { AuthType, createClient, FileStat, ProgressEvent, WebDAVClient, WebDAVClientOptions } from 'webdav'
 
 import { formatEndpoint } from '#/utils/url'
-import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
-import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
-  encodeObjectPath,
-  formatError,
-  getInnerAgent,
-  NewDownloader,
-} from '~/manage/utils/common'
+import { encodeObjectPath, formatError, getInnerAgent } from '~/manage/utils/common'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import ManageLogger from '~/manage/utils/logger'
 import { MIB, scheduleUploadBatch, withUploadStream } from '~/manage/utils/uploadFile'
 import { getAuthHeader } from '~/utils/digestAuth'
@@ -70,6 +63,10 @@ class WebdavplistApi {
   }
 
   logParam = (error: any, method: string) => this.logger.error(formatError(error, { class: 'WebdavplistApi', method }))
+
+  destroy() {
+    this.agent.destroy()
+  }
 
   scopedPath(key: string, allowBase = false): string {
     if (key.includes('\\')) throw new Error('Invalid WebDAV path separator')
@@ -290,54 +287,29 @@ class WebdavplistApi {
   }
 
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { alias, bucketName, region, fileName } = item
+    return scheduleHttpDownloads(configMap, this.logger, async (item, signal) => {
       const key = this.scopedPath(item.key)
-      const sourceId = `${alias}-${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      let preSignedUrl: string
-      let headers = {} as IStringKeyMap
-      if (this.authType === 'basic' || !this.authType) {
-        preSignedUrl = await this.getPreSignedUrl({ key })
-        const base64Str = Buffer.from(`${this.username}:${this.password}`).toString('base64')
-        headers = {
-          Authorization: `Basic ${base64Str}`,
-        }
-      } else if (this.authType === 'digest') {
-        const target = new URL(this.endpoint)
-        target.pathname = `${target.pathname.replace(/\/+$/, '')}/${encodeObjectPath(key.replace(/^\/+/, ''))}`
-        target.hash = ''
-        preSignedUrl = target.href
-        const authHeader = await getAuthHeader('GET', preSignedUrl, this.username, this.password)
-        headers = {
-          Authorization: authHeader,
-        }
-      }
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger, this.proxyStr, headers).then(
-              (res: boolean) => {
-                if (res) {
-                  resolve(res)
-                } else {
-                  reject(res)
-                }
-              },
+      const target = new URL(this.endpoint)
+      target.pathname = `${target.pathname.replace(/\/+$/, '')}/${encodeObjectPath(key.replace(/^\/+/, ''))}`
+      target.hash = ''
+      const authorization =
+        this.authType === 'digest'
+          ? await getAuthHeader(
+              'GET',
+              target.href,
+              this.username,
+              this.password,
+              '',
+              signal,
+              this.proxyStr ? this.agent : undefined,
             )
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
-      this.logParam(error, 'downloadBucketFile')
+          : `Basic ${Buffer.from(`${this.username}:${this.password}`).toString('base64')}`
+      return {
+        url: target.href,
+        headers: { authorization },
+        agent: this.proxyStr ? { [target.protocol === 'https:' ? 'https' : 'http']: this.agent } : undefined,
+      }
     })
-    return true
   }
 }
 

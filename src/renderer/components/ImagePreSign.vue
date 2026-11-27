@@ -62,7 +62,10 @@ const {
     const params = getRawData(config)
     const ttl = Math.min(5 * 60_000, (Number(params.expires || 3600) - 30) * 1000)
     return cache.get(cacheKey.value, signal, ttl, async () => {
-      const signed = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, account, params)
+      const signed = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, account, {
+        ...params,
+        reuseSignedUrl: true,
+      })
       if (!signed || signed === 'error') throw new Error('Failed to get pre-signed URL')
       return signed
     })

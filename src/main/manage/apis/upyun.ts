@@ -9,18 +9,15 @@ import UpDownTaskQueue from '~/manage/datastore/upDownTaskQueue'
 import type { ListingContext } from '~/manage/listingRequest'
 import { TransferError } from '~/manage/transferScheduler'
 import {
-  ConcurrencyPromisePool,
-  createDownloadTask,
   encodeObjectPath,
-  formatError,
   getFileMimeType,
   gotUpload,
   hmacSha1Base64,
   isUploadResponseObject,
   isUploadResponseString,
   md5,
-  NewDownloader,
 } from '~/manage/utils/common'
+import { scheduleHttpDownloads } from '~/manage/utils/downloadBatch'
 import { ManageLogger } from '~/manage/utils/logger'
 import { scheduleUploadBatch } from '~/manage/utils/uploadFile'
 import { isImage } from '~/utils/filesystem'
@@ -426,34 +423,7 @@ class UpyunApi {
    * @param configMap
    */
   async downloadBucketFile(configMap: IStringKeyMap): Promise<boolean> {
-    const { downloadPath, fileArray, maxDownloadFileCount, downloadConflictPolicy = 'rename' } = configMap
-    const instance = UpDownTaskQueue.getInstance()
-    const promises = [] as any
-    for (const item of fileArray) {
-      const { bucketName, region, key, fileName, customUrl } = item
-      const sourceId = `${bucketName}-${region}-${key}`
-      const task = createDownloadTask(instance, sourceId, downloadPath, fileName, downloadConflictPolicy, this.logger)
-      if (!task) continue
-      const { id, destination } = task
-      promises.push(
-        () =>
-          new Promise((resolve, reject) => {
-            const preSignedUrl = this.getObjectUrl(key, customUrl)
-            NewDownloader(instance, preSignedUrl, id, destination, this.logger).then((res: boolean) => {
-              if (res) {
-                resolve(res)
-              } else {
-                reject(res)
-              }
-            })
-          }),
-      )
-    }
-    const pool = new ConcurrencyPromisePool(maxDownloadFileCount)
-    pool.all(promises).catch(error => {
-      this.logger.error(formatError(error, { class: 'UpyunApi', method: 'downloadBucketFile' }))
-    })
-    return true
+    return scheduleHttpDownloads(configMap, this.logger, item => ({ url: this.getObjectUrl(item.key, item.customUrl) }))
   }
 }
 

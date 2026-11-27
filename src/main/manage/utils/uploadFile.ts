@@ -8,6 +8,7 @@ import { finished } from 'node:stream/promises'
 
 import UpDownTaskQueue from '../datastore/upDownTaskQueue'
 import {
+  transferAccountId,
   type TransferContext,
   TransferError,
   type TransferLimits,
@@ -71,7 +72,7 @@ export async function scheduleUploadBatch(
   upload: (file: UploadFile, context: UploadContext) => Promise<void>,
 ): Promise<boolean> {
   const store = UpDownTaskQueue.getInstance()
-  const accountId = `${options.provider}:${hash([config.accountId ?? options.account])}`
+  const accountId = transferAccountId(options.provider, config.accountId ?? options.account)
   const promises = (config.fileArray as UploadFile[]).map(input => {
     const file: UploadFile = { ...input, key: options.normalizeKey ? input.key.replace(/^\/+/, '') : input.key }
     const identity = `${accountId}:${hash([options.account, file.bucketName, file.region, file.githubBranch, file.key, path.resolve(file.filePath)])}`
@@ -100,6 +101,7 @@ export async function scheduleUploadBatch(
     queueMicrotask(() => {
       void transferScheduler
         .schedule({
+          kind: 'upload',
           id,
           accountId,
           accountConcurrency: options.accountConcurrency,
