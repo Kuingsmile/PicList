@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { useEventListener } from '@vueuse/core'
-import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 
 import {
   activeTooltip,
@@ -60,7 +60,6 @@ const markdownHtml = computed(() => {
     return ''
   }
 })
-let frame: number | undefined
 
 function updatePosition() {
   const hint = activeTooltip.value
@@ -106,21 +105,28 @@ function updatePosition() {
     position.value = { left, top, arrow, placement }
   }
   ready.value = true
-  // Follow moving controls and dismiss hints whose ancestors become hidden.
-  frame = requestAnimationFrame(updatePosition)
 }
 
-watch(activeTooltip, async (hint, previous, onCleanup) => {
-  let cancelled = false
-  onCleanup(() => {
-    cancelled = true
-    if (frame !== undefined) cancelAnimationFrame(frame)
-  })
-  if (frame !== undefined) cancelAnimationFrame(frame)
-  if (hint?.anchor !== previous?.anchor) ready.value = false
-  await nextTick()
-  if (!cancelled) updatePosition()
-})
+watch(
+  [() => (activeTooltip.value?.visible ? activeTooltip.value.anchor : undefined), () => activeTooltip.value?.placement],
+  ([anchor], [previous], onCleanup) => {
+    if (anchor !== previous) ready.value = false
+    const tooltip = tooltipRef.value
+    if (!anchor || !tooltip) return
+    updatePosition()
+    const observer = new ResizeObserver(updatePosition)
+    observer.observe(anchor)
+    observer.observe(tooltip)
+    // Sibling layout changes can move an anchor without changing its own size.
+    const shifts = new PerformanceObserver(updatePosition)
+    if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) shifts.observe({ type: 'layout-shift' })
+    onCleanup(() => {
+      observer.disconnect()
+      shifts.disconnect()
+    })
+  },
+  { flush: 'post' },
+)
 
 function dismissOutsideTooltip(event: Event) {
   if (event.target instanceof Node) {
@@ -142,8 +148,5 @@ useEventListener(document, 'keydown', event => {
 useEventListener(document, 'visibilitychange', () => {
   if (document.hidden) dismissTooltip()
 })
-onBeforeUnmount(() => {
-  if (frame !== undefined) cancelAnimationFrame(frame)
-  dismissTooltip()
-})
+onBeforeUnmount(() => dismissTooltip())
 </script>

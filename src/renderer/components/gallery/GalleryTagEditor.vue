@@ -106,7 +106,7 @@ const filteredChoices = computed(() =>
     .map(tag => ({ tag, state: changes.get(tag) ?? initialState(tag) })),
 )
 
-function open(items: IGalleryItem[]) {
+function open(items: Pick<IGalleryItem, 'id' | 'fileName' | 'galleryTags'>[]) {
   if (!items.length || saving.value) return
   selectedIds.value = items.map(item => item.id!)
   description.value = items.length === 1 ? items[0].fileName || '' : t('pages.gallery.selectedCount', items.length)

@@ -1,6 +1,7 @@
 import { ulid } from 'ulid'
 import { v4 as uuidv4 } from 'uuid'
 
+import { IRPCActionType } from '#/constants/rpcActions'
 import { customStrMatch, randomStringGenerator } from '#/utils/strings'
 
 export function splitFileName(fileName: string): { baseName: string; extension: string } {
@@ -24,33 +25,19 @@ function renameFormatHelper(num: number): string {
   return num.toString().length === 1 ? `0${num}` : num.toString()
 }
 
-function getMd5(input: Buffer | string): string {
-  return window.node.crypto.createHash('md5', input)
-}
-
-function getSha256(input: Buffer | string): string {
-  return window.node.crypto.createHash('sha256', input)
-}
-
-function getSha1(input: Buffer | string): string {
-  return window.node.crypto.createHash('sha1', input)
-}
+type HashAlgorithm = 'md5' | 'sha1' | 'sha256'
 
 export function renameFileNameWithCustomString(
   oldName: string,
   customFormat: string,
   affixFileName?: string,
-  fileBuffer?: Buffer | (() => Buffer),
+  getFileHash?: (algorithm: HashAlgorithm) => string,
   appendExtension: boolean = true,
 ): string {
   const date = new Date()
   const year = date.getFullYear().toString()
   const fileBaseName = window.node.path.basename(oldName, window.node.path.extname(oldName))
-  const getHashInput = () => {
-    // Resolve upload contents once, and only when a hash placeholder needs them.
-    if (typeof fileBuffer === 'function') fileBuffer = fileBuffer()
-    return fileBuffer || fileBaseName
-  }
+  const hash = getFileHash ?? ((algorithm: HashAlgorithm) => window.node.crypto.createHash(algorithm, fileBaseName))
   const conversionMap: Record<string, () => string> = {
     '{Y}': () => year,
     '{y}': () => year.slice(2),
@@ -60,10 +47,10 @@ export function renameFileNameWithCustomString(
     '{i}': () => renameFormatHelper(date.getMinutes()),
     '{s}': () => renameFormatHelper(date.getSeconds()),
     '{ms}': () => date.getMilliseconds().toString().padStart(3, '0'),
-    '{md5}': () => getMd5(getHashInput()),
-    '{md5-16}': () => getMd5(getHashInput()).slice(0, 16),
-    '{sha1}': () => getSha1(getHashInput()),
-    '{sha256}': () => getSha256(getHashInput()),
+    '{md5}': () => hash('md5'),
+    '{md5-16}': () => hash('md5').slice(0, 16),
+    '{sha1}': () => hash('sha1'),
+    '{sha256}': () => hash('sha256'),
     '{filename}': () =>
       affixFileName
         ? window.node.path.basename(affixFileName, window.node.path.extname(affixFileName))
@@ -95,11 +82,11 @@ export function renameFileNameWithCustomString(
   const sha1nRegex = /{sha1-(\d+)}/gi
   newName = newName.replace(sha256nRegex, (_, group1) => {
     const length = parseInt(group1, 10)
-    return getSha256(getHashInput()).slice(0, length)
+    return hash('sha256').slice(0, length)
   })
   newName = newName.replace(sha1nRegex, (_, group1) => {
     const length = parseInt(group1, 10)
-    return getSha1(getHashInput()).slice(0, length)
+    return hash('sha1').slice(0, length)
   })
   newName = newName.replace(strRegex, (_, group1) => {
     const length = parseInt(group1, 10)
@@ -108,18 +95,30 @@ export function renameFileNameWithCustomString(
   return newName
 }
 
-export function renameFile(
+export async function renameFile(
   { timestampRename, randomStringRename, customRename, customRenameFormat }: IStringKeyMap,
-  oldName = '',
-  fileBuffer?: Buffer | (() => Buffer),
-): string {
+  oldName: string,
+  filePath: string,
+): Promise<string> {
   switch (true) {
     case timestampRename:
       return renameFileNameWithTimestamp(oldName)
     case randomStringRename:
       return renameFileNameWithRandomString(oldName, 20)
-    case customRename:
-      return renameFileNameWithCustomString(oldName, customRenameFormat, undefined, fileBuffer)
+    case customRename: {
+      const algorithms: HashAlgorithm[] = []
+      if (/{md5(?:-16)?}/.test(customRenameFormat)) algorithms.push('md5')
+      if (/{sha1(?:-[0-9]+)?}/i.test(customRenameFormat)) algorithms.push('sha1')
+      if (/{sha256(?:-[0-9]+)?}/i.test(customRenameFormat)) algorithms.push('sha256')
+      if (!algorithms.length) return renameFileNameWithCustomString(oldName, customRenameFormat)
+      const hashes = await window.electron.triggerRPC<Record<HashAlgorithm, string>>(
+        IRPCActionType.MANAGE_HASH_UPLOAD_FILE,
+        filePath,
+        algorithms,
+      )
+      if (!hashes || algorithms.some(algorithm => !hashes[algorithm])) throw new Error('Upload hash unavailable')
+      return renameFileNameWithCustomString(oldName, customRenameFormat, undefined, algorithm => hashes[algorithm])
+    }
     default:
       return oldName
   }

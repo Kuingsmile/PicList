@@ -78,8 +78,10 @@
             @touchend="handleImageTouchEnd"
           >
             <img
+              v-if="currentPreviewImage?.src"
               :key="previewAttempt"
               ref="previewImageRef"
+              decoding="async"
               :src="currentPreviewImage?.src"
               :alt="currentPreviewImage?.intro"
               class="block h-auto max-h-none w-auto max-w-none origin-center object-contain"
@@ -108,7 +110,7 @@
           <button
             class="next absolute top-1/2 right-[12px] z-10 inline-flex h-[40px] w-[40px] min-w-[32px] -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm border-0 bg-black/65 text-white not-disabled:hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white focus-visible:outline-solid disabled:cursor-not-allowed disabled:opacity-40"
             :aria-label="t('pages.gallery.nextImage')"
-            :disabled="gallerySliderControl.index === filterList.length - 1"
+            :disabled="gallerySliderControl.index === total - 1"
             @click.stop="navigateImage(1)"
           >
             <ChevronRightIcon :size="24" />
@@ -122,7 +124,7 @@
             {{ currentPreviewImage?.intro }}
           </DialogTitle>
           <div class="mr-4 text-sm font-semibold whitespace-nowrap text-main">
-            {{ gallerySliderControl.index + 1 }} / {{ filterList.length }}
+            {{ gallerySliderControl.index + 1 }} / {{ total }}
           </div>
           <div class="text-center text-xs font-medium text-main">
             {{ t('pages.gallery.previewHelp') }}
@@ -141,23 +143,18 @@ import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } f
 import { useI18n } from 'vue-i18n'
 
 import { getConfig } from '@/services/configService'
-import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 
 const gallerySliderControl = defineModel<{
   visible: boolean
   index: number
 }>('gallerySliderControl', { required: true })
 
-const { filterList, isAlwaysForceReload } = defineProps<{
-  filterList: {
-    src: string
-    imgUrl?: string
-    galleryPath?: string
-    intro?: string
-  }[]
-  isAlwaysForceReload: boolean
+const { currentPreviewImage, total } = defineProps<{
+  currentPreviewImage: { src: string; intro?: string } | undefined
+  total: number
 }>()
 
+const emit = defineEmits<{ retry: [] }>()
 const { t } = useI18n()
 const previewImageRef = useTemplateRef('previewImageRef')
 const viewerRef = useTemplateRef('viewerRef')
@@ -203,30 +200,13 @@ const imageTransformStyle = computed(() => {
   }
 })
 
-const currentPreviewImage = computed(() => {
-  const item = filterList[gallerySliderControl.value.index]
-  if (!item) return null
-  const cacheBustedItem = { ...item }
-  if (isAlwaysForceReload) {
-    if (cacheBustedItem.imgUrl) {
-      cacheBustedItem.imgUrl = addCacheBustParam(cacheBustedItem.imgUrl)
-    }
-    if (cacheBustedItem.galleryPath) {
-      cacheBustedItem.galleryPath = addCacheBustParam(cacheBustedItem.galleryPath)
-    }
-  }
-  const src = cacheBustedItem.src || cacheBustedItem.galleryPath || cacheBustedItem.imgUrl || ''
-  cacheBustedItem.src = isAlwaysForceReload ? addCacheBustParam(src) : src
-  return cacheBustedItem
-})
-
 watch(
-  () => [gallerySliderControl.value.visible, currentPreviewImage.value?.src] as const,
+  () => [gallerySliderControl.value.visible, currentPreviewImage?.src] as const,
   ([visible, src]) => {
-    previewLoading.value = !!src
-    previewFailed.value = !src
+    previewLoading.value = !currentPreviewImage || !!src
+    previewFailed.value = !!currentPreviewImage && !src
     resetImageTransform()
-    if (visible && !filterList.length) handleClose()
+    if (visible && !total) handleClose()
   },
   { flush: 'post' },
 )
@@ -236,7 +216,7 @@ useResizeObserver(viewerRef, () => {
   if (!manuallyZoomed) resetImageTransform()
 })
 watch(
-  () => filterList.length,
+  () => total,
   length => {
     if (gallerySliderControl.value.index >= length) gallerySliderControl.value.index = Math.max(0, length - 1)
   },
@@ -299,7 +279,7 @@ function calculateOptimalScale(): number {
 
 function navigateImage(direction: number) {
   const newIndex = gallerySliderControl.value.index + direction
-  if (newIndex >= 0 && newIndex < filterList.length) {
+  if (newIndex >= 0 && newIndex < total) {
     gallerySliderControl.value.index = newIndex
     resetImageTransform()
   }
@@ -480,12 +460,11 @@ function onPreviewImageError() {
 }
 
 function retryPreview() {
+  emit('retry')
   previewFailed.value = false
   previewLoading.value = true
   previewAttempt.value++
 }
-
-const addCacheBustParam = (url: string | undefined) => withCacheBustParam(url, Date.now())
 
 async function initConf() {
   try {

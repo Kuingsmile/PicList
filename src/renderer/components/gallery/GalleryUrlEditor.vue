@@ -124,7 +124,7 @@
 
 <script setup lang="ts">
 import { CornerDownRightIcon, ListChecksIcon } from '@lucide/vue'
-import { computed, nextTick, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BulkChangePreview from '@/components/BulkChangePreview.vue'
@@ -141,9 +141,7 @@ import { customStrMatch } from '#/utils/strings'
 
 const PREVIEW_LIMIT = 50
 
-const { filterList, choosedList, updateGallery } = defineProps<{
-  filterList: IGalleryItem[]
-  choosedList: IObjT<boolean>
+const { updateGallery } = defineProps<{
   updateGallery: () => Promise<boolean>
 }>()
 const emit = defineEmits<{ changed: [] }>()
@@ -204,14 +202,15 @@ const advancedRenameList = computed(() => ({
   ],
 }))
 
-const bulkGalleryCandidates = computed(() => {
-  const selected = filterList.filter(item => choosedList[item.id!])
-  return selected.length ? selected : filterList
+const bulkGalleryCandidates = shallowRef<Pick<ImgInfo, 'id' | 'imgUrl'>[]>([])
+const filteredCount = ref(0)
+watch(isShowBatchRenameDialog, visible => {
+  if (!visible) bulkGalleryCandidates.value = []
 })
 
 const scopeText = computed(() => {
   const num = bulkGalleryCandidates.value.length
-  return num !== filterList.length
+  return num !== filteredCount.value
     ? t('pages.gallery.urlEditor.scopeSelected', { num })
     : t('pages.gallery.urlEditor.scopeAll', { num })
 })
@@ -226,7 +225,7 @@ const isValidPattern = computed(() => {
 })
 
 const matchedItems = computed(() => {
-  if (!batchRenameMatch.value || !isValidPattern.value) return [] as IGalleryItem[]
+  if (!batchRenameMatch.value || !isValidPattern.value) return []
   return bulkGalleryCandidates.value.filter(item => customStrMatch(item.imgUrl || '', batchRenameMatch.value))
 })
 
@@ -286,8 +285,10 @@ async function confirmModify() {
   })
 }
 
-function openBatchRename() {
+function openBatchRename(items: Pick<ImgInfo, 'id' | 'imgUrl'>[], total: number) {
   if (bulkChanges.reopen() || building.value) return
+  bulkGalleryCandidates.value = items
+  filteredCount.value = total
   batchRenameMatch.value = ''
   showFormatInfo.value = false
   isShowBatchRenameDialog.value = true

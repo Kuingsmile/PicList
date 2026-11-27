@@ -19,6 +19,7 @@ module.exports = {
   },
   asarUnpack: [
     'out/main/**/jxlPreview.worker-*.js',
+    'out/main/**/search.worker-*.js',
     '**/node_modules/jxl-oxide-wasm/**',
     '**/node_modules/sharp/**',
     '**/node_modules/ssh2-no-cpu-features/**',

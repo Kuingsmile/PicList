@@ -1,3 +1,6 @@
+import path from 'node:path'
+import { Worker } from 'node:worker_threads'
+
 import { GalleryDB } from '@core/datastore'
 import picgo from '@core/picgo'
 import type { IFilter, IObject } from '@piclist/store'
@@ -5,6 +8,7 @@ import GuiApi from 'apis/gui'
 import { clipboard } from 'electron'
 
 import { IPasteStyle } from '#/constants/app'
+import { GALLERY_READ_LIMIT, type GalleryQuery, queryGallery } from '#/galleryQuery'
 import { galleryTagKey, normalizeGalleryTags } from '#/galleryTags'
 import { RpcError } from '#/rpc'
 import { ICOREBuildInEvent, IRPCActionType, IRPCType } from '~/constants'
@@ -13,9 +17,67 @@ import { convertJxlSourceToPngDataUrl } from '~/utils/jxlPreview'
 import pasteTemplate from '~/utils/pasteTemplate'
 import { runScriptInStage } from '~/utils/runScript'
 
+import searchWorkerPath from './search.worker?modulePath'
+
 const galleryRouter = new RPCRouter()
 
+async function galleryRecords() {
+  const data = await GalleryDB.getInstance().read()
+  if (!Array.isArray(data?.gallery)) throw new Error('Missing gallery collection')
+  return data.gallery
+}
+
+// User-entered regular expressions can take arbitrarily long. Keep them off Electron's event loop.
+async function searchGallery(records: ImgInfo[], { name, url }: GalleryQuery) {
+  if (!name && !url) return
+  const fields = records.map(item => [item.id, name ? item.fileName : undefined, url ? item.imgUrl : undefined])
+  const worker = new Worker(
+    searchWorkerPath.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`),
+    {
+      workerData: { name, url, fields },
+    },
+  )
+  const timeout = setTimeout(() => {
+    void worker.terminate()
+  }, 5000)
+  try {
+    return await new Promise<Set<string>>((resolve, reject) => {
+      worker.once('message', (ids: string[]) => resolve(new Set(ids)))
+      worker.once('error', reject)
+      worker.once('exit', () => reject(new Error('Gallery search stopped')))
+    })
+  } finally {
+    clearTimeout(timeout)
+    void worker.terminate()
+  }
+}
+
+// Each committed gallery write replaces the collection. Discard its lookup index with that snapshot.
+const rowIndexes = new WeakMap<ImgInfo[], Map<string, ImgInfo>>()
 const galleryRoutes = [
+  {
+    action: IRPCActionType.GALLERY_QUERY,
+    handler: async (_: IIPCEvent, [query]: [GalleryQuery]) => {
+      const records = await galleryRecords()
+      const hits = await searchGallery(records, query)
+      return queryGallery(records, query, hits)
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.GALLERY_GET_ROWS,
+    handler: async (_: IIPCEvent, [ids]: [string[]]) => {
+      if (!Array.isArray(ids) || ids.length > GALLERY_READ_LIMIT) throw new Error('Invalid gallery row request')
+      const records = await galleryRecords()
+      let rows = rowIndexes.get(records)
+      if (!rows) {
+        rows = new Map(records.map(item => [item.id!, item]))
+        rowIndexes.set(records, rows)
+      }
+      return ids.flatMap(id => rows.get(id) ?? [])
+    },
+    type: IRPCType.INVOKE,
+  },
   {
     action: IRPCActionType.GALLERY_PASTE_TEXT,
     handler: async (_: IIPCEvent, args: [item: ImgInfo, copy?: boolean]) => {

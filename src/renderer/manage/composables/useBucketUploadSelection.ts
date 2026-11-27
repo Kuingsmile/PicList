@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 
 import { IRPCActionType } from '#/constants/rpcActions'
 
-interface SelectedFile {
+export interface SelectedFile {
   path: string
   name: string
   size: number

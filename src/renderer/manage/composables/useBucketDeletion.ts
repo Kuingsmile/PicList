@@ -10,7 +10,6 @@ import { applyDeletionResult, type DeletionState, retryDeletionTargets } from '@
 import { IRPCActionType } from '#/constants/rpcActions'
 import { type DeleteResult, type DeleteTarget, failedDeletion, removeDeletedEntries } from '#/deletion'
 interface BucketDeletionOptions extends BucketLocation, BucketViewLifecycle {
-  currentPageFilesInfo: BucketFile[]
   selectedItems: Ref<BucketFile[]>
   isLoadingData: Ref<boolean>
   getTableKeyOfDb: (prefix: string) => string
@@ -22,7 +21,6 @@ export function useBucketDeletion({
   currentCustomDomain,
   getGeneration,
   isDisposed,
-  currentPageFilesInfo,
   selectedItems,
   isLoadingData,
   getTableKeyOfDb,
@@ -120,11 +118,6 @@ export function useBucketDeletion({
       }
       const confirmed = applyDeletionResult(state, targets, result)
       if (!isDisposed() && scope === deletionScope() && generation === getGeneration()) {
-        const retained = removeDeletedEntries(currentPageFilesInfo, confirmed)
-        const retainedEntries = new Set(retained)
-        for (let index = currentPageFilesInfo.length - 1; index >= 0; index--) {
-          if (!retainedEntries.has(currentPageFilesInfo[index])) currentPageFilesInfo.splice(index, 1)
-        }
         onDeleted?.(confirmed)
       }
       try {

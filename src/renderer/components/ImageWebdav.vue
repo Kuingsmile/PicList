@@ -6,12 +6,14 @@
     <img
       v-else-if="!hasError"
       :src="imageSource"
+      decoding="async"
+      loading="lazy"
       alt=""
       class="h-full w-full object-contain"
       @load="handleImageLoad"
       @error="handleImageError"
     />
-    <img v-else :src="iconPath" alt="" class="h-full w-full object-contain" />
+    <img v-else decoding="async" loading="lazy" :src="iconPath" alt="" class="h-full w-full object-contain" />
   </div>
 </template>
 
@@ -21,9 +23,14 @@ import { computed } from 'vue'
 import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { fetchPreviewResponse } from '@/manage/utils/filePreview'
+import type { ThumbnailCache } from '@/manage/utils/thumbnailCache'
 
-const { item, url, config, isShowThumbnail } = defineProps<{
+const { item, url, config, cache, isShowThumbnail } = defineProps<{
+  cache: ThumbnailCache<Blob>
   item: {
+    etag?: string
+    lastmod?: string
+    fileSize?: number
     key: string
     isImage: boolean
     fileName: string | null | undefined
@@ -32,6 +39,8 @@ const { item, url, config, isShowThumbnail } = defineProps<{
   config: any
   isShowThumbnail: boolean
 }>()
+
+const cacheKey = computed(() => JSON.stringify([url, item.key, item.etag, item.lastmod, item.fileSize]))
 
 const imageSource = computed(() => {
   return isShowThumbnail && item.isImage ? objectUrl.value : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
@@ -45,18 +54,14 @@ const {
   hasError,
 } = useThumbnail(
   () => isShowThumbnail && item.isImage,
-  [
-    () => url,
-    () => item.key,
-    () => config.authType,
-    () => config.endpoint,
-    () => config.sslEnabled,
-    () => config.username,
-    () => config.password,
-  ],
-  async signal => {
-    const res = await fetchPreviewResponse(url, signal, config)
-    return await res.blob()
+  [cacheKey, () => cache],
+  signal => {
+    const target = url
+    const credentials = { authType: config.authType, username: config.username, password: config.password }
+    return cache.get(cacheKey.value, signal, 5 * 60_000, async signal => {
+      const res = await fetchPreviewResponse(target, signal, credentials)
+      return res.blob()
+    })
   },
 )
 
@@ -66,6 +71,7 @@ const handleImageLoad = () => {
 }
 
 const handleImageError = () => {
+  cache.delete(cacheKey.value)
   isLoading.value = false
   hasError.value = true
 }

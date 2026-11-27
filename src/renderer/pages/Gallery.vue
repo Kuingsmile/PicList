@@ -14,8 +14,8 @@
             <p class="m-0 text-sm text-secondary tabular-nums" aria-live="polite">
               {{
                 hasActiveFilters
-                  ? t('pages.gallery.filteredCount', { shown: filterList.length, total: images.length })
-                  : t('pages.gallery.imageCount', images.length)
+                  ? t('pages.gallery.filteredCount', { shown: filteredIds.length, total: galleryTotal })
+                  : t('pages.gallery.imageCount', galleryTotal)
               }}
             </p>
           </div>
@@ -371,7 +371,7 @@
 
         <div class="flex min-h-0 flex-1 flex-col p-4">
           <div
-            v-if="galleryLoadFailed"
+            v-if="galleryLoadFailed || windowLoadFailed"
             role="status"
             class="mb-3 flex items-center justify-between gap-3 rounded-md bg-warning/10 p-3 text-sm text-main"
           >
@@ -384,7 +384,7 @@
             />
           </div>
           <div
-            v-if="galleryLoading && !images.length"
+            v-if="galleryLoading && !filterList.length"
             role="status"
             class="flex flex-1 items-center justify-center gap-3 p-8 text-secondary"
           >
@@ -399,17 +399,17 @@
               class="mb-4 flex h-[64px] w-[64px] items-center justify-center rounded-2xl bg-accent/10 text-accent"
               aria-hidden="true"
             >
-              <SearchXIcon v-if="images.length" :size="30" />
+              <SearchXIcon v-if="galleryTotal" :size="30" />
               <ImageIcon v-else :size="30" />
             </div>
             <h3 class="mx-0 mt-0 mb-1.5 text-lg font-semibold text-main">
-              {{ images.length ? t('pages.gallery.noMatch') : t('pages.gallery.noImagesFound') }}
+              {{ galleryTotal ? t('pages.gallery.noMatch') : t('pages.gallery.noImagesFound') }}
             </h3>
             <p class="m-0 max-w-[360px] text-sm text-secondary">
-              {{ images.length ? t('pages.gallery.noMatchHint') : t('pages.gallery.emptyHint') }}
+              {{ galleryTotal ? t('pages.gallery.noMatchHint') : t('pages.gallery.emptyHint') }}
             </p>
             <CustomButton
-              v-if="images.length"
+              v-if="galleryTotal"
               type="secondary"
               class="mt-4"
               :icon="FilterXIcon"
@@ -438,6 +438,7 @@
             key-field="key"
             :label="t('pages.gallery.title')"
             :preview-id="hoverPreviewId"
+            :resolve-item="resolveGalleryItem"
             :is-selected="item => !!choosedList[item.id || '']"
             :sort-field="currentSortField"
             :sort-ascending="sortAscending"
@@ -455,6 +456,8 @@
               >
                 <img
                   v-if="galleryActive"
+                  decoding="async"
+                  loading="lazy"
                   :src="displayImageSources[item.key || ''] || buildDisplayImageSrc(item)"
                   alt=""
                   class="h-full w-full"
@@ -535,6 +538,8 @@
                 >
                   <img
                     v-if="galleryActive"
+                    decoding="async"
+                    loading="lazy"
                     :src="displayImageSources[item.key || ''] || buildDisplayImageSrc(item)"
                     :alt="item.fileName || ''"
                     class="object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
@@ -659,18 +664,13 @@
     <!-- Custom Image Preview Modal -->
     <ImagePreview
       v-model:gallery-slider-control="gallerySliderControl"
-      :filter-list="previewFilterList"
-      :is-always-force-reload="isAlwaysForceReload"
+      :current-preview-image="currentPreviewImage"
+      :total="filteredIds.length"
+      @retry="windowLoadFailed && updateGallery()"
     />
 
     <!-- Edit URL Modal -->
-    <GalleryUrlEditor
-      ref="urlEditor"
-      :filter-list="filterList"
-      :choosed-list="choosedList"
-      :update-gallery="updateGallery"
-      @changed="virtualScrollerRef?.refresh()"
-    />
+    <GalleryUrlEditor ref="urlEditor" :update-gallery="updateGallery" @changed="virtualScrollerRef?.refresh()" />
     <GalleryTagEditor ref="tagEditor" :available-tags="availableTags" @refresh="updateGallery" />
   </div>
 </template>
@@ -734,21 +734,20 @@ import GalleryUrlEditor from '@/components/gallery/GalleryUrlEditor.vue'
 import GalleryHoverPreview from '@/components/GalleryHoverPreview.vue'
 import ImagePreview from '@/components/ImagePreview.vue'
 import { useGalleryActions } from '@/composables/useGalleryActions'
+import { fetchGalleryRows, useGalleryWindow } from '@/composables/useGalleryWindow'
 import { usePicBed } from '@/composables/useGlobal'
 import useMessage from '@/composables/useMessage'
 import { UPLOAD_PAGE } from '@/router/config'
 import { getConfig, saveConfig } from '@/services/configService'
-import $$db from '@/services/galleryDatabase'
 import { configPaths } from '@/utils/configPaths'
-import { compareFileValues, type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
-import { prepareGalleryItems } from '@/utils/galleryItems'
+import { type FileColumn, fileDate, fileType, formatCollectionDate } from '@/utils/fileCollection'
 import { getGalleryFileIconSource, getGalleryPreviewSource, getJxlPreviewSource } from '@/utils/galleryPreview'
 import { IPasteStyle } from '#/constants/app'
 import { UPDATE_GALLERY } from '#/constants/ipcChannels'
 import { IRPCActionType } from '#/constants/rpcActions'
-import { galleryTagKey, normalizeGalleryTags } from '#/galleryTags'
+import { GALLERY_READ_LIMIT, type GalleryQuery, type GallerySortField, type queryGallery } from '#/galleryQuery'
+import { normalizeGalleryTags } from '#/galleryTags'
 import { PreviewCache } from '#/utils/previewCache'
-import { customStrMatch } from '#/utils/strings'
 import { addCacheBustParam as withCacheBustParam } from '#/utils/url'
 import { enforceBoolean } from '#/utils/values'
 
@@ -762,7 +761,20 @@ const message = useMessage()
 
 const { picBedG } = usePicBed()
 
-const images = shallowRef<IGalleryItem[]>([])
+const providerNames = computed(() => new Map(picBedG.value.map(provider => [provider.type, provider.name])))
+const filteredIds = shallowRef<string[]>([])
+const galleryTotal = ref(0)
+const emptyTags: string[] = []
+// These lightweight entries give the virtual scroller stable keys even for unloaded rows.
+const filterList = computed<IGalleryItem[]>(() =>
+  filteredIds.value.map(id => ({
+    id,
+    key: id,
+    galleryTags: emptyTags,
+    src: '',
+    intro: '',
+  })),
+)
 
 const galleryLoading = ref(false)
 
@@ -793,8 +805,9 @@ const hoverPreviewItem = shallowRef<IGalleryItem>()
 const choosedList: IObjT<boolean> = reactive({})
 const urlEditor = useTemplateRef('urlEditor')
 const tagEditor = useTemplateRef('tagEditor')
-function editSelectedTags() {
-  tagEditor.value?.open(filterList.value.filter(item => item.id && choosedList[item.id]))
+async function editSelectedTags() {
+  const rows = await loadBulkRows(true)
+  if (rows) tagEditor.value?.open(rows)
 }
 const { copy, remove, multiRemove, multiCopy } = useGalleryActions({
   choosedList,
@@ -804,8 +817,28 @@ const { copy, remove, multiRemove, multiCopy } = useGalleryActions({
 function openDialog(item: ImgInfo) {
   urlEditor.value?.open(item)
 }
-function openBatchRename() {
-  urlEditor.value?.openBatch()
+async function openBatchRename() {
+  const total = filteredIds.value.length
+  const rows = await loadBulkRows(selectedCount.value > 0)
+  if (rows) urlEditor.value?.openBatch(rows, total)
+}
+
+async function loadBulkRows(onlySelected: boolean) {
+  const ids = onlySelected ? filteredIds.value.filter(id => choosedList[id]) : filteredIds.value
+  const version = galleryRefreshVersion
+  const rows = []
+  try {
+    for (let offset = 0; offset < ids.length; offset += GALLERY_READ_LIMIT) {
+      const batch = await fetchGalleryRows(ids.slice(offset, offset + GALLERY_READ_LIMIT))
+      if (galleryDisposed || version !== galleryRefreshVersion) return
+      for (const { id, fileName, imgUrl, galleryTags } of batch)
+        rows.push({ id, fileName, imgUrl, galleryTags: normalizeGalleryTags(galleryTags) })
+    }
+    return rows
+  } catch {
+    message.error(t('pages.gallery.operationFailed'))
+    void updateGallery()
+  }
 }
 
 const gallerySliderControl = ref({
@@ -821,9 +854,7 @@ const choosedPicBed = ref<string[]>([])
 
 // null includes every image. The empty string matches images without tags.
 const tagFilter = ref<string | null>(null)
-const availableTags = computed(() =>
-  normalizeGalleryTags(images.value.flatMap(item => item.galleryTags)).sort((a, b) => a.localeCompare(b)),
-)
+const availableTags = shallowRef<string[]>([])
 const filterTags = computed(() => {
   const active = tagFilter.value
   // Keep the active filter identifiable if its last image loses the tag.
@@ -875,8 +906,6 @@ const tableDensity = useStorage<'compact' | 'comfortable'>('galleryTableDensity'
 
 const componentKey = ref(0)
 
-type GallerySortField = 'name' | 'tags' | 'time' | 'ext' | 'provider' | 'check'
-
 const currentSortField = ref<GallerySortField>('time')
 
 const sortAscending = ref(false)
@@ -925,7 +954,7 @@ const tableColumns = computed<FileColumn<IGalleryItem>[]>(() => [
     key: 'provider',
     label: t('common.fileTable.provider'),
     width: 130,
-    value: item => picBedG.value.find(provider => provider.type === item.type)?.name || item.type,
+    value: providerName,
   },
 ])
 
@@ -965,27 +994,29 @@ const filteredPicBedG = computed(() => {
   return picBedG.value.filter(item => galleryPicBedFilterSetting.value.includes(item.type))
 })
 
-const filterList = computed(() => {
-  return getGallery()
-})
-
-const galleryItemsByKey = computed(() => new Map(filterList.value.map(item => [item.key, item])))
+const previewIndex = computed(() => (gallerySliderControl.value.visible ? gallerySliderControl.value.index : undefined))
+const {
+  rows: galleryItemsByKey,
+  failed: windowLoadFailed,
+  reset: resetGalleryWindow,
+} = useGalleryWindow(filteredIds, visibleGalleryIndexes, previewIndex, galleryActive)
+const resolveGalleryItem = (entry: IGalleryItem) => galleryItemsByKey.value.get(entry.key)
+const loadedItems = computed(() => [...galleryItemsByKey.value.values()])
 
 const activeJxlPreviewSources = computed(() => getActiveJxlPreviewSources())
 
-const previewFilterList = computed(() => {
-  if (!gallerySliderControl.value.visible) {
-    return filterList.value
-  }
-
-  const currentIndex = gallerySliderControl.value.index
-  return filterList.value.map((item, index) =>
-    index === currentIndex ? { ...item, src: buildDisplayImageSrc(item) } : item,
-  )
+const currentPreviewItem = computed(() =>
+  previewIndex.value === undefined ? undefined : galleryItemsByKey.value.get(filteredIds.value[previewIndex.value]),
+)
+const currentPreviewImage = computed(() => {
+  const item = currentPreviewItem.value
+  if (!item) return windowLoadFailed.value ? { src: '', intro: '' } : undefined
+  const src = buildDisplayImageSrc(item)
+  return { intro: item.intro, src: isAlwaysForceReload.value ? withCacheBustParam(src, Date.now()) : src }
 })
 
 const isAllSelected = computed(() => {
-  return Object.values(choosedList).length > 0 && filterList.value.every(item => choosedList[item.id!])
+  return filteredIds.value.length > 0 && filteredIds.value.every(id => choosedList[id])
 })
 
 const selectedCount = computed(() => {
@@ -1002,40 +1033,20 @@ watch(useShortUrl, async newVal => {
   await saveConfig(configPaths.settings.useShortUrl, newVal === 'shortUrl')
 })
 
-watch(filterList, (items, previous) => {
-  hoverPreviewRef.value?.hide()
-  if (gallerySliderControl.value.visible) {
-    const currentKey = previous?.[gallerySliderControl.value.index]?.key
-    const index = items.findIndex(item => item.key === currentKey)
-    if (!items.length) gallerySliderControl.value.visible = false
-    else
-      gallerySliderControl.value.index =
-        index >= 0 ? index : Math.min(gallerySliderControl.value.index, items.length - 1)
+watch(loadedItems, items => {
+  if (hoverPreviewItem.value && !galleryItemsByKey.value.has(hoverPreviewItem.value.key)) hoverPreviewRef.value?.hide()
+  for (const state of [imageLoadStates, imageErrorStates]) {
+    for (const key of Object.keys(state)) if (!galleryItemsByKey.value.has(key)) delete state[key]
   }
-  const visibleIds = new Set(items.map(item => item.id))
-  Object.keys(choosedList).forEach(id => {
-    if (!visibleIds.has(id)) {
-      delete choosedList[id]
-    }
-  })
-  if (!visibleIds.has(lastChoosed.value)) lastChoosed.value = undefined
-  pruneDisplayImageSources(items)
   pruneJxlPreviewState(items)
-  nextTick(() => {
-    syncVisibleDisplayImageSources()
-  })
+  syncVisibleDisplayImageSources()
 })
 
 watch([viewMode, tableDensity], () => hoverPreviewRef.value?.hide())
 
-watch(
-  () => [gallerySliderControl.value.visible, gallerySliderControl.value.index] as const,
-  ([visible, index]) => {
-    if (visible) {
-      ensureJxlPreview(filterList.value[index])
-    }
-  },
-)
+watch(currentPreviewItem, item => {
+  if (item) ensureJxlPreview(item)
+})
 
 watch(isAlwaysForceReload, () => {
   cacheBustToken.value = Date.now()
@@ -1167,29 +1178,15 @@ function updateDisplayImageSource(item?: IGalleryItem) {
   displayImageSources[item.key] = buildDisplayImageSrc(item)
 }
 
-function pruneDisplayImageSources(items: IGalleryItem[] = filterList.value, indexes?: number[]) {
-  const keys = new Set<string>()
-  const sourceItems = indexes ? indexes.map(index => items[index]).filter(Boolean) : items
-  sourceItems.forEach(item => {
-    if (!item.key) return
-    keys.add(item.key)
-  })
-  Object.keys(displayImageSources).forEach(key => {
-    if (!keys.has(key)) {
-      delete displayImageSources[key]
-    }
-  })
-}
-
 function syncVisibleDisplayImageSources(indexes: number[] = visibleGalleryIndexes.value) {
-  const visibleItems = filterList.value
-  pruneDisplayImageSources(visibleItems, indexes)
-  indexes.forEach(index => {
-    updateDisplayImageSource(visibleItems[index])
-  })
+  const visible = new Set(indexes.map(index => filteredIds.value[index]))
+  for (const key of Object.keys(displayImageSources)) {
+    if (!visible.has(key)) delete displayImageSources[key]
+  }
+  for (const key of visible) updateDisplayImageSource(galleryItemsByKey.value.get(key))
 }
 
-function getActiveJxlPreviewSources(items: ImgInfo[] = filterList.value) {
+function getActiveJxlPreviewSources(items: ImgInfo[] = loadedItems.value) {
   const sources = new Set<string>()
   items.forEach(item => {
     const previewPath = getJxlPreviewSource(item)
@@ -1227,7 +1224,7 @@ function invalidateJxlPreviewCache() {
   })
 }
 
-function pruneJxlPreviewState(items: ImgInfo[] = filterList.value) {
+function pruneJxlPreviewState(items: ImgInfo[] = loadedItems.value) {
   const activeSources = getActiveJxlPreviewSources(items)
   Object.keys(jxlPreviewCache).forEach(previewPath => {
     if (!activeSources.has(previewPath)) {
@@ -1301,50 +1298,26 @@ function ensureJxlPreview(item?: IGalleryItem): boolean {
   return true
 }
 
-function getGallery(): IGalleryItem[] {
-  const tagKey = tagFilter.value && galleryTagKey(tagFilter.value)
-  const hasDateRange = !!(dateRangeStart.value || dateRangeEnd.value)
-  const start = dateRangeStart.value ? new Date(`${dateRangeStart.value}T00:00:00`).getTime() : -Infinity
-  // The exclusive end follows the local calendar, including daylight-saving transitions.
+const galleryQuery = computed<GalleryQuery>(() => {
   const endDate = dateRangeEnd.value ? new Date(`${dateRangeEnd.value}T00:00:00`) : undefined
   endDate?.setDate(endDate.getDate() + 1)
-  const end = endDate?.getTime() ?? Infinity
-  if (
-    debouncedSearchText.value ||
-    choosedPicBed.value.length > 0 ||
-    tagKey !== null ||
-    debouncedSearchTextURL.value ||
-    hasDateRange ||
-    galleryPicBedFilterSetting.value.length > 0
-  ) {
-    return images.value.filter(item => {
-      if (tagKey === '' && item.galleryTags.length) return false
-      if (tagKey && !item.galleryTags.some(tag => galleryTagKey(tag) === tagKey)) return false
-      let isInChoosedPicBed = true
-      let isIncludesSearchText = true
-      let isIncludesSearchTextURL = true
-      let isIncludesDateRange = true
-      if (choosedPicBed.value.length > 0) {
-        isInChoosedPicBed = choosedPicBed.value.some(type => type === item.type)
-      } else if (galleryPicBedFilterSetting.value.length > 0) {
-        isInChoosedPicBed = galleryPicBedFilterSetting.value.some(type => type === item.type)
-      }
-      if (debouncedSearchText.value) {
-        isIncludesSearchText = customStrMatch(item.fileName || '', debouncedSearchText.value)
-      }
-      if (debouncedSearchTextURL.value) {
-        isIncludesSearchTextURL = customStrMatch(item.imgUrl || '', debouncedSearchTextURL.value)
-      }
-      if (hasDateRange) {
-        const date = new Date(item.updatedAt).getTime()
-        isIncludesDateRange = date >= start && date < end
-      }
-      return isIncludesSearchText && isInChoosedPicBed && isIncludesSearchTextURL && isIncludesDateRange
-    })
-  } else {
-    return images.value
+  return {
+    name: debouncedSearchText.value,
+    url: debouncedSearchTextURL.value,
+    providers: [...(choosedPicBed.value.length ? choosedPicBed.value : galleryPicBedFilterSetting.value)],
+    tag: tagFilter.value,
+    start: dateRangeStart.value ? new Date(`${dateRangeStart.value}T00:00:00`).getTime() : -Infinity,
+    end: endDate?.getTime() ?? Infinity,
+    sort: currentSortField.value,
+    ascending: sortAscending.value,
+    providerNames: Object.fromEntries(providerNames.value),
+    selected: [],
   }
-}
+})
+
+watch(galleryQuery, () => {
+  void updateGallery()
+})
 
 function updateGallery(): Promise<boolean> {
   if (galleryDisposed) return Promise.resolve(false)
@@ -1370,47 +1343,44 @@ function updateGallery(): Promise<boolean> {
 async function loadGallerySnapshot() {
   const version = ++galleryRefreshVersion
   try {
-    const result = await $$db.get<ImgInfo>({ orderBy: 'desc' })
-    if (galleryDisposed || galleryRefreshRequested) return false
-    if (!result || !Array.isArray(result.data)) throw new Error('Missing gallery snapshot')
-    const newList = result.data
-    const prepared = prepareGalleryItems(newList)
-    const previousItems = new Map(images.value.map(item => [item.key, item]))
-    const stableIds = new Set(
-      prepared
-        .filter(item => {
-          const previous = previousItems.get(item.key)
-          return previous?.src === item.src && previous?.imgUrl === item.imgUrl
-        })
-        .map(item => item.key),
-    )
-    Object.keys(imageLoadStates).forEach(k => {
-      if (!stableIds.has(k)) delete imageLoadStates[k]
-    })
-    Object.keys(imageErrorStates).forEach(k => {
-      if (!stableIds.has(k)) delete imageErrorStates[k]
-    })
-    Object.keys(displayImageSources).forEach(k => {
-      if (!stableIds.has(k)) delete displayImageSources[k]
-    })
-    if (isAlwaysForceReload.value) {
-      cacheBustToken.value = Date.now()
-      invalidateJxlPreviewCache()
+    const query = {
+      ...galleryQuery.value,
+      selected: currentSortField.value === 'check' ? Object.keys(choosedList).filter(id => choosedList[id]) : [],
     }
-    images.value = prepared
-    sortFile(currentSortField.value, false)
-    nextTick(() => {
-      if (galleryDisposed || version !== galleryRefreshVersion) return
-      pruneJxlPreviewState()
-      syncVisibleDisplayImageSources()
-      if (virtualScrollerRef.value) {
-        virtualScrollerRef.value.refresh()
+    const result = await window.electron.triggerRPC<ReturnType<typeof queryGallery>>(
+      IRPCActionType.GALLERY_QUERY,
+      query,
+    )
+    if (galleryDisposed || galleryRefreshRequested) return false
+    if (!result || !Array.isArray(result.ids)) throw new Error('Missing gallery index')
+    const slider = gallerySliderControl.value
+    const anchor = slider.visible ? filteredIds.value[slider.index] : undefined
+    const visible = new Set(result.ids)
+    for (const id of Object.keys(choosedList)) if (!visible.has(id)) delete choosedList[id]
+    if (lastChoosed.value && !visible.has(lastChoosed.value)) lastChoosed.value = undefined
+    if (slider.visible) {
+      if (!result.ids.length) slider.visible = false
+      else {
+        const index = anchor ? result.ids.indexOf(anchor) : -1
+        slider.index = index >= 0 ? index : Math.min(slider.index, result.ids.length - 1)
       }
+    }
+    filteredIds.value = result.ids
+    galleryTotal.value = result.total
+    availableTags.value = result.tags
+    if (isAlwaysForceReload.value) cacheBustToken.value = Date.now()
+    invalidateJxlPreviewCache()
+    resetGalleryWindow()
+    nextTick(() => {
+      if (!galleryDisposed && version === galleryRefreshVersion) virtualScrollerRef.value?.refresh()
     })
     galleryLoadFailed.value = false
     return true
   } catch {
-    if (!galleryDisposed && !galleryRefreshRequested) galleryLoadFailed.value = true
+    if (!galleryDisposed && !galleryRefreshRequested) {
+      galleryLoadFailed.value = true
+      gallerySliderControl.value.visible = false
+    }
     return false
   }
 }
@@ -1422,12 +1392,12 @@ function handleChooseImage(val: boolean, index: number) {
   }
 
   if (val === true) {
-    const anchorIndex = filterList.value.findIndex(item => item.id === lastChoosed.value)
+    const anchorIndex = lastChoosed.value ? filteredIds.value.indexOf(lastChoosed.value) : -1
     if (anchorIndex >= 0 && isShiftKeyPress.value) {
       const min = Math.min(anchorIndex, index)
       const max = Math.max(anchorIndex, index)
       for (let i = min + 1; i < max; i++) {
-        const id = filterList.value[i].id!
+        const id = filteredIds.value[i]
         choosedList[id] = true
       }
       try {
@@ -1451,7 +1421,6 @@ function clearChoosedList() {
 
 function zoomImage(index: number) {
   hoverPreviewRef.value?.hide()
-  ensureJxlPreview(filterList.value[index])
   gallerySliderControl.value.index = index
   gallerySliderControl.value.visible = true
 }
@@ -1497,7 +1466,7 @@ function clearFilters() {
 }
 
 function providerName(item: IGalleryItem) {
-  return picBedG.value.find(provider => provider.type === item.type)?.name || item.type || ''
+  return providerNames.value.get(item.type ?? '') || item.type || ''
 }
 
 function formatCardDate(item: IGalleryItem) {
@@ -1533,9 +1502,10 @@ function toggleSelectAll() {
 }
 
 function setAllSelected(selected: boolean) {
-  filterList.value.forEach(item => {
-    choosedList[item.id!] = selected
-  })
+  for (const id of filteredIds.value) {
+    if (selected) choosedList[id] = true
+    else delete choosedList[id]
+  }
 }
 
 function toggleSortDirection() {
@@ -1550,12 +1520,6 @@ function toggleHandleBar() {
 function sortFile(type: GallerySortField, toggle = true) {
   if (toggle) sortAscending.value = type === currentSortField.value ? !sortAscending.value : true
   currentSortField.value = type
-  const column = tableColumns.value.find(column => column.key === type)
-  images.value = [...images.value].sort((a, b) =>
-    type === 'check'
-      ? Number(!!choosedList[b.id!]) - Number(!!choosedList[a.id!])
-      : compareFileValues(column?.value(a), column?.value(b), sortAscending.value),
-  )
 }
 
 onBeforeRouteUpdate((to, from) => {

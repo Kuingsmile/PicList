@@ -345,6 +345,8 @@
         ref="virtualScrollerRef"
         :config-map="configMap"
         :filter-list="filterList"
+        :selected-keys="selectedKeys"
+        :has-selection="selectedItems.length > 0"
         :table-columns="tableColumns"
         :table-density="tableDensity"
         :layout-style="layoutStyle"
@@ -357,7 +359,7 @@
         :get-s3-config="handleGetS3Config"
         :get-webdav-config="handleGetWebdavConfig"
         :get-pre-signed-url="getPreSignedUrl"
-        @select="(item, selected) => (item.checked = selected)"
+        @select="setItemSelected"
         @select-all="setAllSelected"
         @sort="sortFile"
         @open="handleClickFile"
@@ -497,7 +499,7 @@
       :destination="currentLocationLabel"
       :tasks="uploadTaskList"
       :failed="uploadTasks.failed.value"
-      @upload="uploadFiles"
+      :enqueue-files="uploadFiles"
       @refresh="uploadTasks.refresh"
       @copy="handleCopyUploadingTaskInfo"
       @clear-finished="handleDeleteUploadedTask"
@@ -602,6 +604,7 @@ import { useBucketDownloads } from '@/manage/composables/useBucketDownloads'
 import { useBucketListing } from '@/manage/composables/useBucketListing'
 import { useBucketUploads } from '@/manage/composables/useBucketUploads'
 import { useTransferTasks } from '@/manage/composables/useTransferTasks'
+import { getConfig } from '@/manage/services/configService'
 import { useManageStore } from '@/manage/stores/manageStore'
 import type { BucketFile } from '@/manage/types/bucket'
 import { formatFileSize } from '@/manage/utils/filePresentation'
@@ -707,6 +710,7 @@ const {
   isFindingNewest,
   scannedItemCount,
   currentPageFilesInfo,
+  selectedKeys,
   searchText,
   sortAscending,
   currentSortType,
@@ -767,7 +771,9 @@ const filterList = computed(() => {
   return getList()
 })
 
-const selectedItems = computed(() => filterList.value.filter(item => item.checked))
+const selectedItems = computed(() =>
+  selectedKeys.size ? filterList.value.filter(item => selectedKeys.has(item.key)) : [],
+)
 
 const selectedFileCount = computed(() => selectedItems.value.filter(item => !item.isDir).length)
 
@@ -851,8 +857,11 @@ const isShowRenameFileIcon = computed(() =>
 
 const calculateAllFileSize = computed(() => {
   const knownSize =
-    formatFileSize(currentPageFilesInfo.reduce((total: number, item: any) => total + (fileSize(item) ?? 0), 0)) || '0'
-  return currentPageFilesInfo.some(item => !item.isDir && fileSize(item) === undefined) ? `≥ ${knownSize}` : knownSize
+    formatFileSize(currentPageFilesInfo.value.reduce((total: number, item: any) => total + (fileSize(item) ?? 0), 0)) ||
+    '0'
+  return currentPageFilesInfo.value.some(item => !item.isDir && fileSize(item) === undefined)
+    ? `≥ ${knownSize}`
+    : knownSize
 })
 
 const isUsePreSignedUrl = computed(() => manageStore.config.settings.isUsePreSignedUrl ?? false)
@@ -963,7 +972,6 @@ const {
   currentCustomDomain,
   getGeneration: () => viewGeneration,
   isDisposed: () => unmounted,
-  currentPageFilesInfo,
   selectedItems,
   isLoadingData,
   getTableKeyOfDb,
@@ -1012,7 +1020,8 @@ watch(
   async newValue => {
     invalidateListings()
     const generation = viewGeneration
-    currentPageFilesInfo.length = 0
+    currentPageFilesInfo.value = []
+    selectedKeys.clear()
     currentDownloadFileList.length = 0
     isShowLoadingPage.value = true
     configMap.value = JSON.parse(JSON.stringify(newValue))
@@ -1026,9 +1035,9 @@ watch(
 
 function getList() {
   if (!searchText.value) {
-    return currentPageFilesInfo
+    return currentPageFilesInfo.value
   }
-  return currentPageFilesInfo.filter((item: any) => {
+  return currentPageFilesInfo.value.filter((item: any) => {
     if (isIgnoreCase.value) {
       return item.fileName.toLowerCase().includes(searchText.value.toLowerCase())
     } else {
@@ -1142,16 +1151,17 @@ function invalidateListings() {
   isLoadingDownloadData.value = false
 }
 
+function setItemSelected(item: BucketFile, selected: boolean) {
+  if (selected) selectedKeys.add(item.key)
+  else selectedKeys.delete(item.key)
+}
+
 function handleCancelCheck() {
-  currentPageFilesInfo.forEach((item: any) => {
-    item.checked = false
-  })
+  selectedKeys.clear()
 }
 
 function handleReverseCheck() {
-  currentPageFilesInfo.forEach((item: any) => {
-    item.checked = !item.checked
-  })
+  for (const item of currentPageFilesInfo.value) setItemSelected(item, !selectedKeys.has(item.key))
 }
 
 function handleCheckAllChange() {
@@ -1160,9 +1170,7 @@ function handleCheckAllChange() {
 }
 
 function setAllSelected(selected: boolean) {
-  filterList.value.forEach((item: any) => {
-    item.checked = selected
-  })
+  for (const item of filterList.value) setItemSelected(item, selected)
 }
 
 async function handleCreateFolder() {
@@ -1217,7 +1225,10 @@ async function handleBatchCopyInfo() {
 }
 
 async function copyLink(item: any, type: string) {
-  copyToClipboard(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
+  const encode = !!(await getConfig('settings.isEncodeUrl'))
+  await copyToClipboard(
+    formatLink(item.url, item.fileName, type, encode, customPasteFormat.value, item.key || item.Key),
+  )
   virtualScrollerRef.value?.resetCopyDropdown()
 }
 
@@ -1234,7 +1245,10 @@ async function handleBatchCopyLink(type: CopyFormat) {
   }
   try {
     const result: string[] = []
-    for (const item of selectedItems.value) {
+    const files = selectedItems.value
+    const format = customPasteFormat.value
+    const encode = type !== preSignedUrlFormat && !!(await getConfig('settings.isEncodeUrl'))
+    for (const item of files) {
       if (item.isDir) continue
       if (type === preSignedUrlFormat) {
         const url = await getPreSignedUrl(item)
@@ -1244,7 +1258,7 @@ async function handleBatchCopyLink(type: CopyFormat) {
         // Signing parameters must be copied exactly as returned by the provider.
         result.push(url)
       } else {
-        result.push(await formatLink(item.url, item.fileName, type, customPasteFormat.value, item.key || item.Key))
+        result.push(formatLink(item.url, item.fileName, type, encode, format, item.key || item.Key))
       }
     }
     await window.electron.clipboard.writeText(result.join('\n'))

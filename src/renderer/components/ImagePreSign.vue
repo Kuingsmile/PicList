@@ -6,12 +6,14 @@
     <img
       v-else-if="!hasError"
       :src="imageSource"
+      decoding="async"
+      loading="lazy"
       alt=""
       class="h-full w-full object-contain"
       @load="handleImageLoad"
       @error="handleImageError"
     />
-    <img v-else :src="iconPath" alt="" class="h-full w-full object-contain" />
+    <img v-else decoding="async" loading="lazy" :src="iconPath" alt="" class="h-full w-full object-contain" />
   </div>
 </template>
 
@@ -20,11 +22,16 @@ import { computed } from 'vue'
 
 import { useThumbnail } from '@/composables/useThumbnail'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
+import type { ThumbnailCache } from '@/manage/utils/thumbnailCache'
 import { IRPCActionType } from '#/constants/rpcActions'
 import { getRawData } from '#/utils/rawData'
 
-const { item, alias, url, config, isShowThumbnail } = defineProps<{
+const { item, alias, url, config, cache, isShowThumbnail } = defineProps<{
+  cache: ThumbnailCache<string>
   item: {
+    ETag?: string
+    LastModified?: string | Date
+    fileSize?: number
     key: string
     isImage: boolean
     fileName: string | null | undefined
@@ -34,6 +41,8 @@ const { item, alias, url, config, isShowThumbnail } = defineProps<{
   config: any
   isShowThumbnail: boolean
 }>()
+
+const cacheKey = computed(() => JSON.stringify([alias, url, config, item.ETag, item.LastModified, item.fileSize]))
 
 const imageSource = computed(() => {
   return isShowThumbnail && item.isImage ? preSignedUrl.value : `./assets/icons/${getFileIconPath(item.fileName ?? '')}`
@@ -47,26 +56,16 @@ const {
   hasError,
 } = useThumbnail(
   () => isShowThumbnail && item.isImage,
-  [
-    () => url,
-    () => item.key,
-    () => alias,
-    () => config.bucketName,
-    () => config.region,
-    () => config.key,
-    () => config.expires,
-    () => config.customUrl,
-    () => config.githubPrivate,
-    () => config.rawUrl,
-  ],
-  async () => {
-    const url = await window.electron.triggerRPC<string>(
-      IRPCActionType.MANAGE_GET_PRE_SIGNED_URL,
-      alias,
-      getRawData(config),
-    )
-    if (!url || url === 'error') throw new Error('Failed to get pre-signed URL')
-    return url
+  [cacheKey, () => cache],
+  signal => {
+    const account = alias
+    const params = getRawData(config)
+    const ttl = Math.min(5 * 60_000, (Number(params.expires || 3600) - 30) * 1000)
+    return cache.get(cacheKey.value, signal, ttl, async () => {
+      const signed = await window.electron.triggerRPC<string>(IRPCActionType.MANAGE_GET_PRE_SIGNED_URL, account, params)
+      if (!signed || signed === 'error') throw new Error('Failed to get pre-signed URL')
+      return signed
+    })
   },
 )
 
@@ -76,6 +75,7 @@ const handleImageLoad = () => {
 }
 
 const handleImageError = () => {
+  cache.delete(cacheKey.value)
   isLoading.value = false
   hasError.value = true
 }

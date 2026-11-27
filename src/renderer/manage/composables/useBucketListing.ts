@@ -62,7 +62,8 @@ export function useBucketListing({
   let inventoryScope = ''
   let emptyTerminalMarker = ''
 
-  const currentPageFilesInfo = reactive<BucketFile[]>([])
+  const currentPageFilesInfo = shallowRef<BucketFile[]>([])
+  const selectedKeys = reactive(new Set<string>())
 
   const sortAscending = ref(localStorage.getItem('sortAscending') !== 'false')
 
@@ -108,7 +109,8 @@ export function useBucketListing({
     currentPrefix.value = configMap.value.prefix
     const request = fileListings.begin(listingIdentity('files'))
     currentPageNumber.value = 1
-    currentPageFilesInfo.length = 0
+    currentPageFilesInfo.value = []
+    selectedKeys.clear()
     onReset()
     searchText.value = ''
     closeUrlDialog()
@@ -117,7 +119,7 @@ export function useBucketListing({
       const cachedData = await searchExistFileList()
       if (!fileListings.isCurrent(request)) return
       if (cachedData.length > 0) {
-        appendListingItems(currentPageFilesInfo, cachedData[0].value.fullList)
+        currentPageFilesInfo.value = cachedData[0].value.fullList
         const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
         sortFile(sortType, false)
         isShowLoadingPage.value = false
@@ -129,7 +131,7 @@ export function useBucketListing({
       const res = await getBucketFileList(request)
       if (!res || !fileListings.isCurrent(request)) return
       if (res.success) {
-        appendListingItems(currentPageFilesInfo, res.fullList)
+        currentPageFilesInfo.value = res.fullList
         const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
         sortFile(sortType, false)
         if (!updatePagination(1, res)) message.error(t('pages.manage.bucket.getFileListFailed'))
@@ -216,7 +218,7 @@ export function useBucketListing({
         emptyTerminalMarker = pageMarkers[page - 1]
         page--
         if (previousPageResult) res = previousPageResult
-        else if (currentPageNumber.value === page) res = { ...res, fullList: [...currentPageFilesInfo] }
+        else if (currentPageNumber.value === page) res = { ...res, fullList: currentPageFilesInfo.value }
         else {
           loadingPage.value = page
           const previousRequest = fileListings.begin(listingIdentity('files'))
@@ -233,8 +235,8 @@ export function useBucketListing({
       }
       if (page >= targetPage || lastPageNumber.value === page) {
         currentPageNumber.value = page
-        currentPageFilesInfo.length = 0
-        appendListingItems(currentPageFilesInfo, res.fullList)
+        selectedKeys.clear()
+        currentPageFilesInfo.value = res.fullList
         searchText.value = ''
         sortFile(currentSortType.value, false)
         isShowLoadingPage.value = false
@@ -250,14 +252,13 @@ export function useBucketListing({
     const files = allPageFiles.value
     if (!files) return
     if (clearSelection) {
-      for (const item of currentPageFilesInfo) item.checked = false
+      selectedKeys.clear()
       searchText.value = ''
     }
     lastPageNumber.value = Math.max(1, Math.ceil(files.length / itemsPerPage.value))
     currentPageNumber.value = Math.min(page, lastPageNumber.value)
-    currentPageFilesInfo.length = 0
     const offset = (currentPageNumber.value - 1) * itemsPerPage.value
-    appendListingItems(currentPageFilesInfo, files.slice(offset, offset + itemsPerPage.value))
+    currentPageFilesInfo.value = files.slice(offset, offset + itemsPerPage.value)
     onSorted()
   }
 
@@ -286,6 +287,7 @@ export function useBucketListing({
           isLoadingData.value = false
           isFindingNewest.value = false
           if (data.success) {
+            selectedKeys.clear()
             allPageFiles.value = files
             inventoryScope = scope
             currentPageNumber.value = 1
@@ -315,9 +317,13 @@ export function useBucketListing({
   }
 
   function removeListedEntries(result: DeleteResult) {
-    if (!allPageFiles.value) return
-    allPageFiles.value = removeDeletedEntries(allPageFiles.value, result)
-    showInventoryPage(currentPageNumber.value)
+    if (allPageFiles.value) {
+      allPageFiles.value = removeDeletedEntries(allPageFiles.value, result)
+      showInventoryPage(currentPageNumber.value)
+    } else currentPageFilesInfo.value = removeDeletedEntries(currentPageFilesInfo.value, result)
+    const missing = new Set(selectedKeys)
+    for (const item of allPageFiles.value ?? currentPageFilesInfo.value) missing.delete(item.key)
+    for (const key of missing) selectedKeys.delete(key)
   }
 
   function sortFile(type: ISortTypeList, toggle = true) {
@@ -330,16 +336,16 @@ export function useBucketListing({
     onSorted()
     if (isLoadingData.value) return
     const column = getColumns().find(column => column.key === type)
-    const files = allPageFiles.value ?? currentPageFilesInfo
+    const files = allPageFiles.value ?? currentPageFilesInfo.value
     files.sort((a, b) => {
-      if (type === 'check') return Number(!!b.checked) - Number(!!a.checked)
+      if (type === 'check') return Number(selectedKeys.has(b.key)) - Number(selectedKeys.has(a.key))
       if (type === 'init') return Number(!!b.isDir) - Number(!!a.isDir) || compareFileValues(a.fileName, b.fileName)
       return compareFileValues(column?.value(a), column?.value(b), sortAscending.value)
     })
     if (allPagesLoaded.value) {
       triggerRef(allPageFiles)
       showInventoryPage(1)
-    }
+    } else currentPageFilesInfo.value = files.slice()
   }
 
   async function cancelLoading() {
@@ -380,7 +386,7 @@ export function useBucketListing({
       const cacheTarget = { provider: request.provider, key: getTableKeyOfDb() }
       sortFile((localStorage.getItem('sortType') as ISortTypeList) || 'init', false)
       fileListings.subscribe(request, data => {
-        appendListingItems(currentPageFilesInfo, data.items)
+        if (data.items.length) currentPageFilesInfo.value = currentPageFilesInfo.value.concat(data.items)
         // Keep arrival order while loading; filterList searches all received items. Sort the
         // completed (or partial failed) inventory once, preserving object/selection identity.
         if (data.finished) {
@@ -388,7 +394,7 @@ export function useBucketListing({
           const sortType = (localStorage.getItem('sortType') as ISortTypeList) || 'init'
           sortFile(sortType, false)
           if (data.success) {
-            void cacheFileList(cacheTarget, currentPageFilesInfo)
+            void cacheFileList(cacheTarget, currentPageFilesInfo.value)
             message.success(t('pages.manage.bucket.getFileListSuccess'))
           } else if (data.phase !== 'cancelled') {
             message.error(t('pages.manage.bucket.partFileListFailed'))
@@ -470,11 +476,7 @@ export function useBucketListing({
       const table = fileCacheDbInstance.table(target.provider)
       await table.put({
         key: target.key,
-        value: JSON.parse(
-          JSON.stringify({
-            fullList: files,
-          }),
-        ),
+        value: { fullList: files },
       })
     } catch {
       console.warn('Failed to write the bucket file cache')
@@ -493,6 +495,7 @@ export function useBucketListing({
     isFindingNewest,
     scannedItemCount,
     currentPageFilesInfo,
+    selectedKeys,
     searchText,
     sortAscending,
     currentSortType,

@@ -8,6 +8,7 @@
       ref="scrollerRef"
       class="flex-1"
       :items
+      :resolve-item="resolveItem"
       :item-height="viewMode === 'table' ? rowHeight : gridItemHeight"
       :view-mode="viewMode"
       :grid-breakpoints="gridBreakpoints"
@@ -74,13 +75,14 @@
           </th>
         </tr>
       </template>
-      <template #default="{ item, index }">
+      <template #default="{ item, index, loaded }">
         <tr
           v-if="viewMode === 'table'"
           class="h-(--file-row-height) text-[13px] [--file-row-background:var(--color-background-primary)] hover:[--file-row-background:var(--color-background-secondary)] focus:outline-2 focus:-outline-offset-2 focus:outline-accent focus:outline-solid [&.is-selected]:[--file-row-background:color-mix(in_srgb,var(--color-accent)_12%,var(--color-background-primary))]"
           :class="{ 'is-selected': isSelected(item) }"
           :data-file-index="index"
           :aria-rowindex="index + 2"
+          :aria-busy="!loaded || undefined"
           :aria-selected="isSelected(item)"
           :aria-describedby="helpId"
           :tabindex="keyOf(item) === focusKey ? 0 : -1"
@@ -89,68 +91,74 @@
           @dblclick="emit('open', item, index)"
           @keydown="onKeydown($event, index)"
         >
-          <td
-            class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0 text-center"
-          >
-            <input
-              class="h-[16px] w-[16px] cursor-pointer align-middle accent-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
-              type="checkbox"
-              :tabindex="keyOf(item) === focusKey ? 0 : -1"
-              :checked="isSelected(item)"
-              :aria-label="t('common.fileTable.selectFile', { name: item.fileName || keyOf(item) })"
-              @click.stop="selectRow(item, index, $event, false)"
-              @dblclick.stop
-            />
+          <td v-if="!loaded" :colspan="columns.length + 2" class="h-(--file-row-height) px-[10px]">
+            <div class="h-3 w-24 rounded bg-bg-secondary" />
           </td>
-          <td
-            v-for="column in columns"
-            :key="column.key"
-            class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0"
-          >
-            <button
-              v-if="column.key === 'name'"
-              type="button"
-              class="flex h-[calc(var(--file-row-height)-2px)] w-full min-w-0 cursor-pointer items-center gap-[8px] border-0 bg-transparent p-0 text-left text-inherit focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
-              :tabindex="keyOf(item) === focusKey ? 0 : -1"
-              :aria-describedby="previewId"
-              @focus="emit('preview', item, $event.currentTarget as Element)"
-              @blur="emit('previewEnd')"
-              @click.stop="emit('open', item, index)"
-              @dblclick.stop
+          <template v-else>
+            <td
+              class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0 text-center"
             >
-              <span
-                class="file-icon flex-none"
-                @mouseenter="emit('preview', item, $event.currentTarget as Element)"
-                @mouseleave="emit('previewEnd')"
+              <input
+                class="h-[16px] w-[16px] cursor-pointer align-middle accent-accent focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
+                type="checkbox"
+                :tabindex="keyOf(item) === focusKey ? 0 : -1"
+                :checked="isSelected(item)"
+                :aria-label="t('common.fileTable.selectFile', { name: item.fileName || keyOf(item) })"
+                @click.stop="selectRow(item, index, $event, false)"
+                @dblclick.stop
+              />
+            </td>
+            <td
+              v-for="column in columns"
+              :key="column.key"
+              class="h-(--file-row-height) overflow-hidden border-b border-border-secondary bg-(--file-row-background) px-[10px] py-0"
+            >
+              <button
+                v-if="column.key === 'name'"
+                type="button"
+                class="flex h-[calc(var(--file-row-height)-2px)] w-full min-w-0 cursor-pointer items-center gap-[8px] border-0 bg-transparent p-0 text-left text-inherit focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent focus-visible:outline-solid"
+                :tabindex="keyOf(item) === focusKey ? 0 : -1"
+                :aria-describedby="previewId"
+                @focus="emit('preview', item, $event.currentTarget as Element)"
+                @blur="emit('previewEnd')"
+                @click.stop="emit('open', item, index)"
+                @dblclick.stop
               >
-                <slot name="icon" :item>
-                  <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
-                  <FileIcon v-else :size="16" aria-hidden="true" />
-                </slot>
-              </span>
-              <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
-                cellText(column, item)
-              }}</span>
-            </button>
-            <slot v-else :name="`cell-${column.key}`" :item :tabindex="keyOf(item) === focusKey ? 0 : -1">
-              <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
-                cellText(column, item)
-              }}</span>
-            </slot>
-          </td>
-          <td
-            class="sticky right-0 z-1 h-(--file-row-height) overflow-hidden border-b border-border-secondary px-[10px] py-0 shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--file-row-background),var(--file-row-background)),var(--color-background-tertiary)]"
-            @click.stop
-            @dblclick.stop
-          >
-            <div
-              class="flex items-center justify-end gap-[4px] [&_button]:inline-flex [&_button]:h-[28px] [&_button]:w-[28px] [&_button]:cursor-pointer [&_button]:items-center [&_button]:justify-center [&_button]:rounded-[4px] [&_button]:border-0 [&_button]:bg-transparent [&_button]:p-[4px] [&_button]:text-secondary [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-40 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:-outline-offset-2 [&_button:focus-visible]:outline-accent [&_button:focus-visible]:outline-solid [&_button:hover]:bg-accent [&_button:hover]:text-white"
+                <span
+                  class="file-icon flex-none"
+                  @mouseenter="emit('preview', item, $event.currentTarget as Element)"
+                  @mouseleave="emit('previewEnd')"
+                >
+                  <slot name="icon" :item>
+                    <FolderIcon v-if="item.isDir" :size="16" aria-hidden="true" />
+                    <FileIcon v-else :size="16" aria-hidden="true" />
+                  </slot>
+                </span>
+                <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
+                  cellText(column, item)
+                }}</span>
+              </button>
+              <slot v-else :name="`cell-${column.key}`" :item :tabindex="keyOf(item) === focusKey ? 0 : -1">
+                <span v-tooltip.overflow="cellText(column, item)" class="block truncate">{{
+                  cellText(column, item)
+                }}</span>
+              </slot>
+            </td>
+            <td
+              class="sticky right-0 z-1 h-(--file-row-height) overflow-hidden border-b border-border-secondary px-[10px] py-0 shadow-[-1px_0_var(--color-border-secondary)] [background:linear-gradient(var(--file-row-background),var(--file-row-background)),var(--color-background-tertiary)]"
+              @click.stop
+              @dblclick.stop
             >
-              <slot name="actions" :item :index :tabindex="keyOf(item) === focusKey ? 0 : -1" />
-            </div>
-          </td>
+              <div
+                class="flex items-center justify-end gap-[4px] [&_button]:inline-flex [&_button]:h-[28px] [&_button]:w-[28px] [&_button]:cursor-pointer [&_button]:items-center [&_button]:justify-center [&_button]:rounded-[4px] [&_button]:border-0 [&_button]:bg-transparent [&_button]:p-[4px] [&_button]:text-secondary [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-40 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:-outline-offset-2 [&_button:focus-visible]:outline-accent [&_button:focus-visible]:outline-solid [&_button:hover]:bg-accent [&_button:hover]:text-white"
+              >
+                <slot name="actions" :item :index :tabindex="keyOf(item) === focusKey ? 0 : -1" />
+              </div>
+            </td>
+          </template>
         </tr>
-        <slot v-else :item :index />
+        <slot v-else-if="loaded" :item :index />
+        <div v-else aria-busy="true" class="h-full rounded-lg border border-border bg-bg-secondary" />
       </template>
     </VirtualScroller>
   </div>
@@ -185,6 +193,7 @@ const {
   label,
   actionsWidth = 144,
   previewId = '',
+  resolveItem = undefined,
 } = defineProps<{
   items: readonly T[]
   columns: readonly FileColumn<T>[]
@@ -198,6 +207,7 @@ const {
   sortAscending: boolean
   label: string
   actionsWidth?: number
+  resolveItem?: (item: T) => T | undefined
   previewId?: string
 }>()
 

@@ -2,6 +2,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import useMessage from '@/composables/useMessage'
+import type { SelectedFile } from '@/manage/composables/useBucketUploadSelection'
 import { saveConfig } from '@/manage/services/configService'
 import { useManageStore } from '@/manage/stores/manageStore'
 import type { BucketLocation, BucketViewLifecycle } from '@/manage/types/bucket'
@@ -42,19 +43,14 @@ export function useBucketUploads({
     isShowUploadPanel.value = true
   }
 
-  function renameFileBeforeUpload(filePath: string, fullPath: string): string {
-    const fileName = window.node.path.basename(filePath)
-    const typeMap = {
-      timestampRename: manageStore.config.settings.timestampRename,
-      randomStringRename: manageStore.config.settings.randomStringRename,
-      customRenameFormat: manageStore.config.settings.customRenameFormat,
-      customRename: manageStore.config.settings.customRename,
-    }
-    return renameFile(typeMap, fileName, () => window.node.fs.readFileSync(fullPath))
-  }
-
   function captureUploadDestination() {
     return Object.freeze({
+      rename: {
+        timestampRename: manageStore.config.settings.timestampRename,
+        randomStringRename: manageStore.config.settings.randomStringRename,
+        customRenameFormat: manageStore.config.settings.customRenameFormat,
+        customRename: manageStore.config.settings.customRename,
+      },
       alias: configMap.value.alias,
       bucketName: configMap.value.bucketName,
       region: configMap.value.bucketConfig.Location,
@@ -65,45 +61,24 @@ export function useBucketUploads({
     })
   }
 
-  function enqueueUploadFiles(files: any[], destination: ReturnType<typeof captureUploadDestination>) {
-    const formateduploadPanelFilesList = [] as any[]
-    files.forEach((item: any) => {
-      formateduploadPanelFilesList.push({
-        rawName: item.name,
-        path: item.path.replace(/\\/g, '/'),
-        size: item.size,
-        renamedFileName: renameFileBeforeUpload(item.name, item.path),
-        relativePath: item.relativePath ?? '',
-      })
-    })
-    if (destination.keepDirStructure) {
-      formateduploadPanelFilesList.forEach((item: any) => {
-        const relativeParent = item.relativePath.substring(0, item.relativePath.lastIndexOf('/'))
-        item.key = `${destination.prefix}${relativeParent ? `${relativeParent}/` : ''}${item.renamedFileName}`
-      })
-    } else {
-      formateduploadPanelFilesList.forEach((item: any) => {
-        item.key = destination.prefix + item.renamedFileName
-      })
-    }
-    const param = {
-      // tcyun
-      fileArray: [] as any[],
-    }
-    formateduploadPanelFilesList.forEach((item: any) => {
-      param.fileArray.push({
+  async function enqueueUploadFiles(files: SelectedFile[], destination: ReturnType<typeof captureUploadDestination>) {
+    const fileArray = []
+    for (const item of files) {
+      const renamed = await renameFile(destination.rename, window.node.path.basename(item.name), item.path)
+      const relative = destination.keepDirStructure ? (item.relativePath ?? '') : ''
+      fileArray.push({
         alias: destination.alias,
         bucketName: destination.bucketName,
         region: destination.region,
-        key: item.key,
-        filePath: item.path,
+        key: destination.prefix + relative.slice(0, relative.lastIndexOf('/') + 1) + renamed,
+        filePath: item.path.replace(/\\/g, '/'),
         fileSize: item.size,
-        fileName: item.rawName,
+        fileName: item.name,
         githubBranch: destination.githubBranch,
         aclForUpload: destination.aclForUpload,
       })
-    })
-    window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, destination.alias, param)
+    }
+    window.electron.sendRPC(IRPCActionType.MANAGE_UPLOAD_BUCKET_FILE, destination.alias, { fileArray })
   }
 
   function showUrlDialog() {
@@ -152,7 +127,7 @@ export function useBucketUploads({
         res = { files: [], failures: urlList.map(url => ({ url, reason: 'request' })) }
       }
       if (res.files.length) {
-        enqueueUploadFiles(
+        await enqueueUploadFiles(
           res.files.map(item => ({
             name: item.fileName,
             path: item.filePath.replace(/\\/g, '/'),
@@ -172,6 +147,11 @@ export function useBucketUploads({
         dialogVisible.value = false
         isShowUploadPanel.value = true
       }
+    } catch {
+      if (!isDisposed() && generation === getGeneration()) {
+        dialogVisible.value = true
+        message.error(t('pages.upload.uploadFailed'))
+      }
     } finally {
       isImportingUrls.value = false
     }
@@ -182,8 +162,14 @@ export function useBucketUploads({
       isUploadKeepDirStructure.value = enforceBoolean(value ?? true)
     },
   )
-  function uploadFiles(files: any[]) {
-    enqueueUploadFiles(files, captureUploadDestination())
+  async function uploadFiles(files: SelectedFile[]) {
+    try {
+      await enqueueUploadFiles(files, captureUploadDestination())
+      return true
+    } catch {
+      message.error(t('pages.upload.uploadFailed'))
+      return false
+    }
   }
   return {
     isShowUploadPanel,

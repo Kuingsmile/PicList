@@ -33,7 +33,7 @@
       :grid-breakpoints="gridBreakpoints"
       key-field="key"
       :label="configMap.bucketName || t('common.fileTable.name')"
-      :is-selected="item => !!item.checked"
+      :is-selected="item => selectedKeys.has(item.key)"
       :sort-field="isLoadingData ? '' : currentSortType"
       :sort-ascending="sortAscending"
       :actions-width="184"
@@ -135,7 +135,9 @@
         <!-- Grid View -->
         <div
           class="group/card relative flex h-[calc(100%-8px)] w-full flex-col overflow-hidden rounded-lg border bg-bg-secondary shadow-sm transition-all duration-fast ease-apple hover:shadow-md"
-          :class="item.checked ? 'border-accent ring-2 ring-accent/40' : 'border-border hover:border-accent/60'"
+          :class="
+            selectedKeys.has(item.key) ? 'border-accent ring-2 ring-accent/40' : 'border-border hover:border-accent/60'
+          "
         >
           <!-- Preview area: checkbox top-left, actions along the bottom so they never overlap -->
           <div class="relative flex min-h-0 flex-1">
@@ -144,9 +146,9 @@
               role="button"
               tabindex="0"
               :aria-label="`${t('common.fileTable.open')}: ${item.fileName ?? ''}`"
-              @click="hasSelection ? emit('select', item, !item.checked) : emit('open', item)"
+              @click="hasSelection ? emit('select', item, !selectedKeys.has(item.key)) : emit('open', item)"
               @keydown.enter.prevent="emit('open', item)"
-              @keydown.space.prevent="emit('select', item, !item.checked)"
+              @keydown.space.prevent="emit('select', item, !selectedKeys.has(item.key))"
             >
               <!-- S3 PreSign Image -->
               <ImagePreSign
@@ -156,6 +158,7 @@
                 :is-show-thumbnail="isShowThumbnail"
                 :item
                 :alias="configMap.alias"
+                :cache="signedThumbnails"
                 :url="item.url"
                 :config="getS3Config(item)"
               />
@@ -168,14 +171,18 @@
                   :src="getThumbnailUrl(item.url)"
                   alt=""
                   class="h-full w-full object-contain transition-transform duration-medium ease-apple group-hover/card:scale-[1.03]"
+                  decoding="async"
+                  loading="lazy"
                   draggable="false"
-                  @error="() => {}"
+                  @error="fallbackToFileIcon($event, item.fileName)"
                 />
                 <img
                   v-else
                   :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
                   alt=""
                   class="h-[56px] w-[56px] object-contain"
+                  decoding="async"
+                  loading="lazy"
                   draggable="false"
                 />
               </template>
@@ -186,6 +193,7 @@
                 :is-show-thumbnail="isShowThumbnail"
                 :item
                 :config="getWebdavConfig()"
+                :cache="webdavThumbnails"
                 :url="item.url"
               />
 
@@ -203,6 +211,8 @@
                 :src="`./assets/icons/${getFileIconPath(item.fileName ?? '')}`"
                 alt=""
                 class="h-[56px] w-[56px] object-contain"
+                decoding="async"
+                loading="lazy"
                 draggable="false"
               />
 
@@ -215,7 +225,11 @@
                 aria-hidden="true"
               />
 
-              <div v-if="item.checked" class="pointer-events-none absolute inset-0 bg-accent/10" aria-hidden="true" />
+              <div
+                v-if="selectedKeys.has(item.key)"
+                class="pointer-events-none absolute inset-0 bg-accent/10"
+                aria-hidden="true"
+              />
             </div>
 
             <!-- Selection checkbox -->
@@ -225,7 +239,7 @@
               @click.stop
             >
               <input
-                :checked="item.checked"
+                :checked="selectedKeys.has(item.key)"
                 type="checkbox"
                 class="peer sr-only"
                 :aria-label="t('common.fileTable.selectFile', { name: item.fileName ?? '' })"
@@ -235,7 +249,7 @@
                 class="group/check flex h-[28px] w-[28px] items-center justify-center rounded-md bg-bg-secondary/90 shadow-sm backdrop-blur-sm transition-all duration-fast ease-apple peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
                 aria-hidden="true"
               >
-                <CheckIcon v-if="item.checked" :size="16" :stroke-width="3" class="text-white" />
+                <CheckIcon v-if="selectedKeys.has(item.key)" :size="16" :stroke-width="3" class="text-white" />
                 <span
                   v-else
                   class="h-[16px] w-[16px] rounded-sm border-2 border-accent/60 transition-colors duration-fast ease-apple group-hover/check:border-accent"
@@ -335,7 +349,7 @@
 
           <div
             class="flex min-w-0 shrink-0 cursor-pointer flex-col gap-0.5 border-t border-border-secondary px-3 py-2"
-            @click="emit('select', item, !item.checked)"
+            @click="emit('select', item, !selectedKeys.has(item.key))"
           >
             <div class="flex min-w-0 items-center gap-2">
               <span v-tooltip.overflow="item.fileName" class="min-w-0 flex-1 truncate text-sm font-medium text-main">
@@ -380,7 +394,7 @@ import {
   UploadIcon,
 } from '@lucide/vue'
 import { useEventListener } from '@vueuse/core'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 import { toRefs } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -395,11 +409,14 @@ import type { BucketFile, ISortTypeList } from '@/manage/types/bucket'
 import { getFileIconPath } from '@/manage/utils/filePresentation'
 import { getPreviewReferrerPolicy } from '@/manage/utils/filePreview'
 import { linkFormatList } from '@/manage/utils/linkFormat'
+import { ThumbnailCache } from '@/manage/utils/thumbnailCache'
 import { appendThumbnailSuffix } from '@/manage/utils/thumbnailUrl'
 import { type FileColumn, fileDate, formatCollectionDate, formatCollectionSize } from '@/utils/fileCollection'
 
 const props = defineProps<{
   configMap: Record<string, any>
+  selectedKeys: ReadonlySet<string>
+  hasSelection: boolean
   filterList: BucketFile[]
   tableColumns: FileColumn<BucketFile>[]
   tableDensity: 'compact' | 'comfortable'
@@ -446,6 +463,18 @@ const emit = defineEmits<{
 }>()
 const { t } = useI18n()
 const manageStore = useManageStore()
+// A changed endpoint or credentials must never reuse another account's authenticated preview.
+const accountScope = computed(() =>
+  JSON.stringify([configMap.value.alias, manageStore.config.picBed[configMap.value.alias]]),
+)
+const makeWebdavCache = () => new ThumbnailCache<Blob>(64 * 1024 * 1024, blob => blob.size)
+const makeSignedCache = () => new ThumbnailCache<string>(512, () => 1)
+const webdavThumbnails = shallowRef(makeWebdavCache())
+const signedThumbnails = shallowRef(makeSignedCache())
+watch(accountScope, () => {
+  webdavThumbnails.value = makeWebdavCache()
+  signedThumbnails.value = makeSignedCache()
+})
 const copyDropdownIndex = ref(-1)
 
 const dropdownPositions = ref(new Map<number, { left: boolean; up: boolean }>())
@@ -468,8 +497,6 @@ watch(
   () => nextTick(() => virtualScrollerRef.value?.refresh()),
 )
 
-const hasSelection = computed(() => filterList.value.some(item => item.checked))
-
 const cardActionClass =
   'flex h-[26px] w-[26px] cursor-pointer items-center justify-center rounded-md text-main transition-colors duration-fast ease-apple not-disabled:hover:bg-accent not-disabled:hover:text-white focus-visible:focus-ring disabled:cursor-not-allowed disabled:opacity-50'
 
@@ -483,6 +510,12 @@ const copyMenuItemClass =
 function cardDate(item: BucketFile) {
   const date = fileDate(item)
   return date === undefined ? item.formatedTime || '' : new Date(date).toLocaleDateString()
+}
+
+function fallbackToFileIcon(event: Event, name: string) {
+  const image = event.currentTarget as HTMLImageElement
+  const icon = `./assets/icons/${getFileIconPath(name ?? '')}`
+  if (image.getAttribute('src') !== icon) image.src = icon
 }
 
 function fileExtension(fileName = '') {

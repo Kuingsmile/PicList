@@ -81,13 +81,13 @@
               type="secondary"
               :icon="XIcon"
               :text="t('pages.manage.bucket.clear')"
-              :disabled="isLoadingUploadPanelFiles"
+              :disabled="isLoadingUploadPanelFiles || preparingUpload"
               class="h-[32px] px-3! py-0!"
               @click="clearTableData"
             />
             <CustomButton
               :icon="UploadIcon"
-              :loading="isLoadingUploadPanelFiles"
+              :loading="isLoadingUploadPanelFiles || preparingUpload"
               :text="
                 isLoadingUploadPanelFiles
                   ? t('pages.manage.bucket.readingDir')
@@ -220,19 +220,23 @@ import CustomSwitch from '@/components/common/CustomSwitch.vue'
 import VirtualScroller from '@/components/VirtualScroller.vue'
 import { useDragEventListeners } from '@/composables/useDragEventListeners'
 import TransferTaskList from '@/manage/components/bucket/TransferTaskList.vue'
-import { useBucketUploadSelection } from '@/manage/composables/useBucketUploadSelection'
+import { type SelectedFile, useBucketUploadSelection } from '@/manage/composables/useBucketUploadSelection'
 import { formatFileSize } from '@/manage/utils/filePresentation'
 
 const isShowUploadPanel = defineModel<boolean>('visible', { required: true })
 const isUploadKeepDirStructure = defineModel<boolean>('keepDirectory', { required: true })
-const { tasks: uploadTaskList, destination = '' } = defineProps<{
+const {
+  tasks: uploadTaskList,
+  destination = '',
+  enqueueFiles,
+} = defineProps<{
+  enqueueFiles: (files: SelectedFile[]) => Promise<boolean>
   tasks: IUploadTask[]
   failed: boolean
   /** Human readable upload target, shown under the title. */
   destination?: string
 }>()
 const emit = defineEmits<{
-  upload: [files: any[]]
   refresh: []
   copy: []
   'clear-finished': []
@@ -292,9 +296,18 @@ const sortedFiles = computed(() =>
     (a, b) => Number(b.isFolder) - Number(a.isFolder) || b.filesList.length - a.filesList.length,
   ),
 )
-function uploadFiles() {
-  emit('upload', uploadPanelFilesList.value)
-  clearTableData()
-  activeUpLoadTab.value = 'uploading'
+const preparingUpload = ref(false)
+async function uploadFiles() {
+  if (preparingUpload.value || isLoadingUploadPanelFiles.value) return
+  const staged = [...uploadPanelFilesList.value]
+  preparingUpload.value = true
+  try {
+    if (!(await enqueueFiles(staged))) return
+    const submitted = new Set(staged)
+    uploadPanelFilesList.value = uploadPanelFilesList.value.filter(item => !submitted.has(item))
+    activeUpLoadTab.value = 'uploading'
+  } finally {
+    preparingUpload.value = false
+  }
 }
 </script>

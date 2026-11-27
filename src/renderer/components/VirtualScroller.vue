@@ -19,7 +19,7 @@
         <tr v-if="viewportOffset > 0" aria-hidden="true">
           <td :colspan="tableColumns" class="border-0 p-0 leading-0" :style="{ height: `${viewportOffset}px` }" />
         </tr>
-        <slot v-for="index in visibleIndexes" :key="itemKey(items[index], index)" :item="items[index]" :index />
+        <slot v-for="row in visibleRows" :key="row.key" :item="row.item" :index="row.index" :loaded="row.loaded" />
         <tr v-if="bottomSpace > 0" aria-hidden="true">
           <td :colspan="tableColumns" class="border-0 p-0 leading-0" :style="{ height: `${bottomSpace}px` }" />
         </tr>
@@ -27,12 +27,8 @@
     </table>
     <div v-else class="relative w-full" :style="{ height: `${gridCalculations.totalHeight}px` }">
       <div class="absolute top-0 left-0 w-full" :style="viewportStyle">
-        <div
-          v-for="index in visibleIndexes"
-          :key="itemKey(items[index], index)"
-          :style="{ height: `${itemHeight}px`, minWidth: 0 }"
-        >
-          <slot :item="items[index]" :index />
+        <div v-for="row in visibleRows" :key="row.key" :style="{ height: `${itemHeight}px`, minWidth: 0 }">
+          <slot :item="row.item" :index="row.index" :loaded="row.loaded" />
         </div>
       </div>
     </div>
@@ -57,7 +53,7 @@ import { useVirtualGrid } from '@/composables/useVirtualGrid'
 defineSlots<{
   columns?: () => unknown
   header?: () => unknown
-  default?: (props: { item: T; index: number; key?: string | number }) => unknown
+  default?: (props: { item: T; index: number; loaded: boolean; key?: string | number }) => unknown
 }>()
 
 interface Breakpoint {
@@ -82,6 +78,7 @@ const {
   tableColumns = 1,
   tableMinWidth = 800,
   tableLabel = '',
+  resolveItem = undefined,
 } = defineProps<{
   items: readonly T[]
   itemHeight: number
@@ -92,6 +89,7 @@ const {
   viewMode?: 'list' | 'grid' | 'table'
   tableColumns?: number
   tableMinWidth?: number
+  resolveItem?: (item: T) => T | undefined
   tableLabel?: string
 }>()
 
@@ -130,6 +128,14 @@ const { gridCalculations, visibleIndexes, viewportOffset, scrollTop, updateScrol
   gridItems: effectiveCols,
   bufferFactor: () => bufferFactor,
 })
+
+const visibleRows = computed(() =>
+  visibleIndexes.value.map(index => {
+    const entry = items[index]
+    const item = resolveItem ? resolveItem(entry) : entry
+    return { index, key: itemKey(entry, index), item: item ?? entry, loaded: !!item }
+  }),
+)
 
 const bottomSpace = computed(() =>
   Math.max(0, gridCalculations.value.totalHeight - viewportOffset.value - visibleIndexes.value.length * itemHeight),

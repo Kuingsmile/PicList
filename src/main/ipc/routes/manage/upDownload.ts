@@ -1,3 +1,6 @@
+import { createHash } from 'node:crypto'
+import { createReadStream } from 'node:fs'
+
 import { app, dialog, shell } from 'electron'
 import fs from 'fs-extra'
 
@@ -112,6 +115,24 @@ export default [
     action: IRPCActionType.MANAGE_DOWNLOAD_FILE_FROM_URL,
     handler: async (_: IIPCEvent, args: [urls: string[]]) => {
       return await downloadFileFromUrl(args[0])
+    },
+    type: IRPCType.INVOKE,
+  },
+  {
+    action: IRPCActionType.MANAGE_HASH_UPLOAD_FILE,
+    handler: async (_: IIPCEvent, [filePath, algorithms]: [string, string[]]) => {
+      if (
+        !Array.isArray(algorithms) ||
+        !algorithms.length ||
+        algorithms.length > 3 ||
+        !algorithms.every(name => ['md5', 'sha1', 'sha256'].includes(name))
+      )
+        throw new Error('Invalid hash algorithms')
+      const hashes = [...new Set(algorithms)].map(name => ({ name, hash: createHash(name) }))
+      for await (const chunk of createReadStream(filePath)) {
+        for (const { hash } of hashes) hash.update(chunk)
+      }
+      return Object.fromEntries(hashes.map(({ name, hash }) => [name, hash.digest('hex')]))
     },
     type: IRPCType.INVOKE,
   },

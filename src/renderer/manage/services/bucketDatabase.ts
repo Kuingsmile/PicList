@@ -56,6 +56,7 @@ export class FileCacheDb extends Dexie {
     this.version(6).upgrade(tx =>
       Promise.all(['aliyun', 'github', 'qiniu', 's3plist', 'tcyun'].map(provider => tx.table(provider).clear())),
     )
+    this.version(7).stores(Object.fromEntries(tableNames.map(name => [name, '&key'])))
     this.aliyun = this.table('aliyun')
     this.github = this.table('github')
     this.imgur = this.table('imgur')
